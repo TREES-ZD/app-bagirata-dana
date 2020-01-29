@@ -12,4 +12,5 @@ Route::group([
 
     $router->get('/', 'HomeController@index')->name('admin.home');
 
+    $router->get('/scheduler', 'HomeController@scheduler');
 });
