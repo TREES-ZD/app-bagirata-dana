@@ -12,5 +12,6 @@ Route::group([
 
     $router->get('/', 'HomeController@index')->name('admin.home');
 
+    $router->get('/agents', 'HomeController@agents');
     $router->get('/scheduler', 'HomeController@scheduler');
 });

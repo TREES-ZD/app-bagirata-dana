@@ -9,6 +9,11 @@ use Encore\Admin\Layout\Content;
 use Encore\Admin\Layout\Row;
 use Encore\Admin\Widgets\Box;
 use Encore\Admin\Widgets\Table;
+use Encore\Admin\Grid;
+use Encore\Admin\Facades\Admin;
+use App\User;
+use App\Admin\Actions\Post\BatchReplicate;
+use App\Admin\Actions\Post\ImportPost;
 
 class HomeController extends Controller
 {
@@ -35,25 +40,46 @@ class HomeController extends Controller
     }
 
     public function scheduler(Content $content) {
-        $box = new Box('title', 'xxxx');
+        $box = new Box('Scheduler', view('welcome'));
         $box->style('info');
 
-        // table 1
-        $headers = ['Id', 'Email', 'Name', 'Company'];
-        $rows = [
-            [1, 'labore21@yahoo.com', 'Ms. Clotilde Gibson', 'Goodwin-Watsica'],
-            [2, 'omnis.in@hotmail.com', 'Allie Kuhic', 'Murphy, Koepp and Morar'],
-            [3, 'quia65@hotmail.com', 'Prof. Drew Heller', 'Kihn LLC'],
-            [4, 'xet@yahoo.com', 'William Koss', 'Becker-Raynor'],
-            [5, 'ipsa.aut@gmail.com', 'Ms. Antonietta Kozey Jr.'],
-        ];
-
-        $table = new Table($headers, $rows);
-
-        return $content
+        $content = $content
             ->title('Scheduler')
-            ->row($box)
-            ->row(function (Row $row) {
-            });
+            ->row($box);
+
+            $content->row(function(Row $row) {
+                $row->column(4, 'foo');
+                $row->column(4, 'bar');
+                $row->column(4, 'baz');
+            });          
+    
+        return $content;
     }
+
+    public function agents(Content $content) {
+        $box = new Box('Agents', view('roundrobin.agents'));
+        $box->style('info');
+
+        $content = $content
+            ->body($this->grid());
+    
+        return $content;
+    }
+    
+    protected function grid()
+    {
+        return Admin::grid(new User, function (Grid $grid) {
+            $grid->tools(function (Grid\Tools $tools) {
+                $tools->append(new BatchReplicate());
+                $tools->append(new ImportPost());
+            });
+            
+            $grid->id('ID')->sortable();
+            $grid->column('approved')->bool();
+            
+            $grid->column("Zendesk ID");
+            $grid->column("Name");
+            $grid->column("Unique Identifier");
+        });
+    }    
 }

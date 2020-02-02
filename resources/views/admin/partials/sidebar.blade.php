@@ -41,11 +41,7 @@
             <li class="header">{{ trans('admin.menu') }}</li>
 
             @each('admin::partials.menu', Admin::menu(), 'item')
-            <li>
-                 <a href="/">
-                <i class="fa fa-bars"></i>
-                <span>AHAL</span>
-            </a>
+            <li><a href="/admin/test"><i class="fa fa-bars"></i><span>Test</span></a>
         </li>            
 
         </ul>

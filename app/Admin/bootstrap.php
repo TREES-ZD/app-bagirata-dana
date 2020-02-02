@@ -1,4 +1,6 @@
 <?php
+use Encore\Admin\Grid\Column;
+use Encore\Admin\Grid;
 
 /**
  * Laravel-admin - admin builder based on Laravel.
@@ -17,6 +19,30 @@
  * Admin::js('/packages/prettydocs/js/main.js');
  *
  */
+
+Grid::init(function (Grid $grid) {
+
+    // $grid->disableActions();
+
+    // $grid->disablePagination();
+
+    // $grid->disableCreateButton();
+
+    // $grid->disableFilter();
+
+    $grid->disableRowSelector();
+
+    // $grid->disableColumnSelector();
+
+    // $grid->disableTools();
+
+    $grid->disableExport();
+
+    // $grid->actions(function (Grid\Displayers\Actions $actions) {
+    //     $actions->disableView();
+    //     $actions->disableEdit();
+    //     $actions->disableDelete();
+    // });
+});
 app('view')->prependNamespace('admin', resource_path('views/admin'));
 Encore\Admin\Form::forget(['map', 'editor']);
-
