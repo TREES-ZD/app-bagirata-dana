@@ -11,7 +11,8 @@ use Encore\Admin\Widgets\Box;
 use Encore\Admin\Widgets\Table;
 use Encore\Admin\Grid;
 use Encore\Admin\Facades\Admin;
-use App\User;
+use Encore\Admin\Form;
+use App\Agent;
 use App\Admin\Actions\Post\BatchReplicate;
 use App\Admin\Actions\Post\ImportPost;
 
@@ -55,31 +56,4 @@ class HomeController extends Controller
     
         return $content;
     }
-
-    public function agents(Content $content) {
-        $box = new Box('Agents', view('roundrobin.agents'));
-        $box->style('info');
-
-        $content = $content
-            ->body($this->grid());
-    
-        return $content;
-    }
-    
-    protected function grid()
-    {
-        return Admin::grid(new User, function (Grid $grid) {
-            $grid->tools(function (Grid\Tools $tools) {
-                $tools->append(new BatchReplicate());
-                $tools->append(new ImportPost());
-            });
-            
-            $grid->id('ID')->sortable();
-            $grid->column('approved')->bool();
-            
-            $grid->column("Zendesk ID");
-            $grid->column("Name");
-            $grid->column("Unique Identifier");
-        });
-    }    
 }

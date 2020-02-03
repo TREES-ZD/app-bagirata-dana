@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Routing\Router;
+use Illuminate\Http\Request;
 
 Admin::routes();
 
@@ -12,6 +13,13 @@ Route::group([
 
     $router->get('/', 'HomeController@index')->name('admin.home');
 
-    $router->get('/agents', 'HomeController@agents');
+    $router->get('/agents', 'AgentController@index');
+    $router->get('/agents/create', 'AgentController@create');
+    $router->post('/agents/store', 'AgentController@store');
+    $router->get('/agents/{id}', 'AgentController@show');
+    $router->get('/agents/{id}/edit', 'AgentController@edit');
+    $router->put('/agents/{id}/update', 'AgentController@update');
+    $router->delete('/agents/{id}', 'AgentController@destroy');
+
     $router->get('/scheduler', 'HomeController@scheduler');
 });
