@@ -15,6 +15,7 @@
     {!! Admin::css() !!}
 
     <script src="{{ Admin::jQuery() }}"></script>
+    <!-- <script src="{{ asset('js/app.js') }}" defer></script>  -->
     {!! Admin::headerJs() !!}
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
