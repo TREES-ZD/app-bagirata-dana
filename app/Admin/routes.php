@@ -22,4 +22,7 @@ Route::group([
     $router->delete('/agents/{id}', 'AgentController@destroy');
 
     $router->get('/scheduler', 'HomeController@scheduler');
+    $router->get('/jobs', 'HomeController@jobs');
+    $router->get('/queue', 'HomeController@queue');
+    $router->get('/logs', 'HomeController@logs');
 });

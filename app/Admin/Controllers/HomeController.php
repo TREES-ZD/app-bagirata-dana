@@ -15,6 +15,7 @@ use Encore\Admin\Form;
 use App\Agent;
 use App\Admin\Actions\Post\BatchReplicate;
 use App\Admin\Actions\Post\ImportPost;
+use App\Jobs\AssignTicket;
 
 class HomeController extends Controller
 {
@@ -42,18 +43,24 @@ class HomeController extends Controller
 
     public function scheduler(Content $content) {
         $box = new Box('Scheduler', view('welcome'));
-        $box->style('info');
-
+        $box->style('info');        
         $content = $content
             ->title('Scheduler')
             ->row($box);
-
-            $content->row(function(Row $row) {
-                $row->column(4, 'foo');
-                $row->column(4, 'bar');
-                $row->column(4, 'baz');
-            });          
     
+        return $content;
+    }
+
+    public function queue(Content $content) {
+        AssignTicket::dispatch()->onQueue('zd');                
+        return $content;
+    }
+
+    public function logs(\Laravel\Horizon\Contracts\JobRepository $job, Content $content) {
+        return $content;
+    }    
+
+    public function jobs(Content $content) {
         return $content;
     }
 }

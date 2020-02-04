@@ -57,9 +57,7 @@ class AgentController extends Controller
 
             $grid->priority();
             $grid->status()->editable()->switch($states);
-            $grid->agent_name("Agent")->modal('latest tickets', function() {
-                return "HALO";
-            });
+            $grid->agent_name("Agent");
             $grid->group_name("Group");
             $grid->custom_field("custom_field:agent_name");
             $grid->limit("Limit");   

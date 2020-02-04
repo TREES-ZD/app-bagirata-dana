@@ -42,7 +42,9 @@
             <!-- @each('admin::partials.menu', Admin::menu(), 'item') -->
             <li><a href="/admin"><i class="fa fa-bars"></i><span>Dashboard</span></a>
             <li><a href="/admin/agents"><i class="fa fa-bars"></i><span>Agents</span></a>
+            <li><a href="/admin/queue"><i class="fa fa-bars"></i><span>Queue</span></a>
             <li><a href="/admin/scheduler"><i class="fa fa-bars"></i><span>Scheduler</span></a>
+            <li><a href="/admin/logs"><i class="fa fa-bars"></i><span>Logs</span></a>
         </li>            
 
         </ul>
