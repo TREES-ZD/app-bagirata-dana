@@ -23,6 +23,6 @@ Route::group([
 
     $router->get('/scheduler', 'HomeController@scheduler');
     $router->get('/jobs', 'HomeController@jobs');
-    $router->get('/queue', 'HomeController@queue');
+    $router->get('/queues', 'HomeController@queues');
     $router->get('/logs', 'HomeController@logs');
 });

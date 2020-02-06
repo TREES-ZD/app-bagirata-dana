@@ -29,11 +29,13 @@ class AgentController extends Controller
             //     // $tools->append(new BatchReplicate());
             //     // $tools->append(new ImportPost());
             // });
-            $grid->actions(function ($actions) {
-                // $actions->disableDelete();
-                // $actions->disableEdit();
-                // $actions->disableView();
-            });         
+            // $grid->actions(function ($actions) {
+            //     // $actions->disableDelete();
+            //     // $actions->disableEdit();
+            //     // $actions->disableView();
+            //     $actions->disableAll();
+            // });       
+            $grid->disableActions();  
             
             $grid->filter(function ($filter) {
                 // $filter->like('agent_name');
@@ -55,13 +57,18 @@ class AgentController extends Controller
                 'off' => ['value' => false, 'text' => 'offline', 'color' => 'default'],
             ];
 
-            $grid->priority();
-            $grid->status()->editable()->switch($states);
+            $reassignStates = [
+                'on' => ['value' => true, 'text' => 'on', 'color' => 'primary'],
+                'off' => ['value' => false, 'text' => 'off', 'color' => 'default'],
+            ];            
+
+            $grid->agent_id("Zendesk ID");
             $grid->agent_name("Agent");
             $grid->group_name("Group");
             $grid->custom_field("custom_field:agent_name");
+            $grid->status("Availability")->editable()->switch($states);
             $grid->limit("Limit");   
-
+            $grid->column("Reassign")->editable()->switch($reassignStates);
         });
 
         return $content->body($grid);

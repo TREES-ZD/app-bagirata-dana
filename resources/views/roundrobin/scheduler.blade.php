@@ -1,8 +1,27 @@
-@extends('admin::index', ['header' => "hallo"])
-<script src="{{ asset('js/app.js') }}"></script>
-@section('content')
-    
 
-    <div>Hallo</div>
-    <example-component></example-component>
-@endsection
+
+    <table class="table table-bordered" id="users-table">
+        <thead>
+            <tr>
+                <th>status</th>
+                <th>name</th>
+                <th>failed_at</th>
+            </tr>
+        </thead>
+    </table>    
+
+<script>
+    $(function() {
+        $('#users-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '/admin/logsTable',
+            columns: [
+                { data: 'status', name: 'Status' },
+                { data: 'name', name: 'Name' },
+                { data: 'failed_at', name: 'Failed at' }
+            ]
+        });
+    });
+</script>
+

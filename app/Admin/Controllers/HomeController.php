@@ -27,38 +27,36 @@ class HomeController extends Controller
             ->row(Dashboard::title())
             ->row(function (Row $row) {
 
-                $row->column(4, function (Column $column) {
-                    $column->append(Dashboard::environment());
-                });
+                // $row->column(4, function (Column $column) {
+                //     $column->append(Dashboard::environment());
+                // });
 
-                $row->column(4, function (Column $column) {
-                    $column->append(Dashboard::extensions());
-                });
+                // $row->column(4, function (Column $column) {
+                //     $column->append(Dashboard::extensions());
+                // });
 
-                $row->column(4, function (Column $column) {
-                    $column->append(Dashboard::dependencies());
-                });
+                // $row->column(4, function (Column $column) {
+                //     $column->append(Dashboard::dependencies());
+                // });
             });
     }
 
     public function scheduler(Content $content) {
-        $box = new Box('Scheduler', view('welcome'));
-        $box->style('info');        
-        $content = $content
-            ->title('Scheduler')
-            ->row($box);
-    
         return $content;
     }
 
-    public function queue(Content $content) {
-        AssignTicket::dispatch()->onQueue('zd');                
+    public function queues(Content $content) {
+        AssignTicket::dispatch()->onQueue('zd');
         return $content;
     }
 
-    public function logs(\Laravel\Horizon\Contracts\JobRepository $job, Content $content) {
+    public function groups(Content $content) {
         return $content;
-    }    
+    }
+
+    public function logs(Content $content) {
+        return $content;
+    }        
 
     public function jobs(Content $content) {
         return $content;
