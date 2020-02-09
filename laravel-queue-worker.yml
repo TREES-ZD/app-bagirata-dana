@@ -1,0 +1,9 @@
+apps:
+  - name: laravel-queue-worker
+    script: artisan
+    exec_mode: fork
+    interpreter: php
+    instances: 4
+    args:
+      - queue:work
+      - --tries=3

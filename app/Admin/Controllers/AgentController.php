@@ -65,6 +65,7 @@ class AgentController extends Controller
             $grid->agent_id("Zendesk ID");
             $grid->agent_name("Agent");
             $grid->group_name("Group");
+            $grid->fullName("Full Name");
             $grid->custom_field("custom_field:agent_name");
             $grid->status("Availability")->editable()->switch($states);
             $grid->limit("Limit");   

@@ -24,5 +24,6 @@ Route::group([
     $router->get('/scheduler', 'HomeController@scheduler');
     $router->get('/jobs', 'HomeController@jobs');
     $router->get('/queues', 'HomeController@queues');
+    $router->get('/rules', 'HomeController@rules');
     $router->get('/logs', 'HomeController@logs');
 });

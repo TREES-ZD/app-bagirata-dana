@@ -176,6 +176,7 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         Yajra\DataTables\DataTablesServiceProvider::class,
+        Huddle\Zendesk\Providers\ZendeskServiceProvider::class,
     ],
 
     /*
@@ -228,6 +229,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
+        'Zendesk' => Huddle\Zendesk\Facades\Zendesk::class,
     ],
 
 ];

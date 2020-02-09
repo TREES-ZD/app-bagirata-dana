@@ -16,6 +16,7 @@ use App\Agent;
 use App\Admin\Actions\Post\BatchReplicate;
 use App\Admin\Actions\Post\ImportPost;
 use App\Jobs\AssignTicket;
+use Zendesk\API\HttpClient as ZendeskAPI;
 
 class HomeController extends Controller
 {
@@ -46,9 +47,23 @@ class HomeController extends Controller
     }
 
     public function queues(Content $content) {
-        AssignTicket::dispatch()->onQueue('zd');
+        $client = new ZendeskAPI("contreesdemo11557827937");
+        $client->setAuth('basic', ['username' => "eldien.hasmanto@treessolutions.com", 'token' => "wZX70pAKu3aNyqOEYONUdjVLCIaoBMRFXjnbi7SE"]);
+
+        // Get available agents
+
+        // Match available tickets to available agents
+        $tickets = $client->views(360000882356)->tickets(['sort_by' => 'assignee']);        
+        foreach (array_slice($tickets->tickets, 0, 4) as $ticket) {
+            AssignTicket::dispatch(360278992296, $ticket->id);
+        }
+        
         return $content;
     }
+
+    public function rules(Content $content) {
+        return $content;
+    }    
 
     public function groups(Content $content) {
         return $content;
