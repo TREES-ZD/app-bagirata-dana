@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cf57af21316ee5678664493bab7c686c",
+    "content-hash": "2b2fe807615e16fbe1f55fe54546665b",
     "packages": [
         {
             "name": "barryvdh/laravel-debugbar",
@@ -1084,20 +1084,20 @@
         },
         {
             "name": "huddledigital/zendesk-laravel",
-            "version": "v3.2",
+            "version": "v3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/huddledigital/zendesk-laravel.git",
-                "reference": "8766bdfdbcb91f40b62d7314fbd0aac5a31067e6"
+                "reference": "6bef9bf6e2ff1737facdaf0667d9afe754609159"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/huddledigital/zendesk-laravel/zipball/8766bdfdbcb91f40b62d7314fbd0aac5a31067e6",
-                "reference": "8766bdfdbcb91f40b62d7314fbd0aac5a31067e6",
+                "url": "https://api.github.com/repos/huddledigital/zendesk-laravel/zipball/6bef9bf6e2ff1737facdaf0667d9afe754609159",
+                "reference": "6bef9bf6e2ff1737facdaf0667d9afe754609159",
                 "shasum": ""
             },
             "require": {
-                "illuminate/support": "~5.4|^6.0",
+                "illuminate/support": "~5.4|^6.0|^7.0",
                 "php": ">=5.4.0",
                 "zendesk/zendesk_api_client_php": "2.*"
             },
@@ -1129,7 +1129,7 @@
             "keywords": [
                 "Zendesk"
             ],
-            "time": "2019-09-11T10:57:03+00:00"
+            "time": "2020-03-04T11:29:00+00:00"
         },
         {
             "name": "jakub-onderka/php-console-color",

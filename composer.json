@@ -13,7 +13,7 @@
         "encore/laravel-admin": "^1.7",
         "fideloper/proxy": "^4.0",
         "genealabs/laravel-model-caching": "^0.7.4",
-        "huddledigital/zendesk-laravel": "^3.2",
+        "huddledigital/zendesk-laravel": "^3.3",
         "laravel-admin-ext/grid-sortable": "^1.0",
         "laravel/framework": "^6.2",
         "laravel/horizon": "^3.5",
