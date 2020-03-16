@@ -42,7 +42,10 @@ class HomeController extends Controller
             });
     }
 
-    public function scheduler(Content $content) {
+    public function schedules(Content $content) {
+        // $john = \Cache::tags(["people", "author"])->put("John", "detail_john");
+        $john = \Cache::tags(["people", "author"])->get("John");
+        dump($john);
         return $content;
     }
 

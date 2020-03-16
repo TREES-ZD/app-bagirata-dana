@@ -43,10 +43,10 @@
             <li><a href="/admin"><i class="fa fa-bars"></i><span>Dashboard</span></a>
             <li><a href="/admin/agents"><i class="fa fa-bars"></i><span>Agents</span></a>
             <li><a href="/admin/queues"><i class="fa fa-bars"></i><span>Queues</span></a>
+            <li><a href="/admin/groups"><i class="fa fa-bars"></i><span>Groups</span></a>
             <li><a href="/admin/rules"><i class="fa fa-bars"></i><span>Rules</span></a>
-            <li><a href="/admin/scheduler"><i class="fa fa-bars"></i><span>Scheduler</span></a>
-            <li><a href="/admin/logs"><i class="fa fa-bars"></i><span>Logs</span></a></li>            
-
+            <li><a href="/admin/schedules"><i class="fa fa-bars"></i><span>Schedules</span></a>
+            <li><a href="/admin/logs"><i class="fa fa-bars"></i><span>Logs</span></a></li>
         </ul>
         <!-- /.sidebar-menu -->
     </section>

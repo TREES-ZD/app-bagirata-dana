@@ -53,8 +53,8 @@ class AgentController extends Controller
 
             $grid->sortable();
             $states = [
-                'on' => ['value' => true, 'text' => 'online', 'color' => 'primary'],
-                'off' => ['value' => false, 'text' => 'offline', 'color' => 'default'],
+                "Online" => ['value' => "Available", 'text' => 'online', 'color' => 'primary'],
+                "Offline" => ['value' => "Away", 'text' => 'offline', 'color' => 'default'],
             ];
 
             $reassignStates = [
@@ -65,11 +65,15 @@ class AgentController extends Controller
             $grid->agent_id("Zendesk ID");
             $grid->agent_name("Agent");
             $grid->group_name("Group");
-            $grid->fullName("Full Name");
+            // $grid->fullName("Full Name");
             $grid->custom_field("custom_field:agent_name");
-            $grid->status("Availability")->editable()->switch($states);
+            $grid->status("Available")->select([
+                true => 'Avail',
+                false => 'None',
+            ]);      
+            // $grid->status("Availability")->editable()->switch($states);
             $grid->limit("Limit");   
-            $grid->column("Reassign")->editable()->switch($reassignStates);
+            // $grid->column("Reassign")->editable()->switch($reassignStates);
         });
 
         return $content->body($grid);
@@ -104,8 +108,15 @@ class AgentController extends Controller
         });
     }
 
-    public function update(Content $content) {
-        
+    public function update(Content $content, Request $request, $id) {
+        \Debugbar::info($request->all());
+        \Debugbar::info($id);
+        $agent = Agent::findOrFail($id);
+        $agent->status = $request->get('status');
+        $agent->save();
+        \Debugbar::info($agent);
+
+        return "CARALHO";
     }    
     
     public function destroy() {

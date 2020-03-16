@@ -230,6 +230,8 @@ return [
 
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
         'Zendesk' => Huddle\Zendesk\Facades\Zendesk::class,
+
+        'Debugbar' => Barryvdh\Debugbar\Facade::class,
     ],
 
 ];

@@ -19,6 +19,8 @@ class Agent extends Model implements Sortable
         'sort_when_creating' => true,
     ];
 
+    protected $fillable = ['status'];
+
     protected $appends = ['fullName'];
     
     public function getFullNameAttribute()
