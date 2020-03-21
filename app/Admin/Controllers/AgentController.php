@@ -40,8 +40,8 @@ class AgentController extends Controller
             $grid->filter(function ($filter) {
                 // $filter->like('agent_name');
                 $filter->column(1/2, function ($filter) {
-                    $filter->like('agent_name');
-                    $filter->like('group_name');
+                    $filter->like('zendesk_agent_name');
+                    $filter->like('zendesk_group_name');
                     $filter->equal('status')->radio([
                         1 => 'online',
                         0 => 'offline',
@@ -62,11 +62,11 @@ class AgentController extends Controller
                 'off' => ['value' => false, 'text' => 'off', 'color' => 'default'],
             ];            
 
-            $grid->agent_id("Zendesk ID");
-            $grid->agent_name("Agent");
-            $grid->group_name("Group");
+            // $grid->id("Zendesk ID");
+            $grid->zendesk_agent_name("Agent");
+            $grid->zendesk_group_name("Group");
             // $grid->fullName("Full Name");
-            $grid->custom_field("custom_field:agent_name");
+            $grid->zendesk_custom_field("custom_field:agent_name");
             $grid->status("Available")->select([
                 true => 'Avail',
                 false => 'None',
