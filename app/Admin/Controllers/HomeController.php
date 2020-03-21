@@ -22,12 +22,22 @@ class HomeController extends Controller
 {
     public function index(Content $content)
     {
+        // Get list of assignments [date, who, ticket_id, ticket name]
+        // Get list of reassignment
+        // Assigned in the last 24 hours
+        // Assign today
+
+
+
         return $content
             ->title('Dashboard')
             ->description('Description...')
             ->row(Dashboard::title())
             ->row(function (Row $row) {
-
+                dump("total assignment by agent");
+                foreach (Agent::all() as $agent) {
+                    dump($agent->full_name . ": " . $agent->assignments()->count());
+                }
                 // $row->column(4, function (Column $column) {
                 //     $column->append(Dashboard::environment());
                 // });

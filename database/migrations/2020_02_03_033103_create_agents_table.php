@@ -14,18 +14,19 @@ class CreateAgentsTable extends Migration
     public function up()
     {
         Schema::create('agents', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            // $table->bigIncrements('id');
+            $table->string('id', 60)->primary();
             $table->integer('priority');
             $table->boolean('status');
-            $table->string('agent_id');
-            $table->string('agent_name');
-            $table->string('group_id');
-            $table->string('group_name');
-            $table->string('custom_field');
+            $table->string('zendesk_agent_id');
+            $table->string('zendesk_agent_name');
+            $table->string('zendesk_group_id');
+            $table->string('zendesk_group_name');
+            $table->string('zendesk_custom_field');
             $table->string('limit');
             $table->timestamps();
 
-            $table->index(['agent_id', 'group_id', 'agent_name']);
+            $table->index(['zendesk_agent_id', 'zendesk_group_id', 'zendesk_custom_field']);
         });
     }
 

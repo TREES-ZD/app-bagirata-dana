@@ -3,6 +3,7 @@
 use Illuminate\Routing\Router;
 use Illuminate\Http\Request;
 use App\Agent;
+use App\Assignment;
 use Zendesk\API\HttpClient as ZendeskAPI;
 
 Admin::routes();
@@ -48,8 +49,17 @@ Route::post('run', function() {
 
     foreach ($tickets->tickets as $i => $ticket) {
         $agentNum = ($i % $totalAgents);
+        $agent = $agents[$agentNum];
         $client->tickets()->update($ticket->id, [
-            "group_id" => "360000974835"
+            "assignee_id" => $agent->zendesk_agent_id,
+            "group_id" => $agent->zendesk_group_id
+        ]);
+        $agent->assignments()->create([
+            "type" => Agent::ASSIGNMENT,
+            "agent_name" => $agent->fullName,
+            "ticket_id" => $ticket->id,
+            "ticket_name" => $ticket->subject,
+            "group_id" => $agent->zendesk_group_id
         ]);
     }
 
