@@ -24,9 +24,10 @@ Route::group([
     $router->put('/agents/{id}', 'AgentController@update');
     $router->delete('/agents/{id}', 'AgentController@destroy');
 
+    $router->get('/tasks', 'TaskController@index');
+
     $router->get('/schedules', 'HomeController@schedules');
     $router->get('/jobs', 'HomeController@jobs');
-    $router->get('/queues', 'HomeController@queues');
     $router->get('/rules', 'HomeController@rules');
     $router->get('/logs', 'HomeController@logs');
 });

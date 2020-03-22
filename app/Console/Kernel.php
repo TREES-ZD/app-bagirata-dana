@@ -26,6 +26,18 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
+
+        // Get all tasks from the database
+        $tasks = \App\Task::all();
+
+        // Go through each task to dynamically set them up.
+        foreach ($tasks as $task) {
+
+            $frequency = $task->interval; // everyHour, everyMinute, twiceDaily etc.
+            $schedule->call(function() use ($task) {
+                echo "Run " . $task->zendesk_view_id;
+            })->$frequency();
+        }
     }
 
     /**
