@@ -28,11 +28,12 @@ Route::group([
 
     $router->get('/schedules', 'HomeController@schedules');
     $router->get('/jobs', 'HomeController@jobs');
+    $router->get('/groups', 'HomeController@groups');
     $router->get('/rules', 'HomeController@rules');
     $router->get('/logs', 'HomeController@logs');
 });
 
 Route::post('run', function() {
-    App\Jobs\ProcessTask::dispatchNow("123");
+    App\Jobs\ProcessTask::dispatchNow("360001440115");
     return response()->json();
 });

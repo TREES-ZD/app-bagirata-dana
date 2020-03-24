@@ -32,7 +32,7 @@ class HomeController extends Controller
         return $content
             ->title('Dashboard')
             ->description('Description...')
-            ->row(Dashboard::title())
+            // ->row(Dashboard::title())
             ->row(function (Row $row) {
                 dump("total assignment by agent");
                 foreach (Agent::all() as $agent) {
@@ -54,8 +54,6 @@ class HomeController extends Controller
 
     public function schedules(Content $content) {
         // $john = \Cache::tags(["people", "author"])->put("John", "detail_john");
-        $john = \Cache::tags(["people", "author"])->get("John");
-        dump($john);
         return $content;
     }
 
@@ -69,13 +67,13 @@ class HomeController extends Controller
         return $content;
     }
 
-    public function rules(Content $content) {
+    public function groups(Content $content) {
         return $content;
     }    
 
-    public function groups(Content $content) {
+    public function rules(Content $content) {
         return $content;
-    }
+    }    
 
     public function logs(Content $content) {
         return $content;

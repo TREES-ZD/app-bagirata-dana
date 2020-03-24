@@ -66,11 +66,16 @@ class AgentController extends Controller
             $grid->zendesk_agent_name("Agent");
             $grid->zendesk_group_name("Group");
             // $grid->fullName("Full Name");
-            $grid->zendesk_custom_field("custom_field:agent_name");
-            $grid->status("Available")->select([
+            $grid->zendesk_custom_field("custom_field:Shift");
+            $grid->status("Availability")->select([
                 true => 'Avail',
                 false => 'None',
             ]);      
+            $grid->reassign("Reassignable")->select([
+                true => 'Yes',
+                false => 'No',
+            ]);              
+            
             // $grid->status("Availability")->editable()->switch($states);
             $grid->limit("Limit");   
             // $grid->column("Reassign")->editable()->switch($reassignStates);

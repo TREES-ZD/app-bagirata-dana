@@ -17,13 +17,14 @@ class CreateAgentsTable extends Migration
             // $table->bigIncrements('id');
             $table->string('id', 60)->primary();
             $table->integer('priority');
-            $table->boolean('status');
             $table->string('zendesk_agent_id');
             $table->string('zendesk_agent_name');
             $table->string('zendesk_group_id');
             $table->string('zendesk_group_name');
             $table->string('zendesk_custom_field');
             $table->string('limit');
+            $table->boolean('status');
+            $table->boolean('reassign');            
             $table->timestamps();
 
             $table->index(['zendesk_agent_id', 'zendesk_group_id', 'zendesk_custom_field']);

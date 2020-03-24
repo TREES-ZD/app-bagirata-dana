@@ -55,7 +55,13 @@ class ProcessTask implements ShouldQueue
             $agent = $agents[$agentNum];
             $client->tickets()->update($ticket->id, [
                 "assignee_id" => $agent->zendesk_agent_id,
-                "group_id" => $agent->zendesk_group_id
+                "group_id" => $agent->zendesk_group_id,
+                "custom_fields" => [
+                    [
+                    "id" => 360000299575,
+                    "value" => $agent->zendesk_custom_field
+                    ]
+                ]
             ]);
             $agent->assignments()->create([
                 "type" => Agent::ASSIGNMENT,
