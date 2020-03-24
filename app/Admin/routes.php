@@ -33,36 +33,6 @@ Route::group([
 });
 
 Route::post('run', function() {
-    $subdomain = "contreesdemo11557827937";
-    $username  = "eldien.hasmanto@treessolutions.com";
-    $token     = "2HJtvL35BSsWsVR4b3ZCxvYhLGYcAacP2EyFKGki"; // replace this with your token
-    
-    $client = new ZendeskAPI($subdomain);
-    $client->setAuth('basic', ['username' => $username, 'token' => $token]);
-
-    $tickets = $client->views(360001440115)->tickets();
-
-    // Assign round robin
-    $agents = Agent::where('status', true)->get();
-
-    $totalAgents = $agents->count();
-    $totalTickets = count($tickets->tickets);
-
-    foreach ($tickets->tickets as $i => $ticket) {
-        $agentNum = ($i % $totalAgents);
-        $agent = $agents[$agentNum];
-        $client->tickets()->update($ticket->id, [
-            "assignee_id" => $agent->zendesk_agent_id,
-            "group_id" => $agent->zendesk_group_id
-        ]);
-        $agent->assignments()->create([
-            "type" => Agent::ASSIGNMENT,
-            "agent_name" => $agent->fullName,
-            "ticket_id" => $ticket->id,
-            "ticket_name" => $ticket->subject,
-            "group_id" => $agent->zendesk_group_id
-        ]);
-    }
-
-    return response()->json($tickets->tickets);
+    App\Jobs\ProcessTask::dispatchNow("123");
+    return response()->json();
 });

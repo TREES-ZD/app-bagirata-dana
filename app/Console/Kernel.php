@@ -35,7 +35,7 @@ class Kernel extends ConsoleKernel
 
             $frequency = $task->interval; // everyHour, everyMinute, twiceDaily etc.
             $schedule->call(function() use ($task) {
-                echo "Run " . $task->zendesk_view_id;
+                \App\Jobs\ProcessTask::dispatchNow($task->zendesk_view_id);
             })->$frequency();
         }
     }
