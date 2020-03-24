@@ -19,10 +19,16 @@ class TaskController extends Controller
     public function index(Content $content) {
         $grid = Admin::grid(new Task, function (Grid $grid) {
             $grid->disableColumnSelector();
-            $grid->disableActions();  
+            // $grid->disableActions();  
             $grid->disableFilter();  
-
-            $grid->enabled();
+            $grid->column('Run')->display(function ($title) {
+                return '<a href="/run"><i class="fa fa-play"></i></a>';
+            });
+            $grid->enabled()->select([
+                true => 'Yes',
+                false => 'No',
+            ]);      
+            // $grid->enabled();
             $grid->zendesk_view_title("View title");
             $grid->zendesk_view_id("View id");
             $grid->interval();

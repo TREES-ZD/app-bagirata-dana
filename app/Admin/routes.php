@@ -33,6 +33,10 @@ Route::group([
     $router->get('/logs', 'HomeController@logs');
 });
 
+Route::get('run', function() {
+    App\Jobs\ProcessTask::dispatchNow("360001440115");
+    return redirect()->back();
+});
 Route::post('run', function() {
     App\Jobs\ProcessTask::dispatchNow("360001440115");
     return response()->json();
