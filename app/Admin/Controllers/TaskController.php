@@ -21,14 +21,13 @@ class TaskController extends Controller
             $grid->disableColumnSelector();
             // $grid->disableActions();  
             $grid->disableFilter();  
-            $grid->column('Run')->display(function ($title) {
-                return '<a href="/run"><i class="fa fa-play"></i></a>';
-            });
             $grid->enabled()->select([
                 true => 'Yes',
                 false => 'No',
             ]);      
-            // $grid->enabled();
+            $grid->column('Run')->display(function ($title) {
+                return '<a href="/run"><i class="fa fa-play"></i></a>';
+            });            
             $grid->zendesk_view_title("View title");
             $grid->zendesk_view_id("View id");
             $grid->interval();
