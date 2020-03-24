@@ -27,19 +27,23 @@ class HomeController extends Controller
         // Assigned in the last 24 hours
         // Assign today
 
-
+        $full_names = [];
+        $assignment_counts = []; 
+        foreach (Agent::all() as $agent) {
+            $full_names[] = $agent->full_name;
+            $assignment_counts[] = $agent->assignments()->count();
+        }
 
         return $content
             ->title('Dashboard')
             ->description('Description...')
-            // ->row(Dashboard::title())
-            ->row(function (Row $row) {
-                dump("total assignment by agent");
-                foreach (Agent::all() as $agent) {
-                    dump($agent->full_name . ": " . $agent->assignments()->count());
-                }
-                // $row->column(4, function (Column $column) {
-                //     $column->append(Dashboard::environment());
+            // ->row(new Box('Agents by ticket assigned within 24 hours', view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts'))))            
+            ->row(function (Row $row) use ($full_names, $assignment_counts) {
+                $row->column(6, new Box("Agents by assignment within 24 hours", view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts'))));
+                $row->column(6, new Box("Latest assignments", "latest assignment"));
+                // $row->column(4, function (Column $column) use ($full_names, $assignment_counts) {
+                //     // $column->append((new Box('Agents by ticket assigned within 24 hours', view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts')))));
+                //     $column->body('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts'));
                 // });
 
                 // $row->column(4, function (Column $column) {
