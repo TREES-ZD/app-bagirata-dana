@@ -34,7 +34,7 @@ Route::group([
 });
 
 Route::get('run', function() {
-    App\Jobs\ProcessTask::dispatchNow("360001440115");
+    App\Jobs\ProcessTask::dispatch("360001440115");
     return redirect()->back();
 });
 Route::post('run', function() {

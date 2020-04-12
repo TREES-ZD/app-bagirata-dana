@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8d2a8f44f4b714e7e528bcad81ce6c93",
+    "content-hash": "e495a78a426aaf0571efe801edaeca82",
     "packages": [
         {
             "name": "barryvdh/laravel-debugbar",
@@ -1218,6 +1218,58 @@
             ],
             "description": "Highlight PHP code in terminal",
             "time": "2018-09-29T18:48:56+00:00"
+        },
+        {
+            "name": "jxlwqq/data-table",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel-admin-extensions/data-table.git",
+                "reference": "0a0a608ee0c9adef4e56d0cbfc6e254bbc1956f7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel-admin-extensions/data-table/zipball/0a0a608ee0c9adef4e56d0cbfc6e254bbc1956f7",
+                "reference": "0a0a608ee0c9adef4e56d0cbfc6e254bbc1956f7",
+                "shasum": ""
+            },
+            "require": {
+                "encore/laravel-admin": "~1.6",
+                "php": ">=7.0.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~6.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Jxlwqq\\DataTable\\DataTableServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Jxlwqq\\DataTable\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "jxlwqq",
+                    "email": "jxlwqq@gmail.com"
+                }
+            ],
+            "description": "dataTable for laravel-admin",
+            "homepage": "https://github.com/jxlwqq/data-table",
+            "keywords": [
+                "extension",
+                "laravel-admin"
+            ],
+            "time": "2019-04-04T13:37:34+00:00"
         },
         {
             "name": "laravel-admin-ext/chartjs",
