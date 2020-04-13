@@ -17,6 +17,7 @@ use App\Agent;
 use App\Admin\Actions\MakeOnline;
 use App\Admin\Actions\Post\BatchReplicate;
 use App\Admin\Actions\Post\ImportPost;
+use App\Admin\Actions\SyncAgentAction;
 
 class AgentController extends Controller
 {
@@ -24,6 +25,13 @@ class AgentController extends Controller
         $grid = Admin::grid(new Agent, function (Grid $grid) {
             // $grid->disableTools();
             $grid->disableColumnSelector();
+            $grid->tools(function ($tools) {
+                // $tools->append('<a href=""><i class="fa fa-eye"></i></a>');
+                $tools->append(new SyncAgentAction());
+                // $tools->batch(function ($batch) {
+                //     $batch->add(new SyncAgentAction());
+                // });
+            });
 
             // $grid->tools(function (Grid\Tools $tools) {
             //     // $tools->append(new BatchReplicate());
@@ -35,7 +43,7 @@ class AgentController extends Controller
             //     // $actions->disableView();
             //     $actions->disableAll();
             // });       
-            $grid->disableActions();  
+            // $grid->disableActions();
             
             $grid->filter(function ($filter) {
                 // $filter->like('agent_name');
@@ -127,4 +135,8 @@ class AgentController extends Controller
     public function destroy() {
 
     }    
+
+    public function resync() {
+        return redirect()->back();
+    }
 }
