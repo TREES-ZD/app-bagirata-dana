@@ -7,7 +7,7 @@ $(function () {
     var assignment_counts = {!! json_encode($assignment_counts) !!};
     console.log(full_names, assignment_counts)
     var myChart = new Chart(ctx, {
-        type: 'bar',
+        type: 'horizontalBar',
         data: {
             labels: full_names,
             datasets: [{
@@ -29,16 +29,12 @@ $(function () {
                     'rgba(153, 102, 255, 1)',
                     'rgba(255, 159, 64, 1)'
                 ],
-                borderWidth: 1
             }]
         },
         options: {
             scales: {
-                yAxes: [{
-                    ticks: {
-                        stepSize: 1,
-                        beginAtZero:true
-                    }
+                yAxes: [{	
+                    barThickness: 30
                 }]
             }
         }

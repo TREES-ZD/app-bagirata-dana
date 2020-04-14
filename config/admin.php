@@ -396,6 +396,18 @@ return [
     |
     */
     'extensions' => [
-
+        'data-table' => [
+            // If the value is set to false, this extension will be disabled
+            'enable' => true,
+            // global options
+            'options' => [
+                 'paging' => false,
+                 'lengthChange' => false,
+                 'searching' => false,
+                 'ordering' => false,
+                 'info' => false,
+                 'language' => 'English', // or Chinese
+            ]
+        ]
     ],
 ];

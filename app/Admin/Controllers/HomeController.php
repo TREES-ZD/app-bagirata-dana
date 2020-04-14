@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use Jxlwqq\DataTable\DataTable;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\Dashboard;
 use Encore\Admin\Layout\Column;
@@ -13,6 +14,7 @@ use Encore\Admin\Grid;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use App\Agent;
+use App\Assignment;
 use App\Admin\Actions\Post\BatchReplicate;
 use App\Admin\Actions\Post\ImportPost;
 use App\Jobs\AssignTicket;
@@ -22,25 +24,46 @@ class HomeController extends Controller
 {
     public function index(Content $content)
     {
-        // Get list of assignments [date, who, ticket_id, ticket name]
-        // Get list of reassignment
-        // Assigned in the last 24 hours
-        // Assign today
-
         $full_names = [];
         $assignment_counts = []; 
+        $total_available_agents = 0;
         foreach (Agent::all() as $agent) {
             $full_names[] = $agent->full_name;
             $assignment_counts[] = $agent->assignments()->count();
+
+            if ($agent->status) {
+                $total_available_agents++;
+            }
         }
+
+        $agents = Agent::disableCache()->withCount(['assignments'])->get();
+        $total_available_agents = $agents->sum('status');
 
         return $content
             ->title('Dashboard')
             ->description('Description...')
-            // ->row(new Box('Agents by ticket assigned within 24 hours', view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts'))))            
-            ->row(function (Row $row) use ($full_names, $assignment_counts) {
-                $row->column(6, new Box("Agents by assignment within 24 hours", view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts'))));
-                $row->column(6, new Box("Latest assignments", "latest assignment"));
+            ->row(function (Row $row) use ($total_available_agents, $agents) {
+                $agentsByAssignment = $agents->sortByDesc('assignments_count');
+                $full_names = $agentsByAssignment->pluck('full_name');
+                $assignment_counts = $agentsByAssignment->pluck('assignments_count');
+                
+                // table
+                $headers = ['Date', 'Agent', 'Ticket ID', 'Title', "Type"];
+                $rows = Assignment::latest("created_at")->limit(10)->get(["created_at", "agent_name", "ticket_id", "ticket_name", "type"])->toArray();
+                $style = ['table-bordered','table-hover', 'table-striped'];
+
+                $options = [
+                    'lengthChange' => false,
+                    // 'ordering' => true,
+                    'info' => true,
+                    'autoWidth' => false,
+                ];
+
+                $dataTable = new DataTable($headers, $rows, $style, $options);        
+                
+                $row->column(6, new Box("Total available Agent(s)", $total_available_agents));
+                $row->column(6, new Box("Agents by total assignments", view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts'))));
+                $row->column(12, new Box("Latest assignments", view('roundrobin.logs', compact('dataTable'))));
                 // $row->column(4, function (Column $column) use ($full_names, $assignment_counts) {
                 //     // $column->append((new Box('Agents by ticket assigned within 24 hours', view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts')))));
                 //     $column->body('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts'));
@@ -80,10 +103,24 @@ class HomeController extends Controller
     }    
 
     public function logs(Content $content) {
-        return $content;
+        // table
+        $headers = ['Date', 'Agent', 'Ticket ID', 'Title', "Type"];
+        $rows = Assignment::latest("created_at")->get(["created_at", "agent_name", "ticket_id", "ticket_name", "type"])->toArray();
+        $style = ['table-bordered','table-hover', 'table-striped'];
+
+        $options = [
+            'paging' => true,
+            'lengthChange' => false,
+            'searching' => false,
+            // 'ordering' => true,
+            'info' => true,
+            'autoWidth' => false,
+        ];
+
+        $dataTable = new DataTable($headers, $rows, $style, $options);        
+        return $content->body(new Box("Assignment Logs", view('roundrobin.logs', compact('dataTable'))));
     }        
 
     public function jobs(Content $content) {
-        return $content;
     }
 }

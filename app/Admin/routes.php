@@ -19,10 +19,15 @@ Route::group([
     $router->get('/agents', 'AgentController@index');    
     $router->get('/agents/create', 'AgentController@create');
     $router->post('/agents', 'AgentController@store');
+    $router->get('/agents/sync', 'AgentController@sync');
     $router->get('/agents/{id}', 'AgentController@show');
     $router->get('/agents/{id}/edit', 'AgentController@edit');
     $router->put('/agents/{id}', 'AgentController@update');
     $router->delete('/agents/{id}', 'AgentController@destroy');
+    $router->post("/agents/sync", function() {
+
+        return response()->json(["message" => 'good']);
+    });
 
     $router->get('/tasks', 'TaskController@index');
 
@@ -34,7 +39,7 @@ Route::group([
 });
 
 Route::get('run', function() {
-    App\Jobs\ProcessTask::dispatchNow("360001440115");
+    App\Jobs\ProcessTask::dispatch("360001440115");
     return redirect()->back();
 });
 Route::post('run', function() {

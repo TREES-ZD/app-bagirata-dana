@@ -1,5 +1,6 @@
 <?php
 
+use App\Agent;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -12,7 +13,7 @@ class AgentSeeder extends Seeder
      */
     public function run()
     {
-        DB::table("agents")->insert([
+        Agent::insert([
             "id" => "360278992236-360000349636-siang",
             "priority" => 1,
             "reassign" => false,
@@ -24,7 +25,7 @@ class AgentSeeder extends Seeder
             "zendesk_custom_field" => "siang",
             "limit" => "unlimited"
         ]);                
-        DB::table("agents")->insert([
+        Agent::insert([
             "id" => "360278992296-360000349636-siang",
             "priority" => 1,
             "reassign" => false,
@@ -36,7 +37,7 @@ class AgentSeeder extends Seeder
             "zendesk_custom_field" => "siang",
             "limit" => "unlimited"
         ]);
-        DB::table("agents")->insert([
+        Agent::insert([
             "id" => "360278992296-360000974835-malam",
             "priority" => 1,
             "reassign" => false,
@@ -48,7 +49,7 @@ class AgentSeeder extends Seeder
             "zendesk_custom_field" => "malam",
             "limit" => "unlimited"
         ]);        
-        DB::table("agents")->insert([
+        Agent::insert([
             "id" => "360278992236-360000974835-malam",
             "priority" => 1,
             "reassign" => false,
