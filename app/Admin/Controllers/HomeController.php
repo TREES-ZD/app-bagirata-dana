@@ -36,7 +36,7 @@ class HomeController extends Controller
             }
         }
 
-        $agents = Agent::withCount(['assignments'])->get();
+        $agents = Agent::disableCache()->withCount(['assignments'])->get();
         $total_available_agents = $agents->sum('status');
 
         return $content
