@@ -19,6 +19,7 @@ Route::group([
     $router->get('/agents', 'AgentController@index');    
     $router->get('/agents/create', 'AgentController@create');
     $router->post('/agents', 'AgentController@store');
+    $router->get('/agents/sync', 'AgentController@sync');
     $router->get('/agents/{id}', 'AgentController@show');
     $router->get('/agents/{id}/edit', 'AgentController@edit');
     $router->put('/agents/{id}', 'AgentController@update');

@@ -71,14 +71,14 @@ class AgentController extends Controller
             ];            
 
             // $grid->id("Zendesk ID");
-            $grid->zendesk_agent_name("Agent");
-            $grid->zendesk_group_name("Group");
+            $grid->zendesk_agent_name("Agent")->sortable();
+            $grid->zendesk_group_name("Group")->sortable();
             // $grid->fullName("Full Name");
-            $grid->zendesk_custom_field("custom_field:Shift");
+            $grid->zendesk_custom_field("custom_field:Shift")->sortable();
             $grid->status("Availability")->select([
-                true => 'Avail',
-                false => 'None',
-            ]);      
+                true => 'Available',
+                false => 'Unavailable',
+            ])->sortable();      
             $grid->reassign("Reassignable")->select([
                 true => 'Yes',
                 false => 'No',
@@ -136,7 +136,8 @@ class AgentController extends Controller
 
     }    
 
-    public function resync() {
+    public function sync() {
+        \App\Jobs\SyncAgents::dispatchNow();
         return redirect()->back();
     }
 }

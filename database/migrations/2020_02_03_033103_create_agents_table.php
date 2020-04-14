@@ -22,9 +22,9 @@ class CreateAgentsTable extends Migration
             $table->string('zendesk_group_id');
             $table->string('zendesk_group_name');
             $table->string('zendesk_custom_field');
-            $table->string('limit');
-            $table->boolean('status');
-            $table->boolean('reassign');            
+            $table->string('limit')->default('unlimited');
+            $table->boolean('status')->default(false);
+            $table->boolean('reassign')->default(false);            
             $table->timestamps();
 
             $table->index(['zendesk_agent_id', 'zendesk_group_id', 'zendesk_custom_field']);
