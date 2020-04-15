@@ -23,54 +23,15 @@ class AgentController extends Controller
 {
     public function index(Content $content) {
         $grid = Admin::grid(new Agent, function (Grid $grid) {
-            // $grid->disableTools();
             $grid->disableColumnSelector();
-            $grid->tools(function ($tools) {
-                // $tools->append('<a href=""><i class="fa fa-eye"></i></a>');
-                $tools->append(new SyncAgentAction());
-                // $tools->batch(function ($batch) {
-                //     $batch->add(new SyncAgentAction());
-                // });
-            });
-
-            // $grid->tools(function (Grid\Tools $tools) {
-            //     // $tools->append(new BatchReplicate());
-            //     // $tools->append(new ImportPost());
-            // });
-            // $grid->actions(function ($actions) {
-            //     // $actions->disableDelete();
-            //     // $actions->disableEdit();
-            //     // $actions->disableView();
-            //     $actions->disableAll();
-            // });       
+            $grid->disableExport();
+            $grid->disableCreateButton();
             // $grid->disableActions();
-            
-            $grid->filter(function ($filter) {
-                // $filter->like('agent_name');
-                $filter->column(1/2, function ($filter) {
-                    $filter->like('zendesk_agent_name');
-                    $filter->like('zendesk_group_name');
-                    $filter->equal('status')->radio([
-                        1 => 'online',
-                        0 => 'offline',
-                    ]);
-
-                });              
+            $grid->tools(function ($tools) {
+                $tools->append(new SyncAgentAction());
             });
             
-
             $grid->sortable();
-            $states = [
-                "Online" => ['value' => "Available", 'text' => 'online', 'color' => 'primary'],
-                "Offline" => ['value' => "Away", 'text' => 'offline', 'color' => 'default'],
-            ];
-
-            $reassignStates = [
-                'on' => ['value' => true, 'text' => 'on', 'color' => 'primary'],
-                'off' => ['value' => false, 'text' => 'off', 'color' => 'default'],
-            ];            
-
-            // $grid->id("Zendesk ID");
             $grid->zendesk_agent_name("Agent")->sortable();
             $grid->zendesk_group_name("Group")->sortable();
             // $grid->fullName("Full Name");
@@ -83,10 +44,7 @@ class AgentController extends Controller
                 true => 'Yes',
                 false => 'No',
             ]);              
-            
-            // $grid->status("Availability")->editable()->switch($states);
             $grid->limit("Limit");   
-            // $grid->column("Reassign")->editable()->switch($reassignStates);
         });
 
         return $content->body($grid);

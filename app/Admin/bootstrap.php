@@ -30,13 +30,13 @@ Grid::init(function (Grid $grid) {
 
     // $grid->disableFilter();
 
-    $grid->disableRowSelector();
+    // $grid->disableRowSelector();
 
     // $grid->disableColumnSelector();
 
     // $grid->disableTools();
 
-    $grid->disableExport();
+    // $grid->disableExport();
 
     // $grid->actions(function (Grid\Displayers\Actions $actions) {
     //     $actions->disableView();

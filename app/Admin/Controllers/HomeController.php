@@ -103,22 +103,21 @@ class HomeController extends Controller
     }    
 
     public function logs(Content $content) {
-        // table
-        $headers = ['Date', 'Agent', 'Ticket ID', 'Title', "Type"];
-        $rows = Assignment::latest("created_at")->get(["created_at", "agent_name", "ticket_id", "ticket_name", "type"])->toArray();
-        $style = ['table-bordered','table-hover', 'table-striped'];
+        $grid = Admin::grid(new Assignment, function (Grid $grid) {
+            $grid->disableColumnSelector();
+            $grid->disableRowSelector();
+            $grid->disableCreateButton();
+            $grid->disableFilter();
+            $grid->disableActions();
 
-        $options = [
-            'paging' => true,
-            'lengthChange' => false,
-            'searching' => false,
-            // 'ordering' => true,
-            'info' => true,
-            'autoWidth' => false,
-        ];
+            $grid->column("created_at");
+            $grid->column("agent_name");
+            $grid->column("ticket_id");
+            $grid->column("ticket_name");
+            $grid->column("type");
+        });
 
-        $dataTable = new DataTable($headers, $rows, $style, $options);        
-        return $content->body(new Box("Assignment Logs", view('roundrobin.logs', compact('dataTable'))));
+        return $content->body($grid);
     }        
 
     public function jobs(Content $content) {
