@@ -61,8 +61,10 @@ class HomeController extends Controller
 
                 $dataTable = new DataTable($headers, $rows, $style, $options);        
                 
-                $row->column(6, new Box("Total available Agent(s)", $total_available_agents ?: "None"));
-                $row->column(6, new Box("Agents by total assignments", view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts'))));
+                $row->column(8, new Box("Agents by total assignments", view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts'))));
+                $row->column(4, new Box("Agent(s) available", $total_available_agents ?: "None"));
+                
+                $row->column(4, new Box("Active Task(s)", $total_available_agents ?: "None"));
                 $row->column(12, new Box("Latest assignments", view('roundrobin.logs', compact('dataTable'))));
                 // $row->column(4, function (Column $column) use ($full_names, $assignment_counts) {
                 //     // $column->append((new Box('Agents by ticket assigned within 24 hours', view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts')))));
