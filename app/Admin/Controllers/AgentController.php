@@ -18,6 +18,7 @@ use App\Admin\Actions\Post\ImportPost;
 use App\Admin\Actions\SyncAgentAction;
 use Encore\Admin\Controllers\Dashboard;
 use App\Admin\Actions\Agent\BatchDelete;
+use App\Admin\Actions\Agent\SyncAgent;
 use App\Admin\Actions\Post\BatchReplicate;
 
 class AgentController extends Controller
@@ -27,6 +28,7 @@ class AgentController extends Controller
             $grid->disableColumnSelector();
             $grid->disableExport();
             $grid->disableCreateButton();
+            $grid->disableFilter();
             $grid->tools(function ($tools) {
                 $tools->append(new SyncAgentAction());
             });
