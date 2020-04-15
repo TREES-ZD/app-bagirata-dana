@@ -37,7 +37,7 @@ class Agent extends Model implements Sortable
 
     public function getFullNameAttribute()
     {
-        return "{$this->zendesk_agent_name} ({$this->zendesk_group_name}, {$this->zendesk_custom_field})";
+        return "{$this->zendesk_agent_name} ({$this->zendesk_group_name}, {$this->zendesk_custom_field_name})";
     }    
  
     public function getTest()

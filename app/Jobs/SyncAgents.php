@@ -47,13 +47,15 @@ class SyncAgents implements ShouldQueue
         $response = $client->groups()->findAll();
         $groupByKey = collect($response->groups)->keyBy("id");
 
-        $response = $client->groupMemberships()->findAll();
+        $response = $client->ticketFields()->find(360000282796);
+        $customFields = collect($response->ticket_field->custom_field_options)->keyBy('id');
         $existingAgentsByKey = Agent::all()->keyBy('id');
+
+        $response = $client->groupMemberships()->findAll();
         $agents = collect($response->group_memberships)
-                ->crossJoin(["pagi", "siang", "malam"])
+                ->crossJoin($customFields)
                 ->reject(function($membershipAndCustomField) use ($agentByKey, $groupByKey) {
                     $membership = $membershipAndCustomField[0];
-
                     $agent = $agentByKey->get($membership->user_id);
                     $group = $groupByKey->get($membership->group_id);
                     
@@ -66,17 +68,17 @@ class SyncAgents implements ShouldQueue
                     $agent = $agentByKey->get($membership->user_id);
                     $group = $groupByKey->get($membership->group_id);
 
-                    $id = sprintf("%s-%s-%s", $agent->id, $group->id, $customField);
-                    
+                    $id = sprintf("%s-%s-%s", $agent->id, $group->id, $customField->value);
                     $existingAgent = $existingAgentsByKey->get($id);
                     return [
-                        "id" => sprintf("%s-%s-%s", $agent->id, $group->id, $customField),
+                        "id" => $id,
                         "priority" => 1,
                         "zendesk_agent_id" => $agent->id,
                         "zendesk_agent_name" => $agent->name,
                         "zendesk_group_id" => $group->id,
                         "zendesk_group_name" => $group->name,
-                        "zendesk_custom_field" => $customField,
+                        "zendesk_custom_field_id" => $customField->value,
+                        "zendesk_custom_field_name" => $customField->name,
                         "limit" => $existingAgent['limit'] ?: "unlimited",
                         "status" => $existingAgent['status'] ?: false,
                         "reassign" => $existingAgent['reassign'] ?: false

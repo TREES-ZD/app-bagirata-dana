@@ -74,7 +74,7 @@ class AgentController extends Controller
             $grid->zendesk_agent_name("Agent")->sortable();
             $grid->zendesk_group_name("Group")->sortable();
             // $grid->fullName("Full Name");
-            $grid->zendesk_custom_field("custom_field:Shift")->sortable();
+            $grid->zendesk_custom_field_name("Custom Field")->sortable();
             $grid->status("Availability")->select([
                 true => 'Available',
                 false => 'Unavailable',
