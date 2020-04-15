@@ -2,22 +2,23 @@
 
 namespace App\Admin\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Encore\Admin\Controllers\Dashboard;
-use Encore\Admin\Layout\Column;
-use Encore\Admin\Layout\Content;
-use Encore\Admin\Layout\Row;
-use Encore\Admin\Widgets\Box;
-use Encore\Admin\Widgets\Table;
-use Encore\Admin\Grid;
-use Encore\Admin\Facades\Admin;
-use Encore\Admin\Form;
 use App\Agent;
+use Encore\Admin\Form;
+use Encore\Admin\Grid;
+use Encore\Admin\Layout\Row;
+use Illuminate\Http\Request;
+use Encore\Admin\Widgets\Box;
+use Encore\Admin\Facades\Admin;
+use Encore\Admin\Layout\Column;
+use Encore\Admin\Widgets\Table;
+use Encore\Admin\Layout\Content;
 use App\Admin\Actions\MakeOnline;
-use App\Admin\Actions\Post\BatchReplicate;
+use App\Http\Controllers\Controller;
 use App\Admin\Actions\Post\ImportPost;
 use App\Admin\Actions\SyncAgentAction;
+use Encore\Admin\Controllers\Dashboard;
+use App\Admin\Actions\Agent\BatchDelete;
+use App\Admin\Actions\Post\BatchReplicate;
 
 class AgentController extends Controller
 {
@@ -26,9 +27,12 @@ class AgentController extends Controller
             $grid->disableColumnSelector();
             $grid->disableExport();
             $grid->disableCreateButton();
-            // $grid->disableActions();
             $grid->tools(function ($tools) {
                 $tools->append(new SyncAgentAction());
+            });
+            $grid->batchActions(function ($batch) {
+                $batch->disableDelete();
+                $batch->add(new BatchDelete());
             });
             
             $grid->sortable();

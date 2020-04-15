@@ -12,6 +12,7 @@ class BatchReplicate extends BatchAction
 
     public function handle(Collection $collection)
     {
+        
         foreach ($collection as $model) {
             
         }
