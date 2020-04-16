@@ -46,10 +46,10 @@ class AgentController extends Controller
                 true => 'Available',
                 false => 'Unavailable',
             ])->sortable();      
-            $grid->reassign("Reassignable")->select([
-                true => 'Yes',
-                false => 'No',
-            ]);              
+            // $grid->reassign("Reassignable")->select([
+            //     true => 'Yes',
+            //     false => 'No',
+            // ]);              
             $grid->limit("Limit");   
         });
 
