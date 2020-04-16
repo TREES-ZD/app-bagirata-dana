@@ -45,15 +45,26 @@ class ProcessTask implements ShouldQueue
         $tickets = $client->views($this->viewId)->tickets();
         
         // Assign round robin
-        $agents = Agent::where('status', true)->get();
+        // $agents = Agent::where('status', true)->get();
+        $agents = Agent::where('status', true)
+                ->with(['assignments'])
+                ->get()
+                ->sortBy(function($a) {
+                    return $a->assignments->last() ? $a->assignments->last()->created_at->timestamp : 0;
+                });
+
+        $sortedAgents = collect();
+        $agents->map(function($a) use ($sortedAgents) {
+            $sortedAgents->push($a);
+        });
         $totalAgents = $agents->count();
         $totalTickets = count($tickets->tickets);
         
         if ($totalAgents < 1) return;
-        
+
         foreach ($tickets->tickets as $i => $ticket) {
             $agentNum = ($i % $totalAgents);
-            $agent = $agents[$agentNum];
+            $agent = $sortedAgents[$agentNum];
             $client->tickets()->update($ticket->id, [
                 "assignee_id" => $agent->zendesk_agent_id,
                 "group_id" => $agent->zendesk_group_id,
