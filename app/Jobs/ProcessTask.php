@@ -49,6 +49,8 @@ class ProcessTask implements ShouldQueue
         $totalAgents = $agents->count();
         $totalTickets = count($tickets->tickets);
         
+        if ($totalAgents < 1) return;
+        
         foreach ($tickets->tickets as $i => $ticket) {
             $agentNum = ($i % $totalAgents);
             $agent = $agents[$agentNum];
