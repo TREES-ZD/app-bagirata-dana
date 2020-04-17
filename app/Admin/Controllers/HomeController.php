@@ -61,7 +61,8 @@ class HomeController extends Controller
 
                 $dataTable = new DataTable($headers, $rows, $style, $options);        
                 
-                $row->column(8, new Box("Agents by total assignments", view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts'))));
+                // $row->column(8, new Box("Agents by total assignments", view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts'))));
+                $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts'))));
                 $row->column(4, new Box("Agent(s) available", $total_available_agents ?: "None"));
                 
                 // $row->column(4, new Box("Active Task(s)", $total_available_agents ?: "None"));
