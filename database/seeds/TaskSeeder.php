@@ -12,12 +12,12 @@ class TaskSeeder extends Seeder
     public function run()
     {
         DB::table("tasks")->insert([
-            "id" => "some-unique-uuid",
+            "id" => "view_360001440115-grouping_360000349636",
             "zendesk_view_id" => "360001440115",
             "zendesk_view_title" => "Ticket-ticket untuk dibagi rata",
             "interval" => "everyMinute",
-            "assign_to_agent" => "default",
-            "limit" => "1 in 2",
+            "group_id" => "360000349636",
+            "limit" => "unlimited",
             "enabled" => true
         ]);  
     }

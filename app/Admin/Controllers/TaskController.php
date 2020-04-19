@@ -29,9 +29,9 @@ class TaskController extends Controller
                 return '<a href="/run"><i class="fa fa-play"></i></a>';
             });            
             $grid->zendesk_view_title("View title");
-            $grid->zendesk_view_id("View id");
+            $grid->zendesk_view_id("View ID");
             $grid->interval();
-            $grid->assign_to_agent("Assign to Agent");
+            $grid->group_id("Group ID");
             $grid->limit();
         });
 
