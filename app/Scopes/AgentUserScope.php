@@ -18,8 +18,7 @@ class AgentUserScope implements Scope
      */
     public function apply(Builder $builder, Model $model)
     {
-        dd(Admin::user()->zendesk_group_id);
-        if (Admin::user()) {
+        if (Admin::user()->zendesk_group_id) {
             $builder->where('zendesk_group_id', Admin::user()->zendesk_group_id);
         }
     }

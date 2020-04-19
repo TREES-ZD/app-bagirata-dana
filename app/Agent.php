@@ -2,8 +2,9 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Scopes\AgentUserScope;
 use Spatie\EloquentSortable\Sortable;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\EloquentSortable\SortableTrait;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 
@@ -30,6 +31,13 @@ class Agent extends Model implements Sortable
     protected $fillable = ['status'];
 
     protected $appends = ['fullName'];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope(new AgentUserScope);
+    }
 
     public function assignments() {
         return $this->hasMany('App\Assignment');
