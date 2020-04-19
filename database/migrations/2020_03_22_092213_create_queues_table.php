@@ -18,10 +18,12 @@ class CreateQueuesTable extends Migration
             $table->string('zendesk_view_id');
             $table->string('zendesk_view_title');
             $table->string('interval');
-            $table->string('assign_to_agent');
+            $table->string('group_id');
             $table->string('limit');
             $table->boolean('enabled');
             $table->timestamps();
+
+            $table->index(['zendesk_view_id', 'group_id']);
         });
     }
 

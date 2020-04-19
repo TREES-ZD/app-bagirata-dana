@@ -1,9 +1,10 @@
 <?php
 
-use Illuminate\Routing\Router;
-use Illuminate\Http\Request;
 use App\Agent;
 use App\Assignment;
+// use Encore\Admin\Admin;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Router;
 use Zendesk\API\HttpClient as ZendeskAPI;
 
 Admin::routes();
@@ -13,6 +14,7 @@ Route::group([
     'namespace'     => config('admin.route.namespace'),
     'middleware'    => config('admin.route.middleware'),
 ], function (Router $router) {
+    $router->resource('auth/users', 'UserController')->names('admin.auth.users');
 
     $router->get('/', 'HomeController@index')->name('admin.home');
 
