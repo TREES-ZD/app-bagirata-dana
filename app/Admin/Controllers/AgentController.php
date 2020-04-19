@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Agent;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
+use App\Jobs\SyncAgents;
 use Encore\Admin\Layout\Row;
 use Illuminate\Http\Request;
 use Encore\Admin\Widgets\Box;
@@ -14,11 +15,12 @@ use Encore\Admin\Widgets\Table;
 use Encore\Admin\Layout\Content;
 use App\Admin\Actions\MakeOnline;
 use App\Http\Controllers\Controller;
+use App\Admin\Actions\Agent\SyncAgent;
 use App\Admin\Actions\Post\ImportPost;
 use App\Admin\Actions\SyncAgentAction;
 use Encore\Admin\Controllers\Dashboard;
+use Illuminate\Support\Facades\Artisan;
 use App\Admin\Actions\Agent\BatchDelete;
-use App\Admin\Actions\Agent\SyncAgent;
 use App\Admin\Actions\Post\BatchReplicate;
 
 class AgentController extends Controller
@@ -27,7 +29,7 @@ class AgentController extends Controller
         $grid = Admin::grid(new Agent, function (Grid $grid) {
             $grid->disableColumnSelector();
             $grid->disableExport();
-            $grid->disableCreateButton();
+            // $grid->disableCreateButton();
             $grid->disableFilter();
             $grid->tools(function ($tools) {
                 $tools->append(new SyncAgentAction());
@@ -70,12 +72,52 @@ class AgentController extends Controller
         return $content->body($show);
     }  
 
-    public function create() {
-        
+    public function create(Content $content) {
+        $form = Admin::form(new Agent, function(Form $form) {            
+            $form->display('id', 'ID');
+            $form->footer(function ($footer) {
+                $footer->disableReset();        
+                // $footer->disableSubmit();    
+                $footer->disableViewCheck();
+                $footer->disableEditingCheck();
+                $footer->disableCreatingCheck();    
+            });
+
+            $form->select('zendesk_agent_id', 'Assignee')->options([
+                "1234" => 'foo',
+                "223" => 'bar',
+            ]);
+            $form->select('zendesk_group_id', 'Group')->options([
+                360000974835 => 'BPO 2',
+                360000974836 => 'Support',
+            ]);
+            $form->select('zendesk_custom_field_id', 'Agent Name')->options([
+                1 => 'foo',
+                2 => 'bar',
+            ]);
+        });
+
+        return $content->body($form);    
     }
     
-    public function store() {
+    public function store(Request $request) {
+        $agent = new Agent();
         
+        $agent->id = "unique1";
+        $agent->priority =  1;
+        $agent->zendesk_agent_id =  $request->zendesk_agent_id;
+        $agent->zendesk_agent_name =  "tes1";
+        $agent->zendesk_group_id =  $request->zendesk_group_id;
+        $agent->zendesk_group_name =  "tes1";
+        $agent->zendesk_custom_field_id =  $request->zendesk_custom_field_id;
+        $agent->zendesk_custom_field_name =  "tes1";
+        $agent->limit =  "unlimited";
+        $agent->status = false;
+        $agent->reassign = false;
+        
+        $agent->save();
+
+        return redirect()->to('/admin/agents');
     }    
     
     public function edit(Content $content) {
@@ -102,7 +144,10 @@ class AgentController extends Controller
     }    
 
     public function sync() {
-        \App\Jobs\SyncAgents::dispatchNow();
+        SyncAgents::dispatchNow([
+            "zendesk_assignee_id" => Admin::user()->zendesk_assignee_id,
+            "zendesk_group_id" => Admin::user()->zendesk_group_id
+            ]);
         return redirect()->back();
     }
 }
