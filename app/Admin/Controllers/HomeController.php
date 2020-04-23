@@ -44,7 +44,7 @@ class HomeController extends Controller
             ->title('Dashboard')
             ->description('Description...')
             ->row(function (Row $row) use ($total_available_agents, $agents) {
-                $agentsByAssignment = $agents->slice(0, 20)->sortByDesc('assignments_count');
+                $agentsByAssignment = $agents->sortByDesc('assignments_count')->slice(0, 20);
                 $full_names = $agentsByAssignment->pluck('full_name');
                 $assignment_counts = $agentsByAssignment->pluck('assignments_count');
                 
