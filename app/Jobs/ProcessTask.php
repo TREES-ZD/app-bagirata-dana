@@ -73,7 +73,7 @@ class ProcessTask implements ShouldQueue
                 "group_id" => $agent->zendesk_group_id,
                 "custom_fields" => [
                     [
-                    "id" => 360000282796,
+                    "id" => 360151408713,
                     "value" => $agent->zendesk_custom_field_id
                     ]
                 ]

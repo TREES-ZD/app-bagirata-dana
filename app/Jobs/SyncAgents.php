@@ -47,7 +47,7 @@ class SyncAgents implements ShouldQueue
         $response = $client->groups()->findAll();
         $groupByKey = collect($response->groups)->keyBy("id");
 
-        $response = $client->ticketFields()->find(360000282796);
+        $response = $client->ticketFields()->find(360151408713);
         $customFields = collect($response->ticket_field->custom_field_options)->keyBy('id');
         $existingAgentsByKey = Agent::all()->keyBy('id');
 
