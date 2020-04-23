@@ -33,6 +33,7 @@ Route::group([
     });
 
     $router->get('/tasks', 'TaskController@index');
+    $router->put('/tasks/{id}', 'TaskController@update');
 
     $router->get('/schedules', 'HomeController@schedules');
     $router->get('/jobs', 'HomeController@jobs');

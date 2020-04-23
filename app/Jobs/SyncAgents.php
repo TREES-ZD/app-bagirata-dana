@@ -41,7 +41,7 @@ class SyncAgents implements ShouldQueue
         $client = new ZendeskAPI($subdomain);
         $client->setAuth('basic', ['username' => $username, 'token' => $token]);
 
-        $response = $client->search()->find("type:user role:$this->type", ['sort_by' => 'updated_at']);
+        $response = $client->search()->find("type:user role:$this->type role:agent", ['sort_by' => 'updated_at']);
         $agentByKey = collect($response->results)->keyBy("id");
 
         $response = $client->groups()->findAll();
