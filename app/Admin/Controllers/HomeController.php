@@ -65,7 +65,7 @@ class HomeController extends Controller
                 // $row->column(8, new Box("Agents by total assignments", view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts'))));
                 $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts'))));
                 $row->column(4, new Box("Agent(s) available", $total_available_agents ?: "None"));
-                $row->column(4, new Box("Availability logs", $total_available_agents ?: "None"));
+                // $row->column(4, new Box("Availability logs", $total_available_agents ?: "None"));
                 
                 // $row->column(4, new Box("Active Task(s)", $total_available_agents ?: "None"));
                 $row->column(12, new Box("Latest assignments", view('roundrobin.logs', compact('dataTable'))));
