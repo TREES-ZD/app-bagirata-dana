@@ -36,7 +36,7 @@ class AssignTicket implements ShouldQueue
      */
     public function handle()
     {
-        $client = new ZendeskAPI("contreesdemo11557827937");
+        $client = new ZendeskAPI(env("ZENDESK_SUBDOMAIN","contreesdemo11557827937"));
         $client->setAuth('basic', ['username' => "eldien.hasmanto@treessolutions.com", 'token' => "wZX70pAKu3aNyqOEYONUdjVLCIaoBMRFXjnbi7SE"]);
 
         Redis::funnel('update')->limit(1)->then(function() use ($client) {

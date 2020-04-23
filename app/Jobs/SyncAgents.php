@@ -34,9 +34,9 @@ class SyncAgents implements ShouldQueue
      */
     public function handle()
     {
-        $subdomain = "contreesdemo11557827937";
-        $username  = "eldien.hasmanto@treessolutions.com";
-        $token     = "2HJtvL35BSsWsVR4b3ZCxvYhLGYcAacP2EyFKGki"; // replace this with your token
+        $subdomain = env("ZENDESK_SUBDOMAIN", "contreesdemo11557827937");
+        $username  = env("ZENDESK_USERNAME", "eldien.hasmanto@treessolutions.com");
+        $token     = env("ZENDESK_TOKEN", "2HJtvL35BSsWsVR4b3ZCxvYhLGYcAacP2EyFKGki"); // replace this with your token
         
         $client = new ZendeskAPI($subdomain);
         $client->setAuth('basic', ['username' => $username, 'token' => $token]);

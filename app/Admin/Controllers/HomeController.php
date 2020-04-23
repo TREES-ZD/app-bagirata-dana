@@ -90,7 +90,7 @@ class HomeController extends Controller
     }
 
     public function tasks(Content $content) {
-        $client = new ZendeskAPI("contreesdemo11557827937");
+        $client = new ZendeskAPI(env("ZENDESK_SUBDOMAIN","contreesdemo11557827937"));
         $client->setAuth('basic', ['username' => "eldien.hasmanto@treessolutions.com", 'token' => "wZX70pAKu3aNyqOEYONUdjVLCIaoBMRFXjnbi7SE"]);
 
         // Get available agents
