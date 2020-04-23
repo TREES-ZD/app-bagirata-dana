@@ -20,6 +20,7 @@
         "laravel/framework": "^6.2",
         "laravel/horizon": "^3.5",
         "laravel/tinker": "^2.0",
+        "spatie/laravel-activitylog": "^3.14",
         "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {

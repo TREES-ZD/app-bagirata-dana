@@ -1,8 +1,9 @@
 <?php
 
+use App\Task;
 use App\Agent;
-use App\Assignment;
 // use Encore\Admin\Admin;
+use App\Assignment;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Zendesk\API\HttpClient as ZendeskAPI;
@@ -41,10 +42,10 @@ Route::group([
 });
 
 Route::get('run', function() {
-    App\Jobs\ProcessTask::dispatch("360001440115");
+    App\Jobs\ProcessTask::dispatch(Task::find("view_360001440115-grouping_360000349636"));
     return redirect()->back();
 });
 Route::post('run', function() {
-    App\Jobs\ProcessTask::dispatchNow("360001440115");
+    App\Jobs\ProcessTask::dispatchNow(Task::find("view_360001440115-grouping_360000349636"));
     return response()->json();
 });

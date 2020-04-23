@@ -9,6 +9,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Agent;
+use App\Task;
+use App\TaskLog;
 
 class ProcessTask implements ShouldQueue
 {
@@ -23,9 +25,10 @@ class ProcessTask implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(string $viewId)
+    public function __construct(Task $task)
     {
-        $this->viewId = $viewId;
+        $this->task = $task;
+        $this->viewId = $task->zendesk_view_id;
     }
 
     /**
@@ -83,8 +86,12 @@ class ProcessTask implements ShouldQueue
                 "group_id" => $agent->zendesk_group_id
             ]);
         }
-
-        $this->response = "hallo";
+        
+        TaskLog::create([
+            'task_id' => $this->task->id,
+            'causer_type' => "SYSTEM",
+            'total_assignments' => $totalTickets
+        ]);
     }
 
     public function getResponse()

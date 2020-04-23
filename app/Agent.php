@@ -7,7 +7,7 @@ use Spatie\EloquentSortable\Sortable;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\EloquentSortable\SortableTrait;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
-
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Agent extends Model implements Sortable
 {
@@ -17,7 +17,7 @@ class Agent extends Model implements Sortable
 
     public const ASSIGNMENT = "assignment";
 
-    public const REASSIGNMENT = "assignment";
+    public const REASSIGNMENT = "reassignment";
 
     public $incrementing = false;
 
@@ -32,11 +32,23 @@ class Agent extends Model implements Sortable
 
     protected $appends = ['fullName'];
 
+    protected static $logAttributes = ['status'];
+
     protected static function boot()
     {
         parent::boot();
 
         static::addGlobalScope(new AgentUserScope);
+
+        static::updated(function($agent) {
+
+            if ($agent->isDirty('status')) {
+                AvailabilityLog::create([
+                    "status" => $agent->status ? "Available" : "Unavailable",
+                    "agent_id" => $agent->id
+                ]);
+            }
+        });
     }
 
     public function assignments() {

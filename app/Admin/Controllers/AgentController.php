@@ -128,15 +128,15 @@ class AgentController extends Controller
         });
     }
 
-    public function update(Content $content, Request $request, $id) {
+    public function update(Request $request, $id) {
         \Debugbar::info($request->all());
         \Debugbar::info($id);
         $agent = Agent::findOrFail($id);
         $agent->status = $request->get('status');
         $agent->save();
-        \Debugbar::info($agent);
+        // \Debugbar::info($agent);
 
-        return "CARALHO";
+        return $agent;
     }    
     
     public function destroy() {
