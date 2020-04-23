@@ -55,7 +55,6 @@ class ProcessTask implements ShouldQueue
                 ->sortBy(function($a) {
                     return $a->assignments->last() ? $a->assignments->last()->created_at->timestamp : 0;
                 });
-
         $sortedAgents = collect();
         $agents->map(function($a) use ($sortedAgents) {
             $sortedAgents->push($a);
@@ -87,11 +86,11 @@ class ProcessTask implements ShouldQueue
             ]);
         }
         
-        TaskLog::create([
-            'task_id' => $this->task->id,
-            'causer_type' => "SYSTEM",
-            'total_assignments' => $totalTickets
-        ]);
+        // TaskLog::create([
+        //     'task_id' => $this->task->id,
+        //     'causer_type' => "SYSTEM",
+        //     'total_assignments' => $totalTickets
+        // ]);
     }
 
     public function getResponse()
