@@ -23,6 +23,8 @@ class TaskController extends Controller
             $grid->disableColumnSelector();
             // $grid->disableActions();  
             $grid->disableFilter();  
+            $grid->disableExport();
+            
             $grid->enabled()->select([
                 true => 'Yes',
                 false => 'No',
