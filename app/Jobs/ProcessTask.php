@@ -18,6 +18,8 @@ class ProcessTask implements ShouldQueue
 
     protected $viewId;
 
+    protected $task;
+
     protected $response;
 
     /**
@@ -41,15 +43,21 @@ class ProcessTask implements ShouldQueue
         $subdomain = env("ZENDESK_SUBDOMAIN", "contreesdemo11557827937");
         $username  = env("ZENDESK_USERNAME", "eldien.hasmanto@treessolutions.com");
         $token     = env("ZENDESK_TOKEN", "2HJtvL35BSsWsVR4b3ZCxvYhLGYcAacP2EyFKGki"); // replace this with your token
-        
+        $group_id = $this->task->group_id;
+
         $client = new ZendeskAPI($subdomain);
         $client->setAuth('basic', ['username' => $username, 'token' => $token]);
         
         $tickets = $client->views($this->viewId)->tickets();
+        $filteredTickets = collect($tickets->tickets)
+                            ->filter(function($ticket) use ($group_id) {
+                                return !$ticket->group_id || $ticket->group_id == $group_id;
+                            });  
         
         // Assign round robin
         // $agents = Agent::where('status', true)->get();
         $agents = Agent::disableCache()->where('status', true)
+                ->where('zendesk_group_id', $group_id)
                 ->with(['assignments'])
                 ->get()
                 ->sortBy(function($a) {
@@ -60,11 +68,11 @@ class ProcessTask implements ShouldQueue
             $sortedAgents->push($a);
         });
         $totalAgents = $agents->count();
-        $totalTickets = count($tickets->tickets);
-        
+        // dd($filteredTickets, $agents, $totalAgents);
+
         if ($totalAgents < 1) return;
 
-        foreach ($tickets->tickets as $i => $ticket) {
+        foreach ($filteredTickets as $i => $ticket) {
             $agentNum = ($i % $totalAgents);
             $agent = $sortedAgents[$agentNum];
             $client->tickets()->update($ticket->id, [
