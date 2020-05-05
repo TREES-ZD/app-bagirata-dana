@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Jobs\UnassignTickets;
 use App\Scopes\AgentUserScope;
 use Spatie\EloquentSortable\Sortable;
 use Illuminate\Database\Eloquent\Model;
@@ -15,9 +16,11 @@ class Agent extends Model implements Sortable
     
     use SortableTrait;
 
-    public const ASSIGNMENT = "assignment";
+    public const ASSIGNMENT = "ASSIGNMENT";
 
-    public const REASSIGNMENT = "reassignment";
+    public const REASSIGNMENT = "REASSIGNMENT";
+
+    public const UNASSIGNMENT = "UNASSIGNMENT";
 
     public $incrementing = false;
 
@@ -43,6 +46,11 @@ class Agent extends Model implements Sortable
         static::updated(function($agent) {
 
             if ($agent->isDirty('status')) {
+
+                if ($agent->status == false) {
+                    UnassignTickets::dispatchNow($agent);
+                }
+
                 AvailabilityLog::create([
                     "status" => $agent->status ? "Available" : "Unavailable",
                     "agent_id" => $agent->id
