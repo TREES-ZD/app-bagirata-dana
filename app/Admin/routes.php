@@ -43,10 +43,10 @@ Route::group([
 });
 
 Route::get('run', function() {
-    App\Jobs\ProcessTask::dispatch(Task::find("view_360151408713-grouping_360000349636"));
+    App\Jobs\ProcessTask::dispatch(Task::find("view_360001440115-grouping_360000349636"));
     return redirect()->back();
 });
 Route::post('run', function() {
-    App\Jobs\ProcessTask::dispatchNow(Task::find("view_360151408713-grouping_360000349636"));
+    App\Jobs\ProcessTask::dispatchNow(Task::find("view_360001440115-grouping_360000349636"));
     return response()->json();
 });
