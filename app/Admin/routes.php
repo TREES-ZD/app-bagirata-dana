@@ -50,7 +50,7 @@ Route::post('run', function() {
     App\Jobs\ProcessTask::dispatchNow(Task::find("view_360001440115-grouping_360000349636"));
     return response()->json();
 });
-Route::post('unassign', function() {
-    App\Jobs\UnassignTickets::dispatchNow(Agent::find("360278992296-360000349636-doni"));
+Route::post('unassign', function(Request $request) {
+    App\Jobs\UnassignTickets::dispatchNow(Agent::find($request->agent_id));
     return response()->json();
 });
