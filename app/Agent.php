@@ -53,7 +53,8 @@ class Agent extends Model implements Sortable
 
                 AvailabilityLog::create([
                     "status" => $agent->status ? "Available" : "Unavailable",
-                    "agent_id" => $agent->id
+                    "agent_id" => $agent->id,
+                    "agent_name" => $agent->fullName
                 ]);
             }
         });

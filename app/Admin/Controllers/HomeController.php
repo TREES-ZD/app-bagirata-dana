@@ -20,6 +20,7 @@ use App\Admin\Actions\Post\ImportPost;
 use Encore\Admin\Controllers\Dashboard;
 use Zendesk\API\HttpClient as ZendeskAPI;
 use App\Admin\Actions\Post\BatchReplicate;
+use App\AvailabilityLog;
 
 class HomeController extends Controller
 {
@@ -48,11 +49,21 @@ class HomeController extends Controller
                 $full_names = $agentsByAssignment->pluck('full_name');
                 $assignment_counts = $agentsByAssignment->pluck('assignments_count');
                 
-                // table
+                // Availability Logs table
+                $availabilityLogsHeaders = ['Date', 'Status', 'Agent'];
+                $availabilityLogsRows = AvailabilityLog::latest("created_at")->limit(10)->get(["created_at", "status", "agent_name"])->toArray();
+                $availabilityLogsStyle = ['table-bordered','table-hover', 'table-striped'];
+                $availabilityLogsOptions = [
+                    'lengthChange' => false,
+                    // 'ordering' => true,
+                    'info' => true,
+                    'autoWidth' => false,
+                ];
+
+                // Latest Assignments table
                 $headers = ['Date', 'Agent', 'Ticket ID', 'Title', "Type"];
                 $rows = Assignment::latest("created_at")->limit(10)->get(["created_at", "agent_name", "ticket_id", "ticket_name", "type"])->toArray();
                 $style = ['table-bordered','table-hover', 'table-striped'];
-
                 $options = [
                     'lengthChange' => false,
                     // 'ordering' => true,
@@ -60,12 +71,13 @@ class HomeController extends Controller
                     'autoWidth' => false,
                 ];
 
+                $availabilityLogsTable = new DataTable($availabilityLogsHeaders, $availabilityLogsRows, $availabilityLogsStyle, $availabilityLogsOptions);
                 $dataTable = new DataTable($headers, $rows, $style, $options);        
                 
                 // $row->column(8, new Box("Agents by total assignments", view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts'))));
                 $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts'))));
                 $row->column(4, new Box("Agent(s) available", $total_available_agents ?: "None"));
-                // $row->column(4, new Box("Availability logs", $total_available_agents ?: "None"));
+                $row->column(4, new Box("Availability logs", view('roundrobin.dashboard.availabilityLogs', compact('availabilityLogsTable'))));
                 
                 // $row->column(4, new Box("Active Task(s)", $total_available_agents ?: "None"));
                 $row->column(12, new Box("Latest assignments", view('roundrobin.logs', compact('dataTable'))));

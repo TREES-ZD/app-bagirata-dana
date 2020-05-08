@@ -17,6 +17,7 @@ class CreateAvailabilityLogsTable extends Migration
             $table->bigIncrements('id');
             $table->enum('status', ["Available", "Unavailable"]);
             $table->string('agent_id', 60)->nullable();
+            $table->string('agent_name', 60)->nullable();
             $table->string('causer_id', 60)->nullable();
             $table->string('causer_type')->nullable();
 
