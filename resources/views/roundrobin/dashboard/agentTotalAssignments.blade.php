@@ -1,30 +1,64 @@
 <div class="col-md-12">
             <div class="input-group" id="adv-search">
-                <input type="text" class="form-control" placeholder="Search for snippets" />
+                <input type="text" class="form-control" placeholder="Filter" />
                 <div class="input-group-btn">
                     <div class="btn-group" role="group">
                         <div class="dropdown dropdown-lg">
                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
                             <div class="dropdown-menu dropdown-menu-right" role="menu">
                                 <form class="form-horizontal" role="form">
-                                  <div class="form-group">
-                                    <label for="filter">Filter by</label>
+                                <div class="form-group">
+                                    <label for="filter">Assignee</label>
                                     <select class="form-control">
-                                        <option value="0" selected>All Snippets</option>
-                                        <option value="1">Featured</option>
-                                        <option value="2">Most popular</option>
-                                        <option value="3">Top rated</option>
-                                        <option value="4">Most commented</option>
+                                        <option value="0" selected>All</option>
+                                        <option value="support">Norman</option>
+                                        <option value="poc1demo">poc1demo</option>
+                                        <option value="poc1demo">Diastowo Faryduana</option>
+                                        <option value="poc1demo">Luhung</option>
+                                    </select>
+                                  </div>                                    
+                                  <div class="form-group">
+                                    <label for="filter">Group</label>
+                                    <select class="form-control">
+                                        <option value="0" selected>All</option>
+                                        <option value="support">Support</option>
+                                        <option value="bpo2">BPO 2</option>
                                     </select>
                                   </div>
                                   <div class="form-group">
-                                    <label for="contain">Author</label>
-                                    <input name="hallo" class="form-control" type="text" />
+                                    <label for="filter">Availability</label>
+                                    <select class="form-control">
+                                        <option value="0" selected>All</option>
+                                        <option value="1">Available</option>
+                                        <option value="2">Unavailable</option>
+                                    </select>
+                                  </div>                                  
+                                  <!-- <div class="form-group">
+                                    <label for="contain">From</label>
+                                    <input name="from" class="form-control" type="date" />
                                   </div>
                                   <div class="form-group">
-                                    <label for="contain">Contains the words</label>
-                                    <input class="form-control" type="text" />
-                                  </div>
+                                    <label for="contain">To</label>
+                                    <input name="to" class="form-control" type="date" />
+                                  </div> -->
+                                  <div class="form-group">
+                                    <label for="filter">From Date</label>
+                                    <div class='input-group date' id='fromdate'>
+                                        <input name="from" type='text' class="form-control" />
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                    </div>                                     
+                                  <div class="form-group">
+                                    <label for="filter">To Date</label>
+                                    <div class='input-group date' id='todate'>
+                                        <input name="to" type='text' class="form-control" />
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                    </div>                                  
                                   <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
                                 </form>
                             </div>
@@ -35,9 +69,15 @@
           </div>
 
 <canvas id="bar-chart-horizontal" width="800" height="600"></canvas>
-
+<script type="text/javascript">
+            $(function () {
+                $('#fromdate').datetimepicker();
+                $('#todate').datetimepicker();
+            });
+        </script>
 
 <script>
+    
 
 $(function () {
     // var ctx = document.getElementById("myChart").getContext('2d');

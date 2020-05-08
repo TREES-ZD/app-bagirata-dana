@@ -7,8 +7,10 @@ use App\Group;
 use App\Assignment;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
+use App\AvailabilityLog;
 use App\Jobs\AssignTicket;
 use Encore\Admin\Layout\Row;
+use Illuminate\Http\Request;
 use Encore\Admin\Widgets\Box;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Column;
@@ -20,11 +22,10 @@ use App\Admin\Actions\Post\ImportPost;
 use Encore\Admin\Controllers\Dashboard;
 use Zendesk\API\HttpClient as ZendeskAPI;
 use App\Admin\Actions\Post\BatchReplicate;
-use App\AvailabilityLog;
 
 class HomeController extends Controller
 {
-    public function index(Content $content)
+    public function index(Content $content, Request $request)
     {
         $full_names = [];
         $assignment_counts = []; 
