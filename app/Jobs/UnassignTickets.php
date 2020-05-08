@@ -43,7 +43,7 @@ class UnassignTickets implements ShouldQueue
         $client->setAuth('basic', ['username' => $username, 'token' => $token]);
 
         $agent_id = $this->agent->id;
-        $latest_log = AvailabilityLog::where("agent_id", $agent_id)->where("status", "Available")->latest()->first();
+        $latest_log = AvailabilityLog::where("agent_id", $agent_id)->where("status", "Available")->latest()->first(); //TODO: check if not exist
         $ticket_ids = Assignment::where('agent_id', $agent_id)->where('type', Agent::ASSIGNMENT)->whereDate('created_at', ">=", $latest_log->created_at)->get()->pluck('ticket_id');
 
         $tickets = null;
@@ -56,16 +56,38 @@ class UnassignTickets implements ShouldQueue
         }
 
         //Unassign
-        foreach ($tickets as $i => $ticket) {
-            $client->tickets()->update($ticket->id, [
-                "assignee_id" => null,
-                "custom_fields" => [
-                    [
-                    "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
-                    "value" => null
-                    ]
+        $client->tickets()->updateMany([
+            "ids" => array_column($tickets, "id"),
+            "assignee_id" => null,
+            "group_id" => $this->agent->zendesk_group_id,
+            "custom_fields" => [
+                [
+                "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
+                "value" => null
                 ]
-            ]);
+            ],
+            "additional_tags" => ["bagirata_agent_unavailable"],
+            "comment" =>  [
+                "body" => "BagiRata Agent Unavailable: " . $this->agent->fullName,
+                "public" => false
+            ]
+        ]);
+        foreach ($tickets as $i => $ticket) {
+            // $client->tickets()->update($ticket->id, [
+            //     "assignee_id" => null,
+            //     "custom_fields" => [
+            //         [
+            //         "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
+            //         "value" => null
+            //         ]
+            //     ],
+            //     // "tags" => ["bagirata_agent_unavailable"],
+            //     "comment" =>  [
+            //         "body" => "BagiRata Agent Unavailable: " . $this->agent->fullName,
+            //         "author_id" => $this->agent->zendesk_agent_id,
+            //         "public" => false
+            //     ]
+            // ]);
             $this->agent->assignments()->create([
                 "type" => Agent::UNASSIGNMENT,
                 "agent_name" => $this->agent->fullName,
