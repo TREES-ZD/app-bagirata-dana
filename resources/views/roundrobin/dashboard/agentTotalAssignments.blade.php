@@ -1,4 +1,4 @@
-<!-- <div class="col-md-12">
+<div class="col-md-12">
             <div class="input-group" id="adv-search">
                 <input type="text" class="form-control" placeholder="Search for snippets" />
                 <div class="input-group-btn">
@@ -32,7 +32,7 @@
                     </div>
                 </div>
             </div>
-          </div> -->
+          </div>
 
 <canvas id="bar-chart-horizontal" width="800" height="600"></canvas>
 

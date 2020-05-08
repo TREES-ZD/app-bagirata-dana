@@ -56,38 +56,37 @@ class UnassignTickets implements ShouldQueue
         }
 
         //Unassign
-        $client->tickets()->updateMany([
-            "ids" => array_column($tickets, "id"),
-            "assignee_id" => null,
-            "group_id" => $this->agent->zendesk_group_id,
-            "custom_fields" => [
-                [
-                "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
-                "value" => null
-                ]
-            ],
-            "additional_tags" => ["bagirata_agent_unavailable"],
-            "comment" =>  [
-                "body" => "BagiRata Agent Unavailable: " . $this->agent->fullName,
-                "public" => false
-            ]
-        ]);
+        // $client->tickets()->updateMany([
+        //     "ids" => array_column($tickets, "id"),
+        //     "assignee_id" => null,
+        //     "group_id" => $this->agent->zendesk_group_id,
+        //     "custom_fields" => [
+        //         [
+        //         "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
+        //         "value" => null
+        //         ]
+        //     ],
+        //     "additional_tags" => ["bagirata_agent_unavailable"],
+        //     "comment" =>  [
+        //         "body" => "BagiRata Agent Unavailable: " . $this->agent->fullName,
+        //         "public" => false
+        //     ]
+        // ]);
         foreach ($tickets as $i => $ticket) {
-            // $client->tickets()->update($ticket->id, [
-            //     "assignee_id" => null,
-            //     "custom_fields" => [
-            //         [
-            //         "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
-            //         "value" => null
-            //         ]
-            //     ],
-            //     // "tags" => ["bagirata_agent_unavailable"],
-            //     "comment" =>  [
-            //         "body" => "BagiRata Agent Unavailable: " . $this->agent->fullName,
-            //         "author_id" => $this->agent->zendesk_agent_id,
-            //         "public" => false
-            //     ]
-            // ]);
+            $client->tickets()->update($ticket->id, [
+                "custom_fields" => [
+                    [
+                    "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
+                    "value" => null
+                    ]
+                ],
+                "tags" => array_merge($ticket->tags, ["bagirata_agent_unavailable"]),
+                "comment" =>  [
+                    "body" => "BAGIRATA Agent Unavailable: " . $this->agent->fullName,
+                    "author_id" => $this->agent->zendesk_agent_id,
+                    "public" => false
+                ]
+            ]);
             $this->agent->assignments()->create([
                 "type" => Agent::UNASSIGNMENT,
                 "agent_name" => $this->agent->fullName,
