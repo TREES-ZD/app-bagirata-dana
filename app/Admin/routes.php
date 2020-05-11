@@ -43,14 +43,18 @@ Route::group([
 });
 
 Route::get('run', function() {
-    App\Jobs\ProcessTask::dispatch(Task::find("view_360001440115-grouping_360000349636"));
+    App\Jobs\ProcessTask::dispatch(Task::find(1));
     return redirect()->back();
 });
 Route::post('run', function() {
-    App\Jobs\ProcessTask::dispatchNow(Task::find("view_360001440115-grouping_360000349636"));
+    App\Jobs\ProcessTask::dispatchNow(Task::find(1));
     return response()->json();
 });
 Route::post('unassign', function(Request $request) {
     App\Jobs\UnassignTickets::dispatchNow(Agent::find($request->agent_id));
+    return response()->json();
+});
+Route::post('syncAgents', function(Request $request) {
+    App\Jobs\SyncAgents::dispatchNow();
     return response()->json();
 });

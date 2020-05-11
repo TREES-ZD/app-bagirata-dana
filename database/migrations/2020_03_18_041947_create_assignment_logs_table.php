@@ -15,12 +15,14 @@ class CreateAssignmentLogsTable extends Migration
     {
         Schema::create('assignments', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->unsignedBigInteger('agent_id');
             $table->string('type');
-            $table->string('agent_id', 60);
             $table->string('agent_name');
             $table->integer('ticket_id');
             $table->string('ticket_name');
             $table->timestamps();
+
+            $table->index('agent_id');
         });
     }
 

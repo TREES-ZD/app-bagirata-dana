@@ -14,7 +14,6 @@ class AgentSeeder extends Seeder
     public function run()
     {
         Agent::insert([
-            "id" => "360278992236-360000349636-siang",
             "priority" => 1,
             "reassign" => false,
             "status" => true,
@@ -27,7 +26,6 @@ class AgentSeeder extends Seeder
             "limit" => "unlimited"
         ]);                
         Agent::insert([
-            "id" => "360278992296-360000349636-siang",
             "priority" => 1,
             "reassign" => false,
             "status" => true,
@@ -40,7 +38,6 @@ class AgentSeeder extends Seeder
             "limit" => "unlimited"
         ]);
         Agent::insert([
-            "id" => "360278992296-360000974835-malam",
             "priority" => 1,
             "reassign" => false,
             "status" => true,
@@ -53,7 +50,6 @@ class AgentSeeder extends Seeder
             "limit" => "unlimited"
         ]);        
         Agent::insert([
-            "id" => "360278992236-360000974835-malam",
             "priority" => 1,
             "reassign" => false,
             "status" => true,

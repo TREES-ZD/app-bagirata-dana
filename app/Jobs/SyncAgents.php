@@ -49,7 +49,10 @@ class SyncAgents implements ShouldQueue
 
         $response = $client->ticketFields()->find(env("ZENDESK_AGENT_NAMES_FIELD", 360000282796));
         $customFields = collect($response->ticket_field->custom_field_options)->keyBy('id');
-        $existingAgentsByKey = Agent::all()->keyBy('id');
+        $existingAgentsByIdentifier = Agent::all()->keyBy(function($agent) {
+            // Identify agent based on the pattern ':zendesk_agent_id-:zendesk_group_id-:zendesk_custom_field_id' 
+            return sprintf("%s-%s-%s", $agent->zendesk_agent_id, $agent->zendesk_group_id, $agent->zendesk_custom_field_id);
+        });
 
         $response = $client->groupMemberships()->findAll();
         $agents = collect($response->group_memberships)
@@ -61,7 +64,7 @@ class SyncAgents implements ShouldQueue
                     
                     return !($agent && $group);
                 })
-                ->map(function($membershipAndCustomField) use ($agentByKey, $groupByKey, $existingAgentsByKey) {
+                ->map(function($membershipAndCustomField) use ($agentByKey, $groupByKey, $existingAgentsByIdentifier) {
                     $membership = $membershipAndCustomField[0];
                     $customField = $membershipAndCustomField[1];
 
@@ -69,9 +72,8 @@ class SyncAgents implements ShouldQueue
                     $group = $groupByKey->get($membership->group_id);
 
                     $id = sprintf("%s-%s-%s", $agent->id, $group->id, $customField->value);
-                    $existingAgent = $existingAgentsByKey->get($id);
+                    $existingAgent = $existingAgentsByIdentifier->get($id);
                     return [
-                        "id" => $id,
                         "priority" => 1,
                         "zendesk_agent_id" => $agent->id,
                         "zendesk_agent_name" => $agent->name,

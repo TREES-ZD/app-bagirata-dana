@@ -22,10 +22,6 @@ class Agent extends Model implements Sortable
 
     public const UNASSIGNMENT = "UNASSIGNMENT";
 
-    public $incrementing = false;
-
-    protected $keyType = 'string';   
-
     public $sortable = [
         'order_column_name' => 'priority',
         'sort_when_creating' => true,

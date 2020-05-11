@@ -14,8 +14,8 @@ class CreateAgentsTable extends Migration
     public function up()
     {
         Schema::create('agents', function (Blueprint $table) {
-            // $table->bigIncrements('id');
-            $table->string('id', 60)->primary();
+            $table->bigIncrements('id');
+            // $table->string('id', 60)->primary();
             $table->integer('priority');
             $table->string('zendesk_agent_id');
             $table->string('zendesk_agent_name');

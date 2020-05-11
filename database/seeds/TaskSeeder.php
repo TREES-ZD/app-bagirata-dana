@@ -12,7 +12,6 @@ class TaskSeeder extends Seeder
     public function run()
     {
         DB::table("tasks")->insert([
-            "id" => "view_360001440115-grouping_360000349636",
             "zendesk_view_id" => "360001440115",
             "zendesk_view_title" => "Ticket-ticket untuk dibagi rata",
             "interval" => "everyMinute",

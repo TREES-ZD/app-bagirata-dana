@@ -14,7 +14,7 @@ class CreateQueuesTable extends Migration
     public function up()
     {
         Schema::create('tasks', function (Blueprint $table) {
-            $table->string('id')->primary();
+            $table->bigIncrements('id');
             $table->string('zendesk_view_id');
             $table->string('zendesk_view_title');
             $table->string('interval');
