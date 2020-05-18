@@ -56,13 +56,15 @@ class ProcessTask implements ShouldQueue
         
         // Assign round robin
         // $agents = Agent::where('status', true)->get();
-        $agents = Agent::disableCache()->where('status', true)
-                ->where('zendesk_group_id', $group_id)
-                ->with(['assignments'])
-                ->get()
-                ->sortBy(function($a) {
-                    return $a->assignments->last() ? $a->assignments->last()->created_at->timestamp : 0;
-                });
+        $agents = $this->task
+                        ->agents()
+                        ->disableCache()
+                        ->where('status', true)
+                        ->with(['assignments'])
+                        ->get()
+                        ->sortBy(function($a) {
+                            return $a->assignments->last() ? $a->assignments->last()->created_at->timestamp : 0;
+                        });                        
         $sortedAgents = collect();
         $agents->map(function($a) use ($sortedAgents) {
             $sortedAgents->push($a);
