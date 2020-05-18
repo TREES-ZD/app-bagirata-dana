@@ -41,6 +41,7 @@ class AgentController extends Controller
             
             $grid->paginate(10);
             $grid->sortable();
+            $grid->fullName("Agent Full Name");
             $grid->zendesk_agent_name("Assignee")->sortable();
             $grid->zendesk_group_name("Group")->sortable();
             // $grid->fullName("Full Name");
