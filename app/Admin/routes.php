@@ -35,10 +35,12 @@ Route::group([
     $router->get('/tasks', 'TaskController@index');
     $router->put('/tasks/{id}', 'TaskController@update');
 
+    $router->get('/rules', 'RuleController@index');
+    $router->put('/rules/{id}', 'RuleController@update');
+
     $router->get('/schedules', 'HomeController@schedules');
     $router->get('/jobs', 'HomeController@jobs');
     $router->get('/groups', 'HomeController@groups');
-    $router->get('/rules', 'HomeController@rules');
     $router->get('/logs', 'HomeController@logs');
 });
 

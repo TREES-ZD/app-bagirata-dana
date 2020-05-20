@@ -56,6 +56,10 @@ class Agent extends Model implements Sortable
         });
     }
 
+    public function rules() {
+        return $this->belongsToMany('App\Task', 'rules')->withPivot('priority');
+    }
+
     public function assignments() {
         return $this->hasMany('App\Assignment');
     }
