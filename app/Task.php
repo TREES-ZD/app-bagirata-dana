@@ -8,7 +8,7 @@ class Task extends Model
 { 
     protected $guarded = ['id'];
 
-    public function agents()
+    public function rules()
     {
         return $this->belongsToMany('App\Agent', 'rules');
     }

@@ -57,7 +57,7 @@ class ProcessTask implements ShouldQueue
         // Assign round robin
         // $agents = Agent::where('status', true)->get();
         $agents = $this->task
-                        ->agents()
+                        ->rules()
                         ->disableCache()
                         ->where('status', true)
                         ->with(['assignments'])
