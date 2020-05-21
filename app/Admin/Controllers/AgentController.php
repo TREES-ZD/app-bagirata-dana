@@ -85,9 +85,9 @@ class AgentController extends Controller
                 $footer->disableCreatingCheck();    
             });
 
-            $form->select('zendesk_agent_id', 'Assignee')->options($zendesk->getAssigneeNames());
-            $form->select('zendesk_group_id', 'Group')->options($zendesk->getGroupNames());
-            $form->select('zendesk_custom_field_id', 'Agent Name')->options($zendesk->getCustomFieldNames());
+            $form->select('zendesk_agent_id', 'Assignee')->options($zendesk->getUsers(null, true));
+            $form->select('zendesk_group_id', 'Group')->options($zendesk->getGroups(null, true));
+            $form->select('zendesk_custom_field_id', 'Agent Name')->options($zendesk->getCustomFields(null, true));
         });
 
         return $content->body($form);    
@@ -98,11 +98,11 @@ class AgentController extends Controller
 
         $agent->priority =  1;
         $agent->zendesk_agent_id =  $request->zendesk_agent_id;
-        $agent->zendesk_agent_name =  $zendesk->getAssigneeNames($request->zendesk_agent_id);
+        $agent->zendesk_agent_name =  $zendesk->getUsers($request->zendesk_agent_id, true);
         $agent->zendesk_group_id =  $request->zendesk_group_id;
-        $agent->zendesk_group_name =  $zendesk->getGroupNames($request->zendesk_group_id);
+        $agent->zendesk_group_name =  $zendesk->getGroups($request->zendesk_group_id, true);
         $agent->zendesk_custom_field_id =  $request->zendesk_custom_field_id;
-        $agent->zendesk_custom_field_name =  $zendesk->getCustomFieldNames($request->zendesk_custom_field_id);
+        $agent->zendesk_custom_field_name =  $zendesk->getCustomFields($request->zendesk_custom_field_id, true);
         $agent->limit =  "unlimited";
         $agent->status = false;
         $agent->reassign = false;

@@ -15,7 +15,7 @@ class ZendeskService
         $this->client->setAuth('basic', ['username' => $username, 'token' => $token]);
     }
 
-    public function getAssigneeNames($key = null) {
+    public function getUsers($key = null, $nameOnly = false) {
         $users = cache()->remember("users", 24 * 60 * 7, function () {
             $type = "admin";
             $response = $this->client->search()->find("type:user role:$type role:agent", ['sort_by' => 'updated_at']);
@@ -23,7 +23,11 @@ class ZendeskService
             return $response->results;
         });
 
-        $agentByKey = collect($users)->keyBy("id")->pluck("name", "id");
+        $agentByKey = collect($users)->keyBy("id");
+
+        if ($nameOnly) {
+            $agentByKey = $agentByKey->pluck("name", "id");
+        }
 
         if ($key != null) {
             return $agentByKey->get($key); 
@@ -32,12 +36,16 @@ class ZendeskService
         return $agentByKey->toArray();
     }
 
-    public function getGroupNames($key = null) {
+    public function getGroups($key = null, $nameOnly = false) {
         $groups = cache()->remember("groups", 24 * 60 * 7, function () {
             $response = $this->client->groups()->findAll();
             return $response->groups;
         });
-        $groupByKey = collect($groups)->keyBy("id")->pluck("name", "id");
+        $groupByKey = collect($groups)->keyBy("id");
+
+        if ($nameOnly) {
+            $groupByKey = $groupByKey->pluck("name", "id");
+        }
 
         if ($key != null) {
             return $groupByKey->get($key); 
@@ -46,13 +54,17 @@ class ZendeskService
         return $groupByKey->toArray();
     }
 
-    public function getCustomFieldNames($key = null) {
+    public function getCustomFields($key = null, $nameOnly = false) {
         $custom_field_options = cache()->remember("custom_field_options", 24 * 60 * 7, function () {
             $response = $this->client->ticketFields()->find(env("ZENDESK_AGENT_NAMES_FIELD", 360000282796));
             return $response->ticket_field->custom_field_options;
         });
         
-        $customFields = collect($custom_field_options)->keyBy('id')->pluck("name", "value");  
+        $customFields = collect($custom_field_options)->keyBy('value');
+
+        if ($nameOnly) {
+            $customFields = $customFields->pluck("name", "value");  
+        }
         
         if ($key != null) {
             return $customFields->get($key); 
