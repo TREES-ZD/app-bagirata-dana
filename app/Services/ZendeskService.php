@@ -14,7 +14,7 @@ class ZendeskService
         $this->client = new ZendeskAPI($subdomain);
         $this->client->setAuth('basic', ['username' => $username, 'token' => $token]);
     }
-    
+
     public function getGroupMemberships($key = null) {
         $groupMemberships = cache()->remember("groupMemberships", 24 * 60 * 7, function () {
             $response = $this->client->groupMemberships()->findAll();
@@ -24,6 +24,7 @@ class ZendeskService
         return $groupMemberships;
     }
 
+    // Should be refactor to -ByKey
     public function getUsers($key = null, $nameOnly = false) {
         $users = cache()->remember("users", 24 * 60 * 7, function () {
             $type = "admin";
@@ -45,6 +46,7 @@ class ZendeskService
         return $agentByKey->toArray();
     }
 
+    // Should be refactor to -ByKey
     public function getGroups($key = null, $nameOnly = false) {
         $groups = cache()->remember("groups", 24 * 60 * 7, function () {
             $response = $this->client->groups()->findAll();
@@ -63,6 +65,7 @@ class ZendeskService
         return $groupByKey->toArray();
     }
 
+    // Should be refactor to -ByKey
     public function getCustomFields($key = null, $nameOnly = false) {
         $custom_field_options = cache()->remember("custom_field_options", 24 * 60 * 7, function () {
             $response = $this->client->ticketFields()->find(env("ZENDESK_AGENT_NAMES_FIELD", 360000282796));
