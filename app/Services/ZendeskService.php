@@ -14,6 +14,15 @@ class ZendeskService
         $this->client = new ZendeskAPI($subdomain);
         $this->client->setAuth('basic', ['username' => $username, 'token' => $token]);
     }
+    
+    public function getGroupMemberships($key = null) {
+        $groupMemberships = cache()->remember("groupMemberships", 24 * 60 * 7, function () {
+            $response = $this->client->groupMemberships()->findAll();
+            return $response->group_memberships;
+        });
+
+        return $groupMemberships;
+    }
 
     public function getUsers($key = null, $nameOnly = false) {
         $users = cache()->remember("users", 24 * 60 * 7, function () {

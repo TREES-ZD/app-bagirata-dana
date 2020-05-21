@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Agent;
+use App\Services\ZendeskService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Queue\SerializesModels;
@@ -32,30 +33,19 @@ class SyncAgents implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(ZendeskService $zendesk)
     {
-        $subdomain = env("ZENDESK_SUBDOMAIN", "contreesdemo11557827937");
-        $username  = env("ZENDESK_USERNAME", "eldien.hasmanto@treessolutions.com");
-        $token     = env("ZENDESK_TOKEN", "2HJtvL35BSsWsVR4b3ZCxvYhLGYcAacP2EyFKGki"); // replace this with your token
-        
-        $client = new ZendeskAPI($subdomain);
-        $client->setAuth('basic', ['username' => $username, 'token' => $token]);
+        $agentByKey = collect($zendesk->getUsers()); //By Key
+        $groupByKey = collect($zendesk->getGroups()); //By Key
+        $customFields = collect($zendesk->getCustomFields()); //By Key
+        $groupMemberships = collect($zendesk->getGroupMemberships());
 
-        $response = $client->search()->find("type:user role:$this->type role:agent", ['sort_by' => 'updated_at']);
-        $agentByKey = collect($response->results)->keyBy("id");
-
-        $response = $client->groups()->findAll();
-        $groupByKey = collect($response->groups)->keyBy("id");
-
-        $response = $client->ticketFields()->find(env("ZENDESK_AGENT_NAMES_FIELD", 360000282796));
-        $customFields = collect($response->ticket_field->custom_field_options)->keyBy('id');
         $existingAgentsByIdentifier = Agent::all()->keyBy(function($agent) {
             // Identify agent based on the pattern ':zendesk_agent_id-:zendesk_group_id-:zendesk_custom_field_id' 
             return sprintf("%s-%s-%s", $agent->zendesk_agent_id, $agent->zendesk_group_id, $agent->zendesk_custom_field_id);
         });
 
-        $response = $client->groupMemberships()->findAll();
-        $agents = collect($response->group_memberships)
+        $agents = $groupMemberships
                 ->crossJoin($customFields)
                 ->reject(function($membershipAndCustomField) use ($agentByKey, $groupByKey) {
                     $membership = $membershipAndCustomField[0];
