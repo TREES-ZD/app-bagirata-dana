@@ -12,6 +12,7 @@ use Encore\Admin\Widgets\Box;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Column;
 use Encore\Admin\Widgets\Table;
+use App\Services\ZendeskService;
 use Encore\Admin\Layout\Content;
 use App\Admin\Actions\MakeOnline;
 use App\Http\Controllers\Controller;
@@ -73,8 +74,8 @@ class AgentController extends Controller
         return $content->body($show);
     }  
 
-    public function create(Content $content) {
-        $form = Admin::form(new Agent, function(Form $form) {            
+    public function create(Content $content, ZendeskService $zendesk) {
+        $form = Admin::form(new Agent, function(Form $form) use ($zendesk) {            
             $form->display('id', 'ID');
             $form->footer(function ($footer) {
                 $footer->disableReset();        
@@ -84,34 +85,24 @@ class AgentController extends Controller
                 $footer->disableCreatingCheck();    
             });
 
-            $form->select('zendesk_agent_id', 'Assignee')->options([
-                "1234" => 'foo',
-                "223" => 'bar',
-            ]);
-            $form->select('zendesk_group_id', 'Group')->options([
-                360000974835 => 'BPO 2',
-                360000974836 => 'Support',
-            ]);
-            $form->select('zendesk_custom_field_id', 'Agent Name')->options([
-                1 => 'foo',
-                2 => 'bar',
-            ]);
+            $form->select('zendesk_agent_id', 'Assignee')->options($zendesk->getAssigneeNames());
+            $form->select('zendesk_group_id', 'Group')->options($zendesk->getGroupNames());
+            $form->select('zendesk_custom_field_id', 'Agent Name')->options($zendesk->getCustomFieldNames());
         });
 
         return $content->body($form);    
     }
     
-    public function store(Request $request) {
-        $agent = new Agent();
-        
-        $agent->id = "unique1";
+    public function store(Request $request, ZendeskService $zendesk) {
+        $agent = Agent::firstOrNew($request->only('zendesk_agent_id', 'zendesk_group_id', 'zendesk_custom_field_id'));
+
         $agent->priority =  1;
         $agent->zendesk_agent_id =  $request->zendesk_agent_id;
-        $agent->zendesk_agent_name =  "tes1";
+        $agent->zendesk_agent_name =  $zendesk->getAssigneeNames($request->zendesk_agent_id);
         $agent->zendesk_group_id =  $request->zendesk_group_id;
-        $agent->zendesk_group_name =  "tes1";
+        $agent->zendesk_group_name =  $zendesk->getGroupNames($request->zendesk_group_id);
         $agent->zendesk_custom_field_id =  $request->zendesk_custom_field_id;
-        $agent->zendesk_custom_field_name =  "tes1";
+        $agent->zendesk_custom_field_name =  $zendesk->getCustomFieldNames($request->zendesk_custom_field_id);
         $agent->limit =  "unlimited";
         $agent->status = false;
         $agent->reassign = false;
