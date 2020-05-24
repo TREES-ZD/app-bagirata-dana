@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Agent;
+use App\Services\ZendeskService;
 use App\Task;
 use App\TaskLog;
 
@@ -38,18 +39,12 @@ class ProcessTask implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(ZendeskService $zendesk)
     {
-        $subdomain = env("ZENDESK_SUBDOMAIN", "contreesdemo11557827937");
-        $username  = env("ZENDESK_USERNAME", "eldien.hasmanto@treessolutions.com");
-        $token     = env("ZENDESK_TOKEN", "2HJtvL35BSsWsVR4b3ZCxvYhLGYcAacP2EyFKGki"); // replace this with your token
         $group_id = $this->task->group_id;
 
-        $client = new ZendeskAPI($subdomain);
-        $client->setAuth('basic', ['username' => $username, 'token' => $token]);
-        
-        $tickets = $client->views($this->viewId)->tickets();
-        $filteredTickets = collect($tickets->tickets)
+        $tickets = $zendesk->getTicketsByView($this->viewId);
+        $filteredTickets = collect($tickets)
                             ->filter(function($ticket) use ($group_id) {
                                 return !$ticket->group_id || $ticket->group_id == $group_id;
                             });  
@@ -77,7 +72,7 @@ class ProcessTask implements ShouldQueue
         foreach ($filteredTickets as $i => $ticket) {
             $agentNum = ($i % $totalAgents);
             $agent = $sortedAgents[$agentNum];
-            $client->tickets()->update($ticket->id, [
+            $zendesk->updateTicket($ticket->id, [
                 "assignee_id" => $agent->zendesk_agent_id,
                 "group_id" => $agent->zendesk_group_id,
                 "custom_fields" => [

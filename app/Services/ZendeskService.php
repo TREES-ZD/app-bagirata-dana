@@ -10,6 +10,19 @@ class ZendeskService
     public function __construct() {
     }
 
+    public function getTicketsByView($viewId) {
+        $tickets = cache()->remember("views".$viewId."tickets", 24 * 60 * 7, function () use ($viewId) {
+            $response = Zendesk::views($viewId)->tickets();
+            return $response->tickets;
+        });
+
+        return $tickets;
+    }
+
+    public function updateTicket(...$params) {
+        return Zendesk::tickets()->update(...$params);        
+    }
+
     public function getGroupMemberships($key = null) {
         $groupMemberships = cache()->remember("groupMemberships", 24 * 60 * 7, function () {
             $response = Zendesk::groupMemberships()->findAll();
