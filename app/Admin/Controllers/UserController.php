@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Services\ZendeskService;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
@@ -32,8 +33,9 @@ class UserController extends AdminController
         $grid->column('username', trans('admin.username'));
         $grid->column('name', trans('admin.name'));
         $grid->column('roles', trans('admin.roles'))->pluck('name')->label();
-        $grid->column('zendesk_assignee_id', "Assignee Id");        
-        $grid->column('zendesk_group_id', "Group Id");        
+        $grid->column('zendesk_assignee_ids', "Assignees")->label();        
+        $grid->column('zendesk_group_ids', "Groups")->label();
+        $grid->column('zendesk_custom_field_ids', "Custom Fields")->label();
         $grid->column('created_at', trans('admin.created_at'));
         $grid->column('updated_at', trans('admin.updated_at'));
 
@@ -70,12 +72,13 @@ class UserController extends AdminController
         $show->field('name', trans('admin.name'));
         $show->field('roles', trans('admin.roles'))->as(function ($roles) {
             return $roles->pluck('name');
-        })->label();
-        $show->field('zendesk_assignee_id', "Assignee Id");        
-        $show->field('zendesk_group_id', "Group Id");        
+        })->label();    
         $show->field('permissions', trans('admin.permissions'))->as(function ($permission) {
             return $permission->pluck('name');
         })->label();
+        $show->field('zendesk_assignee_ids', "Assignees");        
+        $show->field('zendesk_group_ids', "Groups");
+        $show->field('zendesk_custom_field_ids', "Custom Fields");
         $show->field('created_at', trans('admin.created_at'));
         $show->field('updated_at', trans('admin.updated_at'));
 
@@ -114,9 +117,10 @@ class UserController extends AdminController
         $form->ignore(['password_confirmation']);
 
         $form->multipleSelect('roles', trans('admin.roles'))->options($roleModel::all()->pluck('name', 'id'));
-        // $form->multipleSelect('permissions', trans('admin.permissions'))->options($permissionModel::all()->pluck('name', 'id'));
-        $form->text('zendesk_assignee_id', "Assignee ID");
-        $form->text('zendesk_group_id', "Group ID");
+        $form->multipleSelect('permissions', trans('admin.permissions'))->options($permissionModel::all()->pluck('name', 'id'));
+        $form->multipleSelect('zendesk_assignee_ids', "Assignees")->options(app(ZendeskService::class)->getUsers(null, true));;        
+        $form->multipleSelect('zendesk_group_ids', "Groups")->options(app(ZendeskService::class)->getGroups(null, true));
+        $form->multipleSelect('zendesk_custom_field_ids', "Custom Fields")->options(app(ZendeskService::class)->getCustomFields(null, true));;
 
         $form->display('created_at', trans('admin.created_at'));
         $form->display('updated_at', trans('admin.updated_at'));

@@ -14,8 +14,9 @@ class AddZendeskGroupIdColumnToAdminUsersTable extends Migration
     public function up()
     {
         Schema::table('admin_users', function (Blueprint $table) {
-            $table->string("zendesk_assignee_id")->nullable();
-            $table->string("zendesk_group_id")->nullable();
+            $table->json("zendesk_assignee_ids")->nullable();
+            $table->json("zendesk_group_ids")->nullable();
+            $table->json("zendesk_custom_field_ids")->nullable();
         });
     }
 
@@ -27,8 +28,9 @@ class AddZendeskGroupIdColumnToAdminUsersTable extends Migration
     public function down()
     {
         Schema::table('admin_users', function (Blueprint $table) {
-            $table->dropColumn("zendesk_assignee_id");
-            $table->dropColumn("zendesk_group_id");
+            $table->dropColumn("zendesk_assignee_ids");
+            $table->dropColumn("zendesk_group_ids");
+            $table->dropColumn("zendesk_custom_field_ids");
         });
     }
 }
