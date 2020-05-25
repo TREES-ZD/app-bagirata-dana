@@ -20,18 +20,23 @@ class AgentUserScope implements Scope
      */
     public function apply(Builder $builder, Model $model)
     {
-        $assignee_ids = json_decode(Admin::user()->assignee_ids);
-        if (Admin::user() && $assignee_ids) {
+        $user = Admin::user();
+        if (!Admin::user()) {
+            return;
+        }
+
+        $assignee_ids = json_decode($user->assignee_ids);
+        if ($assignee_ids) {
             $builder->whereIn('zendesk_assignee_id', $assignee_ids);
         }
 
-        $group_ids = json_decode(Admin::user()->zendesk_group_ids);
-        if (Admin::user() && $group_ids) {
+        $group_ids = json_decode($user->zendesk_group_ids);
+        if ($group_ids) {
             $builder->whereIn('zendesk_group_id', $group_ids);
         }
 
-        $custom_field_ids = json_decode(Admin::user()->zendesk_custom_field_ids);
-        if (Admin::user() && $custom_field_ids) {
+        $custom_field_ids = json_decode($user->zendesk_custom_field_ids);
+        if ($custom_field_ids) {
             $builder->whereIn('zendesk_custom_field_id', $custom_field_ids);
         }        
     }
