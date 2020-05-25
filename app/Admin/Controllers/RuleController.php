@@ -46,9 +46,9 @@ class RuleController extends Controller
             $grid->fullName("Agent");
 
             $tasks->each(function($task) use ($grid) {
-                $grid->column($task->id, $task->zendesk_view_title)->display(function () use ($task) {
-                    $rule = $this->rules();
-                    return $this->rules->first() ? $this->rules->first()->pivot->priority : "0";
+                $grid->column($task->id, $task->zendesk_view_title)->display(function () use ($task) {;
+                    $rule = $this->rules->contains($task->id);
+                    return $rule && $this->rules->first() ? $this->rules->first()->pivot->priority : "-";
                 })->editable();
             });
          
