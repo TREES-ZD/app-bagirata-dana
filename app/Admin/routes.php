@@ -4,6 +4,7 @@ use App\Task;
 use App\Agent;
 // use Encore\Admin\Admin;
 use App\Assignment;
+use DebugBar\DebugBar;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Zendesk\API\HttpClient as ZendeskAPI;
@@ -44,8 +45,10 @@ Route::group([
     $router->get('/logs', 'HomeController@logs');
 });
 
-Route::get('run', function() {
-    App\Jobs\ProcessTask::dispatch(Task::find(1));
+Route::get('run', function(Request $request) {
+    if ($request->has('_pjax')) {
+        App\Jobs\ProcessTask::dispatch(Task::find(1));    
+    }
     return redirect()->back();
 });
 Route::post('run', function() {
