@@ -20,10 +20,8 @@ class ZendeskService
     }
 
     public function getTicketsByView($viewId) {
-        $tickets = cache()->remember("views".$viewId."tickets", 24 * 60 * 7, function () use ($viewId) {
-            $response = Zendesk::views($viewId)->tickets();
-            return $response->tickets;
-        });
+        $response = Zendesk::views($viewId)->tickets();
+        $tickets = $response->tickets;
 
         return $tickets;
     }
