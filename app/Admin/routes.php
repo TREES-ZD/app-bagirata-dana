@@ -48,7 +48,7 @@ Route::group([
 
 Route::get('run', function(Request $request) {
     if ($request->has('_pjax')) {
-        App\Jobs\ProcessTask::dispatch(Task::find(1));    
+        App\Jobs\ProcessTask::dispatch(Task::where('zendesk_view_id', $request->view_id)->first());    
     }
     return redirect()->back();
 });

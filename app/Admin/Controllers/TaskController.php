@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Actions\Task\RunTask;
 use App\Task;
 use App\Group;
 use Encore\Admin\Grid;
@@ -33,8 +34,9 @@ class TaskController extends Controller
                 true => 'Yes',
                 false => 'No',
             ]);      
-            $grid->column('Run')->display(function ($title) {
-                return '<a href="/run"><i class="fa fa-play"></i></a>';
+            $grid->column('Run')->display(function () {
+                $url = "/run?view_id=". urlencode($this->zendesk_view_id);
+                return '<a href="'.$url.'"><i class="fa fa-play"></i></a>';
             });            
             $grid->zendesk_view_title("View title");
             $grid->zendesk_view_id("View ID");
