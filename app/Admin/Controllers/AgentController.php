@@ -18,7 +18,7 @@ use App\Admin\Actions\MakeOnline;
 use App\Http\Controllers\Controller;
 use App\Admin\Actions\Agent\SyncAgent;
 use App\Admin\Actions\Post\ImportPost;
-use App\Admin\Actions\SyncAgentAction;
+use App\Admin\Actions\Agent\SyncAgentAction;
 use Encore\Admin\Controllers\Dashboard;
 use Illuminate\Support\Facades\Artisan;
 use App\Admin\Actions\Agent\BatchDelete;

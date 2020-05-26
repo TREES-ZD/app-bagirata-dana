@@ -13,7 +13,7 @@ use Encore\Admin\Layout\Column;
 use Encore\Admin\Widgets\Table;
 use Encore\Admin\Layout\Content;
 use App\Http\Controllers\Controller;
-use App\Admin\Actions\SyncTasksAction;
+use App\Admin\Actions\Task\SyncTasksAction;
 use App\Jobs\SyncTasks;
 use Encore\Admin\Controllers\Dashboard;
 
