@@ -35,6 +35,7 @@ Route::group([
 
     $router->get('/tasks', 'TaskController@index');
     $router->put('/tasks/{id}', 'TaskController@update');
+    $router->get('/tasks/sync', 'TaskController@sync');
 
     $router->get('/rules', 'RuleController@index');
     $router->put('/rules/{id}', 'RuleController@update');

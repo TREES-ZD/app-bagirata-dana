@@ -13,6 +13,8 @@ use Encore\Admin\Layout\Column;
 use Encore\Admin\Widgets\Table;
 use Encore\Admin\Layout\Content;
 use App\Http\Controllers\Controller;
+use App\Admin\Actions\SyncTasksAction;
+use App\Jobs\SyncTasks;
 use Encore\Admin\Controllers\Dashboard;
 
 class TaskController extends Controller
@@ -24,7 +26,9 @@ class TaskController extends Controller
             // $grid->disableActions();  
             $grid->disableFilter();  
             $grid->disableExport();
-            
+            $grid->tools(function ($tools) {
+                $tools->append(new SyncTasksAction());
+            });
             $grid->enabled()->select([
                 true => 'Yes',
                 false => 'No',
@@ -48,6 +52,14 @@ class TaskController extends Controller
         Task::find($id)->update($request->all());
 
         return redirect()->to('/admin/tasks');
-    }    
+    }
+    
+    public function sync(Request $request) {
+        if ($request->has('_pjax')) {
+            SyncTasks::dispatchNow();
+        }
+    
+        return redirect()->back();        
+    }
 
 }
