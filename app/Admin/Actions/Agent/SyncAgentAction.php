@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin\Agent\Actions;
+namespace App\Admin\Actions\Agent;
 
 use Encore\Admin\Actions\BatchAction;
 use Illuminate\Database\Eloquent\Collection;
