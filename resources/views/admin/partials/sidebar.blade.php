@@ -44,7 +44,7 @@
             <li><a href="/admin/agents"><i class="fa fa-bars"></i><span>Agents</span></a>
             <li><a href="/admin/rules"><i class="fa fa-bars"></i><span>Rules</span></a>
             <li><a href="/admin/tasks"><i class="fa fa-bars"></i><span>Tasks</span></a>
-            <li><a href="/admin/logs"><i class="fa fa-bars"></i><span>Logs</span></a></li>
+            <li><a href="/admin/assignment_logs"><i class="fa fa-bars"></i><span>Assignment Logs</span></a></li>
             <li><a href="/admin/availability_logs"><i class="fa fa-bars"></i><span>Availability Logs</span></a></li>
         </ul>
         <!-- /.sidebar-menu -->

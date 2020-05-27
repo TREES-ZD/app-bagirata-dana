@@ -43,7 +43,7 @@ Route::group([
     $router->get('/schedules', 'HomeController@schedules');
     $router->get('/jobs', 'HomeController@jobs');
     $router->get('/groups', 'HomeController@groups');
-    $router->get('/logs', 'HomeController@logs');
+    $router->get('/assignment_logs', 'HomeController@assignment_logs');
     $router->get('/availability_logs', 'HomeController@availability_logs');
 });
 

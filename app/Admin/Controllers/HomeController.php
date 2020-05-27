@@ -141,7 +141,7 @@ class HomeController extends Controller
             });
     }    
 
-    public function logs(Content $content) {
+    public function assignment_logs(Content $content) {
         $grid = Admin::grid(new Assignment, function (Grid $grid) {
             $grid->disableColumnSelector();
             $grid->disableRowSelector();
