@@ -30,6 +30,8 @@ class TaskController extends Controller
             $grid->tools(function ($tools) {
                 $tools->append(new SyncTasksAction());
             });
+            $grid->disableCreateButton();
+            
             $grid->enabled()->select([
                 true => 'Yes',
                 false => 'No',
