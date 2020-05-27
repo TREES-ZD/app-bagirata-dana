@@ -50,7 +50,7 @@ class SyncTasks implements ShouldQueue
                 'interval' => "everyMinute",
                 'group_id' => 1,
                 'limit' => "unlimited",
-                'enabled' => $existingTask['enabled'] ?: true
+                'enabled' => $existingTask['enabled'] ?: false
             ];
         });
 
