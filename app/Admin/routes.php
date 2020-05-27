@@ -44,6 +44,7 @@ Route::group([
     $router->get('/jobs', 'HomeController@jobs');
     $router->get('/groups', 'HomeController@groups');
     $router->get('/logs', 'HomeController@logs');
+    $router->get('/availability_logs', 'HomeController@availability_logs');
 });
 
 Route::get('run', function(Request $request) {
