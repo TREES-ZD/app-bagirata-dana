@@ -14,6 +14,11 @@ class Task extends Model
         return $this->belongsToMany('App\Agent', 'rules');
     }
 
+    public function assignments()
+    {
+        return $this->hasMany('App\Assignment', 'zendesk_view_id', 'zendesk_view_id');
+    }
+
     public function matchAssignments(Collection $tickets) {
         $agents = $this->rules()
                         ->disableCache()

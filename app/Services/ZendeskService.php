@@ -10,6 +10,11 @@ class ZendeskService
     public function __construct() {
     }
 
+    public function getTicketsByIds(array $ids) {
+        $response =Zendesk::tickets()->findMany($ids);
+        return $response->tickets;
+    }
+
     public function getViews() {
         $tickets = cache()->remember("views", 24 * 60 * 7, function (){
             $response = Zendesk::views()->findAll();
