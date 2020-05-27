@@ -149,6 +149,8 @@ class HomeController extends Controller
             $grid->disableFilter();
             $grid->disableActions();
 
+            $grid->model()->orderBy('created_at', 'desc');
+
             $grid->column("created_at");
             $grid->column("agent_name");
             $grid->column("ticket_id");
@@ -157,8 +159,25 @@ class HomeController extends Controller
         });
 
         return $content->body($grid);
-    }        
+    }
+    
+    public function availability_logs(Content $content) {
+        $grid = Admin::grid(new AvailabilityLog, function (Grid $grid) {
+            $grid->disableColumnSelector();
+            $grid->disableRowSelector();
+            $grid->disableCreateButton();
+            $grid->disableFilter();
+            $grid->disableActions();
 
+            $grid->model()->orderBy('created_at', 'desc');
+
+            $grid->column("created_at");
+            $grid->column("status");
+            $grid->column("agent_name");
+        });
+
+        return $content->body($grid);
+    }        
     public function jobs(Content $content) {
     }
 }
