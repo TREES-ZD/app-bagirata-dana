@@ -43,7 +43,6 @@ class TaskController extends Controller
             $grid->zendesk_view_title("View title");
             $grid->zendesk_view_id("View ID");
             $grid->interval();
-            $grid->group_id('Assigned To')->select(["Rules"]);
             $grid->limit();
         });
 
