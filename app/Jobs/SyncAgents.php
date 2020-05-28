@@ -28,7 +28,7 @@ class SyncAgents implements ShouldQueue
      */
     public function __construct($filters = null)
     {
-        $this->filters = $filters ?: [ZendeskService::AGENT_IDS => "*", ZendeskService::GROUP_IDS => "*", ZendeskService::CUSTOM_FIELD_IDS => "*"];
+        $this->filters = $filters && Arr::isAssoc($filters) ? $filters : [ZendeskService::AGENT_IDS => "*", ZendeskService::GROUP_IDS => "*", ZendeskService::CUSTOM_FIELD_IDS => "*"];
     }
 
     /**
@@ -38,30 +38,27 @@ class SyncAgents implements ShouldQueue
      */
     public function handle(ZendeskService $zendesk)
     {
-        $agentsByFullId = Agent::all()->keyBy('fullId');
+        $existingAgents = Agent::disableCache()->all()->keyBy('fullId');
         
-        $agents = $zendesk
+        $newAgents = $zendesk
                     ->filterUsers($this->filters[ZendeskService::AGENT_IDS])
                     ->filterGroups($this->filters[ZendeskService::GROUP_IDS])
                     ->filterCustomFields($this->filters[ZendeskService::CUSTOM_FIELD_IDS])
                     ->getPossibleAgents();
-        
-        $agents = $agents
-                  ->map(function($agent) use ($agentsByFullId) {
-                    $id = $agent["full_id"];
-                    $existingAgent = $agentsByFullId->get($id);
 
-                    $agent = Arr::except($agent, ['full_id']);
-                    
-                    return $agent + [
-                        "limit" => $existingAgent['limit'] ?: "unlimited",
-                        "status" => $existingAgent['status'] ?: false,
-                        "reassign" => $existingAgent['reassign'] ?: false
-                    ];
-                });
+        $agents = $newAgents
+                    ->diffKeys($existingAgents)
+                    ->map(function($agent) {
+                        $agent = Arr::except($agent, ['full_id']);
+                        return $agent + [
+                            "priority" => 1,
+                            "limit" =>  "unlimited",
+                            "status" =>  false,
+                            "reassign" =>  false
+                        ];
+                    });
         
         DB::transaction(function() use ($agents) {
-            Agent::truncate();                
             Agent::insert($agents->toArray());
         });
 

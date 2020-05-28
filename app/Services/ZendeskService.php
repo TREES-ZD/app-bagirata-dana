@@ -72,7 +72,7 @@ class ZendeskService
                     
                     return !($agent && $group);
                 })
-                ->map(function($membershipAndCustomField) use ($agentByKey, $groupByKey) {
+                ->mapWithKeys(function($membershipAndCustomField) use ($agentByKey, $groupByKey) {
                     $membership = $membershipAndCustomField[0];
                     $customField = $membershipAndCustomField[1];
 
@@ -81,15 +81,16 @@ class ZendeskService
 
                     $full_id = sprintf("%s-%s-%s", $agent->id, $group->id, $customField->value);
                     return [
-                        "full_id" => $full_id,
-                        "zendesk_agent_id" => $agent->id,
-                        "zendesk_agent_name" => $agent->name,
-                        "zendesk_group_id" => $group->id,
-                        "zendesk_group_name" => $group->name,
-                        "zendesk_custom_field_id" => $customField->value,
-                        "zendesk_custom_field_name" => $customField->name,
+                        $full_id => [
+                            "zendesk_agent_id" => $agent->id,
+                            "zendesk_agent_name" => $agent->name,
+                            "zendesk_group_id" => $group->id,
+                            "zendesk_group_name" => $group->name,
+                            "zendesk_custom_field_id" => $customField->value,
+                            "zendesk_custom_field_name" => $customField->name,
+                        ]
                     ]; 
-                });;       
+                });      
 
         return $agents; 
     }
