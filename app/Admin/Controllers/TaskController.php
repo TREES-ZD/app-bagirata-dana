@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Actions\Task\BatchDeleteTask;
 use App\Admin\Actions\Task\RunTask;
 use App\Task;
 use App\Group;
@@ -29,6 +30,10 @@ class TaskController extends Controller
             $grid->disableExport();
             $grid->tools(function ($tools) {
                 $tools->append(new SyncTasksAction());
+            });
+            $grid->batchActions(function ($batch) {
+                $batch->disableDelete();
+                $batch->add(new BatchDeleteTask());
             });
             $grid->disableCreateButton();
             
