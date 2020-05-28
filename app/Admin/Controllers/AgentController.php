@@ -85,16 +85,19 @@ class AgentController extends Controller
                 $footer->disableCreatingCheck();    
             });
 
-            $form->multipleSelect('zendesk_agent_ids', 'Assignee')->options(["*" => "All"] + $zendesk->getUsers(null, true));
-            $form->multipleSelect('zendesk_group_ids', 'Group')->options(["*" => "All"] + $zendesk->getGroups(null, true));
-            $form->multipleSelect('zendesk_custom_field_ids', 'Agent Name')->options(["*" => "All"] + $zendesk->getCustomFields(null, true));
+            $form->multipleSelect(ZendeskService::AGENT_IDS, 'Assignee')
+                    ->options([ZendeskService::ALL => "All"] + (array) $zendesk->getUsersByKey(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY));
+            $form->multipleSelect(ZendeskService::GROUP_IDS, 'Group')
+                    ->options([ZendeskService::ALL => "All"] + (array) $zendesk->getGroupsByKey(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY));
+            $form->multipleSelect(ZendeskService::CUSTOM_FIELD_IDS, 'Agent Name')
+                    ->options([ZendeskService::ALL => "All"] + (array) $zendesk->getCustomFieldsByValue(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY));
         });
 
         return $content->body($form);    
     }
     
     public function store(Request $request, ZendeskService $zendesk) {
-        $filters = $request->only('zendesk_agent_ids', 'zendesk_group_ids', 'zendesk_custom_field_ids');
+        $filters = $request->only(ZendeskService::AGENT_IDS, ZendeskService::GROUP_IDS, ZendeskService::CUSTOM_FIELD_IDS);
         
         // Strip last element karena selalu default [..., x => null]
         $filters = collect($filters)->map(function($filter) {

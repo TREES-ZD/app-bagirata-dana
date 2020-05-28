@@ -29,7 +29,7 @@ class Agent extends Model implements Sortable
 
     protected $fillable = ['status'];
 
-    protected $appends = ['fullName'];
+    protected $appends = ['fullId', 'fullName'];
 
     protected static $logAttributes = ['status'];
 
@@ -54,6 +54,10 @@ class Agent extends Model implements Sortable
                 ]);
             }
         });
+    }
+
+    public function getFullIdAttribute() {
+        return sprintf("%s-%s-%s", $this->zendesk_agent_id, $this->zendesk_group_id, $this->zendesk_custom_field_id);        
     }
 
     public function rules() {

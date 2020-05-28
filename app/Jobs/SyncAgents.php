@@ -3,8 +3,9 @@
 namespace App\Jobs;
 
 use App\Agent;
-use App\Services\ZendeskService;
+use Illuminate\Support\Arr;
 use Illuminate\Bus\Queueable;
+use App\Services\ZendeskService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
@@ -27,7 +28,7 @@ class SyncAgents implements ShouldQueue
      */
     public function __construct($filters = null)
     {
-        $this->filters = $filters ?: ["zendesk_agent_ids" => null, "zendesk_group_ids" => null, "zendesk_custom_field_ids" => null];
+        $this->filters = $filters ?: [ZendeskService::AGENT_IDS => "*", ZendeskService::GROUP_IDS => "*", ZendeskService::CUSTOM_FIELD_IDS => "*"];
     }
 
     /**
@@ -37,42 +38,22 @@ class SyncAgents implements ShouldQueue
      */
     public function handle(ZendeskService $zendesk)
     {
-        $agentByKey = collect($zendesk->getUsers(null, false, $this->filters['zendesk_agent_ids'])); //By Key
-        $groupByKey = collect($zendesk->getGroups(null, false, $this->filters['zendesk_group_ids'])); //By Key
-        $customFields = collect($zendesk->getCustomFields(null, false, $this->filters['zendesk_custom_field_ids'])); //By Key
-        $groupMemberships = collect($zendesk->getGroupMemberships());
+        $agentsByFullId = Agent::all()->keyBy('fullId');
+        
+        $agents = $zendesk
+                    ->filterUsers($this->filters[ZendeskService::AGENT_IDS])
+                    ->filterGroups($this->filters[ZendeskService::GROUP_IDS])
+                    ->filterCustomFields($this->filters[ZendeskService::CUSTOM_FIELD_IDS])
+                    ->getPossibleAgents();
+        
+        $agents = $agents
+                  ->map(function($agent) use ($agentsByFullId) {
+                    $id = $agent["full_id"];
+                    $existingAgent = $agentsByFullId->get($id);
 
-        $existingAgentsByIdentifier = Agent::all()->keyBy(function($agent) {
-            // Identify agent based on the pattern ':zendesk_agent_id-:zendesk_group_id-:zendesk_custom_field_id' 
-            return sprintf("%s-%s-%s", $agent->zendesk_agent_id, $agent->zendesk_group_id, $agent->zendesk_custom_field_id);
-        });
-
-        $agents = $groupMemberships
-                ->crossJoin($customFields)
-                ->reject(function($membershipAndCustomField) use ($agentByKey, $groupByKey) {
-                    $membership = $membershipAndCustomField[0];
-                    $agent = $agentByKey->get($membership->user_id);
-                    $group = $groupByKey->get($membership->group_id);
+                    $agent = Arr::except($agent, ['full_id']);
                     
-                    return !($agent && $group);
-                })
-                ->map(function($membershipAndCustomField) use ($agentByKey, $groupByKey, $existingAgentsByIdentifier) {
-                    $membership = $membershipAndCustomField[0];
-                    $customField = $membershipAndCustomField[1];
-
-                    $agent = $agentByKey->get($membership->user_id);
-                    $group = $groupByKey->get($membership->group_id);
-
-                    $id = sprintf("%s-%s-%s", $agent->id, $group->id, $customField->value);
-                    $existingAgent = $existingAgentsByIdentifier->get($id);
-                    return [
-                        "priority" => 1,
-                        "zendesk_agent_id" => $agent->id,
-                        "zendesk_agent_name" => $agent->name,
-                        "zendesk_group_id" => $group->id,
-                        "zendesk_group_name" => $group->name,
-                        "zendesk_custom_field_id" => $customField->value,
-                        "zendesk_custom_field_name" => $customField->name,
+                    return $agent + [
                         "limit" => $existingAgent['limit'] ?: "unlimited",
                         "status" => $existingAgent['status'] ?: false,
                         "reassign" => $existingAgent['reassign'] ?: false
@@ -84,6 +65,6 @@ class SyncAgents implements ShouldQueue
             Agent::insert($agents->toArray());
         });
 
-        Artisan::call('modelCache:clear',['--model' => Agent::class]);
+        Artisan::call('modelCache:clear', ['--model' => Agent::class]);
     }
 }
