@@ -85,29 +85,29 @@ class AgentController extends Controller
                 $footer->disableCreatingCheck();    
             });
 
-            $form->select('zendesk_agent_id', 'Assignee')->options($zendesk->getUsers(null, true));
-            $form->select('zendesk_group_id', 'Group')->options($zendesk->getGroups(null, true));
-            $form->select('zendesk_custom_field_id', 'Agent Name')->options($zendesk->getCustomFields(null, true));
+            $form->multipleSelect('zendesk_agent_ids', 'Assignee')->options(["*" => "All"] + $zendesk->getUsers(null, true));
+            $form->multipleSelect('zendesk_group_ids', 'Group')->options(["*" => "All"] + $zendesk->getGroups(null, true));
+            $form->multipleSelect('zendesk_custom_field_ids', 'Agent Name')->options(["*" => "All"] + $zendesk->getCustomFields(null, true));
         });
 
         return $content->body($form);    
     }
     
     public function store(Request $request, ZendeskService $zendesk) {
-        $agent = Agent::firstOrNew($request->only('zendesk_agent_id', 'zendesk_group_id', 'zendesk_custom_field_id'));
-
-        $agent->priority =  1;
-        $agent->zendesk_agent_id =  $request->zendesk_agent_id;
-        $agent->zendesk_agent_name =  $zendesk->getUsers($request->zendesk_agent_id, true);
-        $agent->zendesk_group_id =  $request->zendesk_group_id;
-        $agent->zendesk_group_name =  $zendesk->getGroups($request->zendesk_group_id, true);
-        $agent->zendesk_custom_field_id =  $request->zendesk_custom_field_id;
-        $agent->zendesk_custom_field_name =  $zendesk->getCustomFields($request->zendesk_custom_field_id, true);
-        $agent->limit =  "unlimited";
-        $agent->status = false;
-        $agent->reassign = false;
+        $filters = $request->only('zendesk_agent_ids', 'zendesk_group_ids', 'zendesk_custom_field_ids');
         
-        $agent->save();
+        // Strip last element karena selalu default [..., x => null]
+        $filters = collect($filters)->map(function($filter) {
+            array_pop($filter);
+            
+            if (count($filter) < 1) {
+                return null;
+            }
+
+            return $filter;
+        })->toArray();
+        
+        SyncAgents::dispatchNow($filters);
 
         return redirect()->to('/admin/agents');
     }    

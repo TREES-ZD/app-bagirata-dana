@@ -18,14 +18,16 @@ class SyncAgents implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private $type = "admin";
+
+    private $filters;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($filters = null)
     {
-        //
+        $this->filters = $filters ?: ["zendesk_agent_ids" => null, "zendesk_group_ids" => null, "zendesk_custom_field_ids" => null];
     }
 
     /**
@@ -35,9 +37,9 @@ class SyncAgents implements ShouldQueue
      */
     public function handle(ZendeskService $zendesk)
     {
-        $agentByKey = collect($zendesk->getUsers()); //By Key
-        $groupByKey = collect($zendesk->getGroups()); //By Key
-        $customFields = collect($zendesk->getCustomFields()); //By Key
+        $agentByKey = collect($zendesk->getUsers(null, false, $this->filters['zendesk_agent_ids'])); //By Key
+        $groupByKey = collect($zendesk->getGroups(null, false, $this->filters['zendesk_group_ids'])); //By Key
+        $customFields = collect($zendesk->getCustomFields(null, false, $this->filters['zendesk_custom_field_ids'])); //By Key
         $groupMemberships = collect($zendesk->getGroupMemberships());
 
         $existingAgentsByIdentifier = Agent::all()->keyBy(function($agent) {
