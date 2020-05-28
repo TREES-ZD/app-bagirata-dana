@@ -58,9 +58,9 @@ class ZendeskService
     }    
 
     public function getPossibleAgents() {
-        $agentByKey = collect($this->getUsersByKey(static::ALL, static::SHOW_FULL));
-        $groupByKey = collect($this->getGroupsByKey(static::ALL, static::SHOW_FULL));
-        $customFields = collect($this->getCustomFieldsByValue(static::ALL, static::SHOW_FULL));
+        $agentByKey = $this->getUsersByKey(static::ALL, static::SHOW_FULL);
+        $groupByKey = $this->getGroupsByKey(static::ALL, static::SHOW_FULL);
+        $customFields = $this->getCustomFieldsByValue(static::ALL, static::SHOW_FULL);
         $groupMemberships = collect($this->getGroupMemberships());
         
         $agents = $groupMemberships
