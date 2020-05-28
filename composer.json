@@ -21,7 +21,8 @@
         "laravel/horizon": "^3.5",
         "laravel/tinker": "^2.0",
         "spatie/laravel-activitylog": "^3.14",
-        "yajra/laravel-datatables-oracle": "~9.0"
+        "yajra/laravel-datatables-oracle": "~9.0",
+        "ext-redis": "*"
     },
     "require-dev": {
         "facade/ignition": "^1.4",
