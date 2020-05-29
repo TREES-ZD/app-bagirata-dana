@@ -86,9 +86,9 @@ class AgentController extends Controller
             });
 
             $form->multipleSelect(ZendeskService::AGENT_IDS, 'Assignee')
-                    ->options([ZendeskService::ALL => "All"] + $zendesk->getUsersByKey(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY)->toArray());
+                    ->options($zendesk->getUsersByKey(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY)->toArray());
             $form->multipleSelect(ZendeskService::GROUP_IDS, 'Group')
-                    ->options([ZendeskService::ALL => "All"] + $zendesk->getGroupsByKey(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY)->toArray());
+                    ->options($zendesk->getGroupsByKey(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY)->toArray());
             $form->multipleSelect(ZendeskService::CUSTOM_FIELD_IDS, 'Agent Name')
                     ->options([ZendeskService::ALL => "All"] + $zendesk->getCustomFieldsByValue(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY)->toArray());
         });
