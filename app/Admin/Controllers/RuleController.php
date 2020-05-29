@@ -58,11 +58,15 @@ class RuleController extends Controller
     }
     
     public function update(Request $request, $id) {
-        \Debugbar::info($request->all());
-        \Debugbar::info($id);
+        $task_id = $request->name;
         $agent = Agent::findOrFail($id);
-        $agent->rules()->attach($request->name, array('priority' => $request->value));
 
+        if ($request->value == 0 || $request->value == "-") {
+            $agent->rules()->detach($task_id);
+            return $agent;
+        }
+
+        $agent->rules()->syncWithoutDetaching($task_id, array('priority' => $request->value));
         return $agent;
     }    
 }
