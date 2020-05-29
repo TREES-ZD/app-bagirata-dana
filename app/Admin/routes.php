@@ -62,6 +62,6 @@ Route::post('unassign', function(Request $request) {
     return response()->json();
 });
 Route::post('syncAgents', function(Request $request) {
-    App\Jobs\SyncAgents::dispatchNow();
+    App\Jobs\SyncAgents::dispatch();
     return response()->json();
 });

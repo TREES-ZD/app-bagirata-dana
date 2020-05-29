@@ -38,8 +38,6 @@ class SyncAgents implements ShouldQueue
      */
     public function handle(ZendeskService $zendesk)
     {
-        ini_set('memory_limit', 2097160);
-
         $existingAgents = Agent::disableCache()->all()->keyBy('fullId');
         
         $newAgents = $zendesk
