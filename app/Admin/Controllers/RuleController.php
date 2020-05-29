@@ -43,7 +43,15 @@ class RuleController extends Controller
             $tasks = Task::all();
 
             // column not in table
-            $grid->fullName("Agent");
+            // $grid->fullName("Agent");
+            $grid->column('Agent')->display(function ($title) {
+                debugbar()->debug($this->status); //get model
+                $html = $this->fullName; 
+                if ($this->status == true) {
+                    $html = $html . '  <i class="fa fa-circle text-success"></i>';
+                }
+                return $html;
+            });            
 
             $tasks->each(function($task) use ($grid) {
                 $grid->column($task->id, $task->zendesk_view_title)->display(function () use ($task) {;
