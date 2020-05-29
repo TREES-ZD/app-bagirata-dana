@@ -28,7 +28,7 @@ class SyncAgents implements ShouldQueue
      */
     public function __construct($filters = null)
     {
-        $this->filters = !$filters && Arr::isAssoc($filters) ? $filters : [ZendeskService::AGENT_IDS => "*", ZendeskService::GROUP_IDS => "*", ZendeskService::CUSTOM_FIELD_IDS => "*"];
+        $this->filters = is_array($filters) && Arr::isAssoc($filters) ? $filters : [ZendeskService::AGENT_IDS => "*", ZendeskService::GROUP_IDS => "*", ZendeskService::CUSTOM_FIELD_IDS => "*"];
     }
 
     /**
