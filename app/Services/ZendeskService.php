@@ -101,7 +101,7 @@ class ZendeskService
     }
 
     public function getViews() {
-        $tickets = Cache::remember("views", 24 * 60 * 7, function (){
+        $tickets = Cache::remember("views", -1, function (){
             $response = Zendesk::views()->findAll();
             return $response->views;
         });
