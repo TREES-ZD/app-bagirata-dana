@@ -42,6 +42,7 @@ return [
     */
 
     'disks' => [
+        'admin' => [ 'driver' => 'local', 'root' => storage_path('app')],
 
         'local' => [
             'driver' => 'local',
