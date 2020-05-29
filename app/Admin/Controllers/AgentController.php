@@ -32,9 +32,9 @@ class AgentController extends Controller
             $grid->disableExport();
             // $grid->disableCreateButton();
             $grid->disableFilter();
-            $grid->tools(function ($tools) {
-                $tools->append(new SyncAgentAction());
-            });
+            // $grid->tools(function ($tools) {
+            //     $tools->append(new SyncAgentAction());
+            // });
             $grid->batchActions(function ($batch) {
                 $batch->disableDelete();
                 $batch->add(new BatchDelete());
