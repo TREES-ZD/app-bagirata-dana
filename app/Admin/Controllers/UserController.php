@@ -118,9 +118,9 @@ class UserController extends AdminController
 
         $form->multipleSelect('roles', trans('admin.roles'))->options($roleModel::all()->pluck('name', 'id'));
         $form->multipleSelect('permissions', trans('admin.permissions'))->options($permissionModel::all()->pluck('name', 'id'));
-        $form->multipleSelect('zendesk_assignee_ids', "Assignees")->options(app(ZendeskService::class)->getUsersByKey(null, true));
-        $form->multipleSelect('zendesk_group_ids', "Groups")->options(app(ZendeskService::class)->getGroupsByKey(null, true));
-        $form->multipleSelect('zendesk_custom_field_ids', "Custom Fields")->options(app(ZendeskService::class)->getCustomFieldsByValue(null, true));
+        $form->multipleSelect('zendesk_assignee_ids', "Assignees")->options(app(ZendeskService::class)->getUsersByKey(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY)->toArray());
+        $form->multipleSelect('zendesk_group_ids', "Groups")->options(app(ZendeskService::class)->getGroupsByKey(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY)->toArray());
+        $form->multipleSelect('zendesk_custom_field_ids', "Custom Fields")->options(app(ZendeskService::class)->getCustomFieldsByValue(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY)->toArray());
 
         $form->display('created_at', trans('admin.created_at'));
         $form->display('updated_at', trans('admin.updated_at'));
