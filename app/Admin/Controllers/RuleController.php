@@ -43,6 +43,8 @@ class RuleController extends Controller
             $tasks = Task::all();
 
             // column not in table
+            $grid->fixColumns(1, 0);
+
             // $grid->fullName("Agent");
             $grid->column('Agent')->display(function ($title) {
                 debugbar()->debug($this->status); //get model
