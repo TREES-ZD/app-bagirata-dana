@@ -37,10 +37,10 @@ class ProcessTaskTest extends TestCase
         
         $zendesk = Mockery::mock(ZendeskService::class);
         $zendesk->shouldReceive('getTicketsByView')
-                ->andReturn([
+                ->andReturn(collect([
                     (object) ['id' => 1, "subject" => "subject_a", "group_id" => null],
                     (object) ['id' => 2, "subject" => "subject_b", "group_id" => null]
-                ]);
+                ]));
         $zendesk->shouldReceive('updateTicket')
                 ->twice();
 
@@ -68,10 +68,13 @@ class ProcessTaskTest extends TestCase
                 ->each(function ($agent, $key) {
                     $agent->assignments()->create([
                         "type" => Agent::ASSIGNMENT,
+                        "zendesk_view_id" => "123324",
+                        "batch_id" => "aabc123",
                         "agent_name" => $agent->fullName,
                         "ticket_id" => $key,
                         "ticket_name" => "Test",
                         "group_id" => $agent->zendesk_group_id,
+                        "response_status" => 200,
                         "created_at" => Carbon::createFromTime($key, 0, 0)
                     ]);
                 });        
