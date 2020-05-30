@@ -4,9 +4,12 @@ namespace App;
 
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\RoundRobinable;
 
 class Task extends Model
 { 
+    use RoundRobinable;
+    
     protected $guarded = ['id'];
 
     public function rules()
@@ -19,29 +22,11 @@ class Task extends Model
         return $this->hasMany('App\Assignment', 'zendesk_view_id', 'zendesk_view_id');
     }
 
-    public function matchAssignments(Collection $tickets) {
-        $agents = $this->rules()
-                        ->disableCache()
-                        ->where('status', true)
-                        ->with(['assignments'])
-                        ->get()
-                        ->sortBy(function($a) {
-                            return $a->assignments->last() ? $a->assignments->last()->created_at->timestamp : 0;
-                        });              
-        
-        if ($agents->count() < 1) {
-            return collect();
-        } 
-        $totalAgents = $agents->count();
-
-        $match = $tickets->map(function($ticket, $index) use ($agents) {
-            $agentNum = ($index % $agents->count());
-            $agent = $agents->get($agentNum);
-            return collect([
-                "agent" => $agent,
-                "ticket" => $ticket
-            ]);
-        });
-        return $match;
+    public function getAvailableAgents() {
+        return $this->rules()
+                    ->disableCache()
+                    ->where('status', true)
+                    ->get();
     }
+
 }

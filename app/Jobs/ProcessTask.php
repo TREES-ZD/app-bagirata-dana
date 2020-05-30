@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Task;
 use App\Agent;
+use App\Services\RoundRobinService;
 use Exception;
 use App\TaskLog;
 use Illuminate\Support\Str;
@@ -46,15 +47,24 @@ class ProcessTask implements ShouldQueue
      */
     public function handle(ZendeskService $zendesk)
     {
+        $agents = $this->task->getAvailableAgents();
+
+        if ($agents->count() < 1) {
+            return;
+        }
+
         $tickets = $zendesk->getTicketsByView($this->viewId);
-        $tickets = collect($tickets);
-        
-        $matches = $this->task->matchAssignments($tickets);
+
+        $agents->sortBy(function($a) {
+            return $a->assignments->last() ? $a->assignments->last()->created_at->timestamp : 1;
+        });
+
+        $assignments = $this->task->createAssignments($agents, $tickets);
 
         $batch_id = (string) Str::uuid();
-        $matches->each(function($match) use ($zendesk, $batch_id) {
-            $agent = $match->get("agent");
-            $ticket = $match->get("ticket");
+        $assignments->each(function($assignment) use ($zendesk, $batch_id) {
+            $agent = $assignment->get("agent");
+            $ticket = $assignment->get("ticket");
 
             try {
                 $response = $zendesk->updateTicket($ticket->id, [
