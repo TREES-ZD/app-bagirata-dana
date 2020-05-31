@@ -5,9 +5,10 @@ namespace App\Jobs;
 use App\Agent;
 use App\Assignment;
 use App\AvailabilityLog;
-use App\Services\ZendeskService;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
+use App\Services\ZendeskService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -22,6 +23,8 @@ class UnassignTickets implements ShouldQueue
 
     private $agent;
 
+    public $timeout = 120;
+    
     /**
      * Create a new job instance.
      *
@@ -39,21 +42,15 @@ class UnassignTickets implements ShouldQueue
      */
     public function handle(ZendeskService $zendesk)
     {
-        $agent_id = $this->agent->id;
-        $latest_log = AvailabilityLog::where("agent_id", $agent_id)->where("status", "Available")->latest()->first(); //TODO: check if not exist
-        $assignments_builder = Assignment::where('agent_id', $agent_id)->where('type', Agent::ASSIGNMENT)->whereDate('created_at', ">=", $latest_log->created_at);
-        $ticket_ids = $assignments_builder->get()->pluck('ticket_id');
-        $view_by_ticket_id = $assignments_builder->get()->pluck('zendesk_view_id', 'ticket_id');
-
-        $tickets = null;
+        $unnasignedTickets = $this->agent->getUnassignedTickets();
+        $unnasignedTicketsByTicketId = $unnasignedTickets->keyBy('ticket_id');
         try {
-            $tickets = $zendesk->getTicketsByIds($ticket_ids->toArray());
+            $tickets = $zendesk->getTicketsByIds($unnasignedTickets->pluck('ticket_id')->toArray());
         } catch (ApiResponseException $apiException) {
             Log::error($apiException);
             return;
         }
 
-        $batch_id = (string) Str::uuid();
         foreach ($tickets as $i => $ticket) {
             $zendesk->updateTicket($ticket->id, [
                 "custom_fields" => [
@@ -71,8 +68,8 @@ class UnassignTickets implements ShouldQueue
             ]);
             $this->agent->assignments()->create([
                 "type" => Agent::UNASSIGNMENT,
-                "zendesk_view_id" => $view_by_ticket_id->get($ticket->id),
-                "batch_id" => $batch_id,
+                "zendesk_view_id" => $unnasignedTicketsByTicketId->get($ticket->id)->zendesk_view_id,
+                "batch_id" => $unnasignedTicketsByTicketId->get($ticket->id)->batch_id,
                 "agent_id" => $this->agent->id,
                 "agent_name" => $this->agent->fullName,
                 "ticket_id" => $ticket->id,

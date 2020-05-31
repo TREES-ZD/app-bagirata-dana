@@ -47,7 +47,7 @@ class Agent extends Model implements Sortable
              if ($agent->isDirty('status')) {
 
                 if ($agent->status == self::UNAVAILABLE) {
-                    UnassignTickets::dispatchNow($agent);
+                    UnassignTickets::dispatch($agent)->onQueue('unassignment');
                 }
 
                 AvailabilityLog::create([
@@ -61,6 +61,13 @@ class Agent extends Model implements Sortable
 
     public function getFullIdAttribute() {
         return sprintf("%s-%s-%s", $this->zendesk_agent_id, $this->zendesk_group_id, $this->zendesk_custom_field_id);        
+    }
+
+    public function getUnassignedTickets() {
+        $assignedTickets = $this->assignments()->where('type', 'ASSIGNMENT')->where('response_status', 200)->get()->pluck('ticket_id');
+        $unassignedTickets = $this->assignments()->where('type', 'UNASSIGNMENT')->get()->pluck('ticket_id');
+        $assignedTicketsNotUnassigned = $assignedTickets->diff($unassignedTickets);
+        return $this->assignments()->where('type', 'ASSIGNMENT')->where('response_status', 200)->whereIn('ticket_id', $assignedTicketsNotUnassigned)->get();
     }
 
     public function rules() {
