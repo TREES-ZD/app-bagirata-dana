@@ -125,16 +125,16 @@ class AgentController extends Controller
     }
 
     public function update(Request $request, $id) {
-        \Debugbar::info($request->all());
-        \Debugbar::info($id);
         $agent = Agent::findOrFail($id);
 
-        if ($agent->isDirty('status')) {
-            $agent->status =  $request->get('status');
+        // Workaround to check same status can't be updated with the same status
+        if ($agent->status != $request->get('status')) {
+            $agent->status = $request->get('status');
             $agent->save();
+            return response()->json(["status" => "Sucess updating status"], 200);
         }
-
-        return $agent;
+ 
+        return response()->json(["status" => "bad"], 400);
     }    
     
     public function destroy() {

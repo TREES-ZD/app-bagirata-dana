@@ -23,6 +23,9 @@ class Agent extends Model implements Sortable
 
     public const UNASSIGNMENT = "UNASSIGNMENT";
 
+    public const AVAILABLE = true;
+    public const UNAVAILABLE = false;
+
     public $sortable = [
         'order_column_name' => 'priority',
         'sort_when_creating' => true,
@@ -41,15 +44,14 @@ class Agent extends Model implements Sortable
         static::addGlobalScope(new AgentUserScope);
 
         static::updated(function($agent) {
-
              if ($agent->isDirty('status')) {
 
-                if ($agent->status == false) {
+                if ($agent->status == self::UNAVAILABLE) {
                     UnassignTickets::dispatchNow($agent);
                 }
 
                 AvailabilityLog::create([
-                    "status" => $agent->status ? AvailabilityLog::AVAILABLE : AvailabilityLog::UNAVAILABLE,
+                    "status" => $agent->status == self::AVAILABLE ? AvailabilityLog::AVAILABLE : AvailabilityLog::UNAVAILABLE,
                     "agent_id" => $agent->id,
                     "agent_name" => $agent->fullName
                 ]);
