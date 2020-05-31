@@ -41,8 +41,7 @@ class AgentController extends Controller
                 $batch->add(new BatchDelete());
             });
             
-            $grid->paginate(10);
-            $grid->sortable();
+            $grid->paginate(20);
             $grid->fullName("Agent Full Name");
             $grid->zendesk_agent_name("Assignee")->sortable();
             $grid->zendesk_group_name("Group")->sortable();
