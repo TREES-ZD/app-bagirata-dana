@@ -53,7 +53,7 @@ class ProcessTask implements ShouldQueue
             return;
         }
 
-        $tickets = $zendesk->getTicketsByView($this->viewId);
+        $tickets = $zendesk->getAssignableTicketsByView($this->viewId);
 
         $agents->sortBy(function($a) {
             return $a->assignments->last() ? $a->assignments->last()->created_at->timestamp : 1;

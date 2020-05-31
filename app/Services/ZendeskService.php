@@ -97,7 +97,7 @@ class ZendeskService
 
     public function getTicketsByIds(array $ids) {
         $response =Zendesk::tickets()->findMany($ids);
-        return $response->tickets;
+        return collect($response->tickets);
     }
 
     public function getViews() {
@@ -117,6 +117,15 @@ class ZendeskService
         $tickets = $response->tickets;
 
         return collect($tickets);
+    }
+
+    public function getAssignableTicketsByView($viewId) {
+        $response = Zendesk::views($viewId)->tickets();
+        $tickets = $response->tickets;
+
+        return collect($tickets)->filter(function($ticket) {
+            return $ticket->assignee_id == null && in_array($ticket->status, ["new", "open", "pending"]);
+        });        
     }
 
     public function updateTicket(...$params) {
