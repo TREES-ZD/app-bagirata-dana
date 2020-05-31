@@ -4,6 +4,7 @@ namespace App;
 
 use App\Jobs\UnassignTickets;
 use App\Scopes\AgentUserScope;
+use Exception;
 use Spatie\EloquentSortable\Sortable;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\EloquentSortable\SortableTrait;
@@ -41,7 +42,7 @@ class Agent extends Model implements Sortable
 
         static::updated(function($agent) {
 
-            if ($agent->isDirty('status')) {
+             if ($agent->isDirty('status')) {
 
                 if ($agent->status == false) {
                     UnassignTickets::dispatchNow($agent);
@@ -66,6 +67,10 @@ class Agent extends Model implements Sortable
 
     public function assignments() {
         return $this->hasMany('App\Assignment');
+    }
+
+    public function latestAvailability() {
+        return $this->hasOne('App\AvailabilityLog')->latest()->first();
     }
 
     public function getFullNameAttribute()
