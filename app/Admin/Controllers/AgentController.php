@@ -23,6 +23,7 @@ use Encore\Admin\Controllers\Dashboard;
 use Illuminate\Support\Facades\Artisan;
 use App\Admin\Actions\Agent\BatchDelete;
 use App\Admin\Actions\Post\BatchReplicate;
+use Encore\Admin\Actions\Toastr;
 
 class AgentController extends Controller
 {
@@ -127,9 +128,11 @@ class AgentController extends Controller
         \Debugbar::info($request->all());
         \Debugbar::info($id);
         $agent = Agent::findOrFail($id);
-        $agent->status = $request->get('status');
-        $agent->save();
-        // \Debugbar::info($agent);
+
+        if ($agent->isDirty('status')) {
+            $agent->status =  $request->get('status');
+            $agent->save();
+        }
 
         return $agent;
     }    
