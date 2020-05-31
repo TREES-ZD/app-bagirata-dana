@@ -59,7 +59,7 @@ class ProcessTask implements ShouldQueue
             return $a->assignments->last() ? $a->assignments->last()->created_at->timestamp : 1;
         });
 
-        $assignments = $this->task->createAssignments($agents, collect($tickets));
+        $assignments = $this->task->createAssignments($agents, $tickets);
 
         $batch_id = (string) Str::uuid();
         $assignments->each(function($assignment) use ($zendesk, $batch_id) {

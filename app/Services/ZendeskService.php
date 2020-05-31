@@ -116,7 +116,7 @@ class ZendeskService
         $response = Zendesk::views($viewId)->tickets();
         $tickets = $response->tickets;
 
-        return $tickets;
+        return collect($tickets);
     }
 
     public function updateTicket(...$params) {
