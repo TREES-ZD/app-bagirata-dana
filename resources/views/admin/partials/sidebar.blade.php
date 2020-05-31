@@ -40,7 +40,7 @@
         <ul class="sidebar-menu">
             <li class="header">{{ trans('admin.menu') }}</li>
             <!-- @each('admin::partials.menu', Admin::menu(), 'item') -->
-            <li><a href="/admin"><i class="fa fa-home"></i><span>Dashboard</span></a>
+            <li><a href="/admin"><i class="fa fa-home"></i><span>Home</span></a>
             <li><a href="/admin/agents"><i class="fa fa-users"></i><span>Agents</span></a>
             <li><a href="/admin/rules"><i class="fa fa-bars"></i><span>Rules</span></a>
             <li><a href="/admin/tasks"><i class="fa fa-play"></i><span>Tasks</span></a>

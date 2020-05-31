@@ -43,7 +43,7 @@ class HomeController extends Controller
         $total_available_agents = $agents->sum('status');
 
         return $content
-            ->title('Dashboard')
+            ->title('Home')
             ->description('Description...')
             ->row(function (Row $row) use ($total_available_agents, $agents) {
                 $agentsByAssignment = $agents->sortByDesc('assignments_count')->slice(0, 20);
