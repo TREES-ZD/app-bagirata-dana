@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Task;
+use App\Jobs\ProcessTask;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -28,14 +30,14 @@ class Kernel extends ConsoleKernel
         //          ->hourly();
 
         // Get all tasks from the database
-        $tasks = \App\Task::all();
+        $tasks = Task::where('enabled', true)->get();
 
         // Go through each task to dynamically set them up.
         foreach ($tasks as $task) {
 
             $frequency = $task->interval; // everyHour, everyMinute, twiceDaily etc.
             $schedule->call(function() use ($task) {
-                \App\Jobs\ProcessTask::dispatch($task);
+                ProcessTask::dispatch($task);
             })->$frequency();
         }
     }
