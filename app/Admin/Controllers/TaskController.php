@@ -28,23 +28,32 @@ class TaskController extends Controller
             // $grid->disableActions();  
             $grid->disableFilter();  
             $grid->disableExport();
+            $grid->disableActions();
             $grid->tools(function ($tools) {
-                $tools->append(new SyncTasksAction());
+                if (Admin::user()->isAdministrator()) {
+                    $tools->append(new SyncTasksAction());
+                }
             });
             $grid->batchActions(function ($batch) {
                 $batch->disableDelete();
-                $batch->add(new BatchDeleteTask());
+
+                if (Admin::user()->isAdministrator()) {
+                    $batch->add(new BatchDeleteTask());
+                }
             });
             $grid->disableCreateButton();
             
-            $grid->enabled()->select([
-                true => 'Yes',
-                false => 'No',
-            ]);      
-            $grid->column('Run')->display(function () {
-                $url = "/run?view_id=". urlencode($this->zendesk_view_id);
-                return '<a href="'.$url.'"><i class="fa fa-play"></i></a>';
-            });            
+            if (Admin::user()->isAdministrator()) {
+                $grid->enabled()->select([
+                    true => 'Yes',
+                    false => 'No',
+                ]);      
+
+                $grid->column('Run')->display(function () {
+                    $url = "/run?view_id=". urlencode($this->zendesk_view_id);
+                    return '<a href="'.$url.'"><i class="fa fa-play"></i></a>';
+                });
+            }
             $grid->zendesk_view_title("View title");
             $grid->zendesk_view_id("View ID");
             $grid->interval();
