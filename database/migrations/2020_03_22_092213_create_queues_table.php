@@ -18,7 +18,7 @@ class CreateQueuesTable extends Migration
             $table->string('zendesk_view_id');
             $table->string('zendesk_view_title');
             $table->string('interval');
-            $table->string('group_id');
+            $table->string('group_id')->nullable();
             $table->string('limit');
             $table->boolean('enabled');
             $table->timestamps();
