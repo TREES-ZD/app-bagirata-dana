@@ -41,6 +41,8 @@ class AgentController extends Controller
                 $batch->add(new BatchDelete());
             });
             
+            $grid->model()->orderBy('zendesk_custom_field_name');
+            
             $grid->paginate(20);
             $grid->fullName("Agent Full Name");
             $grid->zendesk_agent_name("Assignee")->sortable();
