@@ -60,7 +60,7 @@ return [
     */
     'route' => [
 
-        'prefix' => env('ADMIN_ROUTE_PREFIX', 'admin'),
+        'prefix' => env('ADMIN_ROUTE_PREFIX', 'backend'),
 
         'namespace' => 'App\\Admin\\Controllers',
 
