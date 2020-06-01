@@ -9,6 +9,7 @@ $factory->define(Task::class, function (Faker $faker) {
     return [
         'zendesk_view_id' => "360001440115",
         'zendesk_view_title' => "test",
+        'zendesk_view_position' => $faker->randomDigitNotNull,
         'interval' => "everyMinute",
         'group_id' => 10,
         'limit' => "unlimited",

@@ -47,6 +47,7 @@ class SyncTasks implements ShouldQueue
             return [
                 'zendesk_view_id' => $view->id,
                 'zendesk_view_title' => $view->title,
+                'zendesk_view_position' => $view->position,
                 'interval' => "everyMinute",
                 'group_id' => 1,
                 'limit' => "unlimited",
