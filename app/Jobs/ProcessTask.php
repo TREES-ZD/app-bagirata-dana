@@ -57,7 +57,7 @@ class ProcessTask implements ShouldQueue
 
         $agents = $agents->sortBy(function($a) {
             return $a->assignments->last() ? $a->assignments->last()->created_at->timestamp : 1;
-        });
+        })->values();
 
         $assignments = $this->task->createAssignments($agents, $tickets);
 
