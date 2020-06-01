@@ -82,8 +82,8 @@ class ProcessTask implements ShouldQueue
                     "batch_id" => $batch_id,
                     "agent_id" => $agent->id,
                     "agent_name" => $agent->fullName,
-                    "ticket_id" => $ticket->id,
-                    "ticket_name" => $ticket->subject,
+                    "zendesk_ticket_id" => $ticket->id,
+                    "zendesk_ticket_subject" => $ticket->subject,
                     "group_id" => $agent->zendesk_group_id,
                     "response_status" => "200"
                 ]);
@@ -95,8 +95,8 @@ class ProcessTask implements ShouldQueue
                     "batch_id" => $batch_id,
                     "agent_id" => $agent->id,
                     "agent_name" => $agent->fullName,
-                    "ticket_id" => $ticket->id,
-                    "ticket_name" => $ticket->subject,
+                    "zendesk_ticket_id" => $ticket->id,
+                    "zendesk_ticket_subject" => $ticket->subject,
                     "group_id" => $agent->zendesk_group_id,
                     "response_status" => $e
                 ]);

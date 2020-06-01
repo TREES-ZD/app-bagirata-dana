@@ -28,7 +28,7 @@ class UnassignTicketsTest extends TestCase
         factory(Assignment::class)->create([
             "type" => Agent::ASSIGNMENT,
             "agent_id" => 100,
-            'ticket_id' => 1,
+            'zendesk_ticket_id' => 1,
             'zendesk_view_id' => 123
         ]);
         factory(AvailabilityLog::class)->create([

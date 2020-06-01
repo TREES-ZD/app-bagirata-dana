@@ -13,8 +13,8 @@ $factory->define(Assignment::class, function (Faker $faker) {
         "batch_id" => $faker->randomDigit,
         "agent_id" => 1,
         "agent_name" => "Andi",
-        "ticket_id" => 1,
-        "ticket_name" => "ticket_one",
+        "zendesk_ticket_id" => 1,
+        "zendesk_ticket_subject" => "ticket_one",
         "response_status" => "200"
     ];
 });

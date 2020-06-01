@@ -43,9 +43,9 @@ class UnassignTickets implements ShouldQueue
     public function handle(ZendeskService $zendesk)
     {
         $unnasignedTickets = $this->agent->getUnassignedTickets();
-        $unnasignedTicketsByTicketId = $unnasignedTickets->keyBy('ticket_id');
+        $unnasignedTicketsByTicketId = $unnasignedTickets->keyBy('zendesk_ticket_id');
         try {
-            $tickets = $zendesk->getTicketsByIds($unnasignedTickets->pluck('ticket_id')->toArray());
+            $tickets = $zendesk->getTicketsByIds($unnasignedTickets->pluck('zendesk_ticket_id')->toArray());
         } catch (ApiResponseException $apiException) {
             Log::error($apiException);
             return;
@@ -72,8 +72,8 @@ class UnassignTickets implements ShouldQueue
                 "batch_id" => $unnasignedTicketsByTicketId->get($ticket->id)->batch_id,
                 "agent_id" => $this->agent->id,
                 "agent_name" => $this->agent->fullName,
-                "ticket_id" => $ticket->id,
-                "ticket_name" => $ticket->subject,
+                "zendesk_ticket_id" => $ticket->id,
+                "zendesk_ticket_subject" => $ticket->subject,
                 "group_id" => $this->agent->zendesk_group_id,
                 "response_status" => 200
             ]);

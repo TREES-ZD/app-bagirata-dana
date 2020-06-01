@@ -49,12 +49,12 @@ class ProcessTaskTest extends TestCase
         $this->assertDatabaseHas('assignments', [
             "type" => "ASSIGNMENT",
             "agent_id" => $this->agent->id,
-            "ticket_id" => 1
+            "zendesk_ticket_id" => 1
         ]);
         $this->assertDatabaseHas('assignments', [
             "type" => "ASSIGNMENT",
             "agent_id" => $this->agent->id,
-            "ticket_id" => 2
+            "zendesk_ticket_id" => 2
         ]);        
         $this->assertDatabaseMissing('assignments', [
             'agent_id' => $agent->id
@@ -71,8 +71,8 @@ class ProcessTaskTest extends TestCase
         //                 "zendesk_view_id" => "123324",
         //                 "batch_id" => "aabc123",
         //                 "agent_name" => $agent->fullName,
-        //                 "ticket_id" => $key,
-        //                 "ticket_name" => "Test",
+        //                 "zendesk_ticket_id" => $key,
+        //                 "zendesk_ticket_subject" => "Test",
         //                 "group_id" => $agent->zendesk_group_id,
         //                 "response_status" => 200,
         //                 "created_at" => Carbon::createFromTime($key, 0, 0)
