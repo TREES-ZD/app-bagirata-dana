@@ -5,23 +5,15 @@ namespace App\Admin\Controllers;
 use App\Agent;
 use App\Group;
 use App\Assignment;
-use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use App\AvailabilityLog;
-use App\Jobs\AssignTicket;
 use Encore\Admin\Layout\Row;
 use Illuminate\Http\Request;
 use Encore\Admin\Widgets\Box;
 use Encore\Admin\Facades\Admin;
-use Encore\Admin\Layout\Column;
-use Encore\Admin\Widgets\Table;
 use Jxlwqq\DataTable\DataTable;
 use Encore\Admin\Layout\Content;
 use App\Http\Controllers\Controller;
-use App\Admin\Actions\Post\ImportPost;
-use Encore\Admin\Controllers\Dashboard;
-use Zendesk\API\HttpClient as ZendeskAPI;
-use App\Admin\Actions\Post\BatchReplicate;
 
 class HomeController extends Controller
 {
@@ -66,41 +58,12 @@ class HomeController extends Controller
 
                 $dataTable = new DataTable($headers, $rows, $style, $options);        
                 
-                // $row->column(8, new Box("Agents by total assignments", view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts'))));
                 $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts'))));
                 $row->column(4, new Box("Agent(s) available", $total_available_agents ?: "None"));
                 $row->column(4, new Box("Availability logs", view('roundrobin.dashboard.availabilityLogs', compact('availabilityLogs'))));
                 
-                // $row->column(4, new Box("Active Task(s)", $total_available_agents ?: "None"));
                 $row->column(12, new Box("Latest assignments", view('roundrobin.logs', compact('dataTable'))));
-                // $row->column(4, function (Column $column) use ($full_names, $assignment_counts) {
-                //     // $column->append((new Box('Agents by ticket assigned within 24 hours', view('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts')))));
-                //     $column->body('roundrobin.charts.chartjs', compact('full_names', 'assignment_counts'));
-                // });
-
-                // $row->column(4, function (Column $column) {
-                //     $column->append(Dashboard::extensions());
-                // });
-
-                // $row->column(4, function (Column $column) {
-                //     $column->append(Dashboard::dependencies());
-                // });
             });
-    }
-
-    public function schedules(Content $content) {
-        // $john = \Cache::tags(["people", "author"])->put("John", "detail_john");
-        return $content;
-    }
-
-    public function tasks(Content $content) {
-        $client = new ZendeskAPI(env("ZENDESK_SUBDOMAIN","contreesdemo11557827937"));
-        $client->setAuth('basic', ['username' => "eldien.hasmanto@treessolutions.com", 'token' => "wZX70pAKu3aNyqOEYONUdjVLCIaoBMRFXjnbi7SE"]);
-
-        // Get available agents
-
-        // Match available tickets to available agents
-        return $content;
     }
 
     public function groups(Content $content) {
@@ -169,6 +132,4 @@ class HomeController extends Controller
 
         return $content->body($grid);
     }        
-    public function jobs(Content $content) {
-    }
 }
