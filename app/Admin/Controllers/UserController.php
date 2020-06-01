@@ -2,10 +2,11 @@
 
 namespace App\Admin\Controllers;
 
-use App\Services\ZendeskService;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use App\Services\ZendeskService;
+use Encore\Admin\Auth\Permission;
 use Encore\Admin\Controllers\AdminController;
 
 class UserController extends AdminController
@@ -25,6 +26,8 @@ class UserController extends AdminController
      */
     protected function grid()
     {
+        \Encore\Admin\Auth\Permission::check('administrator');
+        
         $userModel = config('admin.database.users_model');
 
         $grid = new Grid(new $userModel());
@@ -63,6 +66,8 @@ class UserController extends AdminController
      */
     protected function detail($id)
     {
+        \Encore\Admin\Auth\Permission::check('administrator');
+
         $userModel = config('admin.database.users_model');
 
         $show = new Show($userModel::findOrFail($id));
@@ -92,6 +97,8 @@ class UserController extends AdminController
      */
     public function form()
     {
+        \Encore\Admin\Auth\Permission::check('administrator');
+
         $userModel = config('admin.database.users_model');
         $permissionModel = config('admin.database.permissions_model');
         $roleModel = config('admin.database.roles_model');
