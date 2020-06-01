@@ -44,6 +44,7 @@ class RuleController extends Controller
 
             // column not in table
             $grid->fixColumns(1, 0);
+            $grid->paginate(100);
 
             // $grid->fullName("Agent");
             $grid->column('Agent')->display(function ($title) {
