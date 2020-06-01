@@ -117,7 +117,12 @@ class HomeController extends Controller
 
             $grid->column("created_at");
             $grid->column("agent_name");
-            $grid->column("zendesk_ticket_id");
+            $grid->column('zendesk_ticket_id', 'Ticket ID')->display(function () {
+                $subdomain = config('zendesk-laravel.subdomain');
+                $html = sprintf("<a href=\"https://%s.zendesk.com/agent/tickets/%s\">#%s</a>", $subdomain, $this->zendesk_ticket_id, $this->zendesk_ticket_id);
+                return $html;
+                
+            });
             $grid->column("zendesk_ticket_subject");
             $grid->column("type");
         });
