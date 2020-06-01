@@ -15,7 +15,7 @@
         $('#users-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '/admin/logsTable',
+            ajax: '/backend/logsTable',
             columns: [
                 { data: 'status', name: 'Status' },
                 { data: 'name', name: 'Name' },

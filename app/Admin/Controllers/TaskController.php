@@ -68,7 +68,7 @@ class TaskController extends Controller
         \Debugbar::debug(request('group_id'));
         Task::find($id)->update($request->all());
 
-        return redirect()->to('/admin/tasks');
+        return redirect()->to('/backend/tasks');
     }
     
     public function sync(Request $request) {

@@ -23,7 +23,7 @@ class SyncAgentAction extends BatchAction
         $('.agent_resync').on('click', function() {
             $.ajax({
                 method: 'post',
-                url: '/admin/agents/sync',
+                url: '/backend/agents/sync',
                 data: {
                     _token:LA.token
                 },
@@ -45,7 +45,7 @@ class SyncAgentAction extends BatchAction
         \Encore\Admin\Facades\Admin::script($this->script());
 
         // return '<a class="agent_resync" href="javascript:void(0)"><i class="fa fa-refresh"></i> Sync</a>';
-        return '<a href="/admin/agents/sync"><i class="fa fa-refresh"></i> Sync</a>';
+        return '<a href="/backend/agents/sync"><i class="fa fa-refresh"></i> Sync</a>';
     }    
 
     public function __toString()

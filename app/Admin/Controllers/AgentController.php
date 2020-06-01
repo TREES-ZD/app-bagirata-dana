@@ -114,7 +114,7 @@ class AgentController extends Controller
         
         SyncAgents::dispatchNow($filters);
 
-        return redirect()->to('/admin/agents');
+        return redirect()->to('/backend/agents');
     }    
     
     public function edit(Content $content) {

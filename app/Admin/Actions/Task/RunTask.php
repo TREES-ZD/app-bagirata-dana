@@ -12,6 +12,6 @@ class RunTask extends \Encore\Admin\Actions\RowAction
     public function render()
     {
         $model = $this->getRow();
-        return '<a href="/admin/tasks/sync"><i class="fa fa-refresh"></i> Sync</a>';
+        return '<a href="/backend/tasks/sync"><i class="fa fa-refresh"></i> Sync</a>';
     }
 }
