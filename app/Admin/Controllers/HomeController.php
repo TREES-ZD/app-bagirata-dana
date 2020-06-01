@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Agent;
 use App\Group;
+use Carbon\Carbon;
 use App\Assignment;
 use Encore\Admin\Grid;
 use App\AvailabilityLog;
@@ -19,28 +20,38 @@ class HomeController extends Controller
 {
     public function index(Content $content, Request $request)
     {
-        $full_names = [];
-        $assignment_counts = []; 
-        $total_available_agents = 0;
-        foreach (Agent::get() as $agent) {
-            $full_names[] = $agent->full_name;
-            $assignment_counts[] = $agent->assignments()->count();
+        $agents = Agent::disableCache();
 
-            if ($agent->status) {
-                $total_available_agents++;
-            }
+        if ($request->availability == 'available') {
+            $agents->where('status', Agent::AVAILABLE);
+        } else if ($request->availability == 'unavailable') {
+            $agents->where('status', Agent::UNAVAILABLE);
         }
 
-        $agents = Agent::disableCache()->withCount(['assignments'])->get();
-        $total_available_agents = $agents->sum('status');
+        $agents->withCount(['assignments', 
+                    'assignments as assignment_count' => function($query) use ($request) { 
+                        $query->where('type', 'ASSIGNMENT');
+
+                        if ($request->from && $request->to) {
+                            $from = Carbon::parse($request->from);
+                            $to = Carbon::parse($request->to);
+
+                            $query->whereBetween('created_at', [$from, $to]);
+                        }
+
+                        }
+                    ]
+                );
+        
+        $agentsWithAssignmentCount = $agents->orderBy('assignment_count', 'DESC')->take(20)->get();
+        $totalAvailableAgents = $agents->where('status', Agent::AVAILABLE)->count();
 
         return $content
             ->title('Home')
             ->description('Description...')
-            ->row(function (Row $row) use ($total_available_agents, $agents) {
-                $agentsByAssignment = $agents->sortByDesc('assignments_count')->slice(0, 20);
-                $full_names = $agentsByAssignment->pluck('full_name');
-                $assignment_counts = $agentsByAssignment->pluck('assignments_count');
+            ->row(function (Row $row) use ($agentsWithAssignmentCount, $totalAvailableAgents) {
+                $full_names = $agentsWithAssignmentCount->pluck('full_name');
+                $assignment_counts = $agentsWithAssignmentCount->pluck('assignment_count');
                 
                 // Availability Logs table
                 $availabilityLogs = AvailabilityLog::latest("created_at")->limit(10)->get(["created_at", "status", "agent_name"]);
@@ -55,11 +66,10 @@ class HomeController extends Controller
                     'info' => true,
                     'autoWidth' => false,
                 ];
-
                 $dataTable = new DataTable($headers, $rows, $style, $options);        
                 
                 $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts'))));
-                $row->column(4, new Box("Agent(s) available", $total_available_agents ?: "None"));
+                $row->column(4, new Box("Agent(s) available", $totalAvailableAgents ?: "None"));
                 $row->column(4, new Box("Availability logs", view('roundrobin.dashboard.availabilityLogs', compact('availabilityLogs'))));
                 
                 $row->column(12, new Box("Latest assignments", view('roundrobin.logs', compact('dataTable'))));

@@ -9,29 +9,11 @@
                     <div class="dropdown-menu dropdown-menu-right" role="menu">
                         <form class="form-horizontal" role="form">
                             <div class="form-group">
-                                <label for="filter">Assignee</label>
-                                <select class="form-control">
-                                    <option value="0" selected>All</option>
-                                    <option value="support">Norman</option>
-                                    <option value="poc1demo">poc1demo</option>
-                                    <option value="poc1demo">Diastowo Faryduana</option>
-                                    <option value="poc1demo">Luhung</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="filter">Group</label>
-                                <select class="form-control">
-                                    <option value="0" selected>All</option>
-                                    <option value="support">Support</option>
-                                    <option value="bpo2">BPO 2</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
                                 <label for="filter">Availability</label>
-                                <select class="form-control">
+                                <select name="availability" class="form-control">
                                     <option value="0" selected>All</option>
-                                    <option value="1">Available</option>
-                                    <option value="2">Unavailable</option>
+                                    <option value="available">Available</option>
+                                    <option value="unavailable">Unavailable</option>
                                 </select>
                             </div>
                             <div class="form-group">
