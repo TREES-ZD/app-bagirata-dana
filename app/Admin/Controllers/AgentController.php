@@ -27,6 +27,13 @@ use Encore\Admin\Actions\Toastr;
 
 class AgentController extends Controller
 {
+    private $zendesk;
+
+    public function __construct(ZendeskService $zendesk)
+    {
+        $this->zendesk = $zendesk;
+    }
+
     public function index(Content $content) {
         $grid = Admin::grid(new Agent, function (Grid $grid) {
             $grid->disableColumnSelector();
@@ -89,10 +96,15 @@ class AgentController extends Controller
                 $footer->disableCreatingCheck();    
             });
 
+            $this->initializeUserScope();
+
+            $assigneeOptions = $this->getAssigneeOptions();
+            $groupOptions = $this->getGroupOptions();
+
             $form->multipleSelect(ZendeskService::AGENT_IDS, 'Assignee')
-                    ->options($zendesk->getUsersByKey(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY)->toArray());
+                    ->options($assigneeOptions);
             $form->multipleSelect(ZendeskService::GROUP_IDS, 'Group')
-                    ->options($zendesk->getGroupsByKey(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY)->toArray());
+                    ->options($groupOptions);
             $form->multipleSelect(ZendeskService::CUSTOM_FIELD_IDS, 'Agent Name')
                     ->options([ZendeskService::ALL => "All"] + $zendesk->getCustomFieldsByValue(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY)->toArray());
         });
@@ -150,5 +162,31 @@ class AgentController extends Controller
             "zendesk_group_id" => Admin::user()->zendesk_group_id
             ]);
         return redirect()->back();
+    }
+
+    private function getAssigneeOptions() {
+        return $this->zendesk->getUsersByKey(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY)->all();
+    }
+
+    private function getGroupOptions() {
+        return $this->zendesk->getGroupsByKey(ZendeskService::ALL, ZendeskService::SHOW_NAME_ONLY)->all();    
+    }
+
+    private function initializeUserScope() {
+        $user = Admin::user();
+
+        if ($user->isAdministrator()) {
+            return;
+        }
+
+        $assignee_ids = json_decode($user->zendesk_assignee_ids);
+        if ($assignee_ids) {
+            $this->zendesk->filterUsers($assignee_ids);
+        }
+
+        $group_ids = json_decode($user->zendesk_group_ids);
+        if ($group_ids) {
+            $this->zendesk->filterGroups($group_ids);
+        }
     }
 }
