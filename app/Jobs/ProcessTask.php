@@ -27,7 +27,7 @@ class ProcessTask implements ShouldQueue
 
     protected $response;
 
-    public $timeout = 120;
+    public $timeout = 300;
 
     /**
      * Create a new job instance.
