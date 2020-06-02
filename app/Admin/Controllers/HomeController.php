@@ -106,44 +106,42 @@ class HomeController extends Controller
     }    
 
     public function assignment_logs(Content $content) {
-        $grid = Admin::grid(new Assignment, function (Grid $grid) {
-            $grid->disableColumnSelector();
-            $grid->disableRowSelector();
-            $grid->disableCreateButton();
-            $grid->disableFilter();
-            $grid->disableActions();
+        $grid = new Grid(new Assignment());
+        $grid->disableColumnSelector();
+        $grid->disableRowSelector();
+        $grid->disableCreateButton();
+        $grid->disableFilter();
+        $grid->disableActions();
 
-            $grid->model()->orderBy('created_at', 'desc');
+        $grid->model()->orderBy('created_at', 'desc');
 
-            $grid->column("created_at");
-            $grid->column("agent_name");
-            $grid->column('zendesk_ticket_id', 'Ticket ID')->display(function () {
-                $subdomain = config('zendesk-laravel.subdomain');
-                $html = sprintf("<a href=\"https://%s.zendesk.com/agent/tickets/%s\">#%s</a>", $subdomain, $this->zendesk_ticket_id, $this->zendesk_ticket_id);
-                return $html;
-                
-            });
-            $grid->column("zendesk_ticket_subject");
-            $grid->column("type");
+        $grid->column("created_at");
+        $grid->column("agent_name");
+        $grid->column('zendesk_ticket_id', 'Ticket ID')->display(function () {
+            $subdomain = config('zendesk-laravel.subdomain');
+            $html = sprintf("<a href=\"https://%s.zendesk.com/agent/tickets/%s\">#%s</a>", $subdomain, $this->zendesk_ticket_id, $this->zendesk_ticket_id);
+            return $html;
+            
         });
+        $grid->column("zendesk_ticket_subject");
+        $grid->column("type");    
 
         return $content->body($grid);
     }
     
     public function availability_logs(Content $content) {
-        $grid = Admin::grid(new AvailabilityLog, function (Grid $grid) {
-            $grid->disableColumnSelector();
-            $grid->disableRowSelector();
-            $grid->disableCreateButton();
-            $grid->disableFilter();
-            $grid->disableActions();
+        $grid = new Grid(new AvailabilityLog());
+        $grid->disableColumnSelector();
+        $grid->disableRowSelector();
+        $grid->disableCreateButton();
+        $grid->disableFilter();
+        $grid->disableActions();
 
-            $grid->model()->orderBy('created_at', 'desc');
+        $grid->model()->orderBy('created_at', 'desc');
 
-            $grid->column("created_at");
-            $grid->column("status");
-            $grid->column("agent_name");
-        });
+        $grid->column("created_at");
+        $grid->column("status");
+        $grid->column("agent_name");
 
         return $content->body($grid);
     }        
