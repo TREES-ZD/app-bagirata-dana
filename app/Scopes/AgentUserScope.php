@@ -25,7 +25,7 @@ class AgentUserScope implements Scope
             return;
         }
 
-        $assignee_ids = json_decode($user->assignee_ids);
+        $assignee_ids = json_decode($user->zendesk_assignee_ids);
         if ($assignee_ids) {
             $builder->whereIn('zendesk_assignee_id', $assignee_ids);
         }
