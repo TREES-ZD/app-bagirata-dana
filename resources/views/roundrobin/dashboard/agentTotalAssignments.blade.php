@@ -17,7 +17,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="filter">From Date</label>
+                                <label for="filter">From</label>
                                 <div class='input-group date' id='fromdate'>
                                     <input name="from" type='text' class="form-control" />
                                     <span class="input-group-addon">
@@ -26,7 +26,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="filter">To Date</label>
+                                <label for="filter">To</label>
                                 <div class='input-group date' id='todate'>
                                     <input name="to" type='text' class="form-control" />
                                     <span class="input-group-addon">
@@ -45,7 +45,12 @@
 </div>
 
 <canvas id="latest-assignment-chart" width="800" height="600"></canvas>
-
+<script type="text/javascript">
+    $(function () {
+        $('#fromdate').datetimepicker();
+        $('#todate').datetimepicker();
+    });
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.0/Chart.min.js"></script>
 <script>
     var full_names = {!! json_encode($full_names) !!};
