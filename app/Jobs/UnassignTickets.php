@@ -23,7 +23,7 @@ class UnassignTickets implements ShouldQueue
 
     private $agent;
 
-    public $timeout = 120;
+    public $timeout = 800;
     
     /**
      * Create a new job instance.
