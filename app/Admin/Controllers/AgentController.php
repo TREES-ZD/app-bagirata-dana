@@ -40,6 +40,7 @@ class AgentController extends Controller
                 $batch->disableDelete();
                 $batch->add(new BatchDelete());
             });
+            $grid->disableActions();
             
             $grid->model()->orderBy('zendesk_custom_field_name');
             
@@ -56,7 +57,8 @@ class AgentController extends Controller
             // $grid->reassign("Reassignable")->select([
             //     true => 'Yes',
             //     false => 'No',
-            // ]);              
+            // ]);
+
             $grid->limit("Limit");   
         });
 
