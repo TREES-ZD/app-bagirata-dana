@@ -4,6 +4,7 @@ use App\Task;
 use App\Agent;
 // use Encore\Admin\Admin;
 use App\Assignment;
+use App\Services\ZendeskService;
 use DebugBar\DebugBar;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
@@ -63,5 +64,9 @@ Route::post('unassign', function(Request $request) {
 });
 Route::post('syncAgents', function(Request $request) {
     App\Jobs\SyncAgents::dispatch();
+    return response()->json();
+});
+Route::post('refresh', function(Request $request) {
+    app(ZendeskService::class)->refresh();
     return response()->json();
 });

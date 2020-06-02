@@ -57,6 +57,13 @@ class ZendeskService
         return $this;
     }    
 
+    public function refresh() {
+        Cache::forget('groupMemberships');
+        Cache::forget('users');
+        Cache::forget('groups');
+        Cache::forget('custom_field_options');
+    }
+
     public function getPossibleAgents() {
         $agentByKey = $this->getUsersByKey(static::ALL, static::SHOW_FULL);
         $groupByKey = $this->getGroupsByKey(static::ALL, static::SHOW_FULL);
