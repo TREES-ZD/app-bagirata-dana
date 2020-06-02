@@ -47,7 +47,10 @@ class UserController extends AdminController
                 $actions->disableDelete();
             }
         });
-
+        $grid->disableExport();
+        $grid->disableFilter();
+        $grid->disableColumnSelector();
+        
         $grid->tools(function (Grid\Tools $tools) {
             $tools->batch(function (Grid\Tools\BatchActions $actions) {
                 $actions->disableDelete();
