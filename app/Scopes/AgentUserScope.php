@@ -24,10 +24,9 @@ class AgentUserScope implements Scope
         if (!Admin::user()) {
             return;
         }
-
         $assignee_ids = json_decode($user->zendesk_assignee_ids);
         if ($assignee_ids) {
-            $builder->whereIn('zendesk_assignee_id', $assignee_ids);
+            $builder->whereIn('zendesk_agent_id', $assignee_ids);
         }
 
         $group_ids = json_decode($user->zendesk_group_ids);
@@ -38,6 +37,6 @@ class AgentUserScope implements Scope
         $custom_field_ids = json_decode($user->zendesk_custom_field_ids);
         if ($custom_field_ids) {
             $builder->whereIn('zendesk_custom_field_id', $custom_field_ids);
-        }        
+        }
     }
 }
