@@ -27,7 +27,7 @@ class ProcessTask implements ShouldQueue
 
     protected $response;
 
-    public $timeout = 300;
+    public $timeout = 800;
 
     /**
      * Create a new job instance.
@@ -49,6 +49,7 @@ class ProcessTask implements ShouldQueue
     {
         $agents = $this->task->getAvailableAgents();
 
+        Log::info("Processing task", $this->task);
         if ($agents->count() < 1) {
             return;
         }
@@ -98,7 +99,7 @@ class ProcessTask implements ShouldQueue
                     "zendesk_ticket_id" => $ticket->id,
                     "zendesk_ticket_subject" => $ticket->subject,
                     "group_id" => $agent->zendesk_group_id,
-                    "response_status" => $e
+                    "response_status" => 400
                 ]);
             }            
         });
