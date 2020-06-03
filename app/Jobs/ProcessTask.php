@@ -48,8 +48,7 @@ class ProcessTask implements ShouldQueue
     public function handle(ZendeskService $zendesk)
     {
         $agents = $this->task->getAvailableAgents();
-
-        Log::info("Processing task", $this->task);
+        Log::info("Processing task", ['task' => $this->task->toJson(), 'available_agents' => $agents->count()]);
         if ($agents->count() < 1) {
             return;
         }
@@ -89,7 +88,7 @@ class ProcessTask implements ShouldQueue
                     "response_status" => "200"
                 ]);
             } catch (\Zendesk\API\Exceptions\ApiResponseException $e) {
-                Log::error($e);
+                Log::error((array) $e);
 
                 $this->task->assignments()->create([
                     "type" => Agent::ASSIGNMENT,

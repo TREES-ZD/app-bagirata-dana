@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "~7.3.0",
+        "ext-redis": "*",
         "barryvdh/laravel-debugbar": "^3.2",
         "encore/laravel-admin": "^1.7",
         "fideloper/proxy": "^4.0",
@@ -20,9 +21,9 @@
         "laravel/framework": "^6.2",
         "laravel/horizon": "^3.5",
         "laravel/tinker": "^2.0",
+        "rap2hpoutre/laravel-log-viewer": "^1.6",
         "spatie/laravel-activitylog": "^3.14",
-        "yajra/laravel-datatables-oracle": "~9.0",
-        "ext-redis": "*"
+        "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {
         "facade/ignition": "^1.4",

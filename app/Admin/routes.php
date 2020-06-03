@@ -70,3 +70,4 @@ Route::post('refresh', function(Request $request) {
     app(ZendeskService::class)->refresh();
     return response()->json();
 });
+Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
