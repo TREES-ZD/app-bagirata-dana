@@ -38,7 +38,6 @@ class AgentController extends Controller
         $grid = Admin::grid(new Agent, function (Grid $grid) {
             $grid->disableColumnSelector();
             $grid->disableExport();
-            // $grid->disableCreateButton();
             $grid->disableFilter();
             // $grid->tools(function ($tools) {
             //     $tools->append(new SyncAgentAction());
@@ -48,6 +47,10 @@ class AgentController extends Controller
                 $batch->add(new BatchDelete());
             });
             $grid->disableActions();
+
+            if (!Admin::user()->isAdministrator()) {
+                $grid->disableCreateButton();
+            }
             
             $grid->model()->orderBy('zendesk_custom_field_name');
             
