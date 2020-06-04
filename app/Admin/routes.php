@@ -77,7 +77,7 @@ Route::get('sleep', function(Request $request) {
     return response()->json();
 });
 Route::get('long_query', function(Request $request) {
-    DB::select(DB::raw("SELECT pg_sleep(60)"));
+    DB::connection()->select(DB::raw("SELECT pg_sleep(60)"));
     return response()->json();
 });
 Route::get('heavy', function(Request $request) {
