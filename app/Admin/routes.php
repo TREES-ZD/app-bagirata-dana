@@ -80,3 +80,10 @@ Route::get('long_query', function(Request $request) {
     DB::select(DB::raw("SELECT pg_sleep(60)"));
     return response()->json();
 });
+Route::get('heavy', function(Request $request) {
+    $a = 0;
+    for($i = 0; $i < 1000000000; $i++) {
+        $a += $i;
+   }
+    return response()->json();
+});
