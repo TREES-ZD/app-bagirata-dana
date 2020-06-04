@@ -4,10 +4,11 @@ use App\Task;
 use App\Agent;
 // use Encore\Admin\Admin;
 use App\Assignment;
-use App\Services\ZendeskService;
 use DebugBar\DebugBar;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
+use App\Services\ZendeskService;
+use Illuminate\Support\Facades\DB;
 use Zendesk\API\HttpClient as ZendeskAPI;
 
 Admin::routes();
@@ -73,5 +74,9 @@ Route::post('refresh', function(Request $request) {
 Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 Route::get('sleep', function(Request $request) {
     sleep(20);
+    return response()->json();
+});
+Route::get('long_query', function(Request $request) {
+    DB::select(DB::raw("SELECT pg_sleep(60)"));
     return response()->json();
 });
