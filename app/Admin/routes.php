@@ -71,3 +71,7 @@ Route::post('refresh', function(Request $request) {
     return response()->json();
 });
 Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
+Route::post('sleep', function(Request $request) {
+    sleep(20);
+    return response()->json();
+});
