@@ -67,9 +67,9 @@ Route::post('syncAgents', function(Request $request) {
     App\Jobs\SyncAgents::dispatch();
     return response()->json();
 });
-Route::post('refresh', function(Request $request) {
+Route::get('refresh', function(Request $request) {
     app(ZendeskService::class)->refresh();
-    return response()->json();
+    return redirect()->back();
 });
 Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 Route::get('sleep', function(Request $request) {

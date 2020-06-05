@@ -23,7 +23,12 @@
         <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
 
-                {!! Admin::getNavbar()->render() !!}
+                <!-- {!! Admin::getNavbar()->render() !!} -->
+                <li>
+                    <a href="/refresh" class="container-refresh">
+                    <i class="fa fa-refresh"></i>
+                    </a>
+                </li>
 
                 <!-- User Account Menu -->
                 <li class="dropdown user user-menu">
