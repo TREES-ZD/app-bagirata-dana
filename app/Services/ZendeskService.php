@@ -142,7 +142,8 @@ class ZendeskService
     public function getGroupMemberships() {
         $groupMemberships = Cache::remember("groupMemberships", 24 * 60 * 7, function () {
             $response = Zendesk::groupMemberships()->findAll();
-            return $response->group_memberships;
+            $responseTwo = Zendesk::groupMemberships()->findAll(['page' => 2]);
+            return array_merge($response->group_memberships, $responseTwo->group_memberships);
         });
 
         return $groupMemberships;
