@@ -152,8 +152,8 @@ class ZendeskService
     public function getUsersByKey($key = "*", $nameOnly = false) {
         $users = Cache::remember("users", 24 * 60 * 7, function () {
             $response = Zendesk::search()->find("type:user role:admin role:agent", ['sort_by' => 'updated_at']);
-
-            return $response->results;
+            $responseTwo = Zendesk::search()->find("type:user role:admin role:agent", ['sort_by' => 'updated_at', 'page' => 2]);
+            return array_merge($response->results, $responseTwo->results);
         });
 
         $users = $this->filter(static::AGENT_IDS, $users);
