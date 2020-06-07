@@ -141,9 +141,13 @@ class ZendeskService
             }
         }
         
-        return $tickets->unique(function($ticket) {
-            return $ticket->id;
-        })->filter(function($ticket) {
+        if ($tickets->count() > 100) {
+            $tickets = $tickets->unique(function($ticket) {
+                return $ticket->id;
+            });
+        }
+
+        return $tickets->filter(function($ticket) {
             return $ticket->assignee_id == null && in_array($ticket->status, ["new", "open", "pending"]);
         });        
     }
