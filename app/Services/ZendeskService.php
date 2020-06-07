@@ -127,10 +127,23 @@ class ZendeskService
     }
 
     public function getAssignableTicketsByView($viewId) {
-        $response = Zendesk::views($viewId)->tickets();
-        $tickets = $response->tickets;
 
-        return collect($tickets)->filter(function($ticket) {
+        $page = 1;
+        $tickets = collect();
+        while ($page) {
+            $response = Zendesk::views($viewId)->tickets(['page' => $page]);
+            
+            $tickets = $tickets->merge($response->tickets);
+            if ($response->next_page) {
+                $page++;
+            } else {
+                $page = null;
+            }
+        }
+        
+        return $tickets->unique(function($ticket) {
+            return $ticket->id;
+        })->filter(function($ticket) {
             return $ticket->assignee_id == null && in_array($ticket->status, ["new", "open", "pending"]);
         });        
     }
