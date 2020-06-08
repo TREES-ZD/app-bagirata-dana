@@ -177,6 +177,7 @@ return [
 
         Yajra\DataTables\DataTablesServiceProvider::class,
         Huddle\Zendesk\Providers\ZendeskServiceProvider::class,
+        App\Providers\HorizonServiceProvider::class,
     ],
 
     /*
