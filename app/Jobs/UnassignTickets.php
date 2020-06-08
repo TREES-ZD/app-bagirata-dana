@@ -53,9 +53,10 @@ class UnassignTickets implements ShouldQueue
 
         foreach ($tickets as $i => $ticket) {
             $type = Str::upper("already_" . $ticket->status);
-            
+
             if (in_array($ticket->status, ["new", "open", "pending"])) {
                 $type = Agent::UNASSIGNMENT;
+                
                 $zendesk->updateTicket($ticket->id, [
                     "custom_fields" => [
                         [
