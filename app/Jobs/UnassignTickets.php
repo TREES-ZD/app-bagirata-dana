@@ -52,7 +52,10 @@ class UnassignTickets implements ShouldQueue
         }
 
         foreach ($tickets as $i => $ticket) {
-            if (!in_array($ticket->status, ["solved", "closed"])) {
+            $type = Str::upper("already_" . $ticket->status);
+            
+            if (in_array($ticket->status, ["new", "open", "pending"])) {
+                $type = Agent::UNASSIGNMENT;
                 $zendesk->updateTicket($ticket->id, [
                     "custom_fields" => [
                         [
@@ -70,7 +73,7 @@ class UnassignTickets implements ShouldQueue
             }
 
             $this->agent->assignments()->create([
-                "type" => in_array($ticket->status, ["solved", "closed"]) ? "ALREADY_SOLVED" : Agent::UNASSIGNMENT,
+                "type" => $type,
                 "zendesk_view_id" => $unnasignedTicketsByTicketId->get($ticket->id)->zendesk_view_id,
                 "batch_id" => $unnasignedTicketsByTicketId->get($ticket->id)->batch_id,
                 "agent_id" => $this->agent->id,
