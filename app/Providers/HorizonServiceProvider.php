@@ -46,8 +46,8 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
         //     ]);
         // });
 
-        // Gate::define('viewHorizon', function ($user = null) {
-        //     return true;
-        // });
+        Gate::define('viewHorizon', function ($user = null) {
+            return true;
+        });
     }
 }
