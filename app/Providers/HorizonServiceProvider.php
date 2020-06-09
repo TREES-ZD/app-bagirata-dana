@@ -23,10 +23,10 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
         // Horizon::routeMailNotificationsTo('example@example.com');
         // Horizon::routeSlackNotificationsTo('slack-webhook-url', '#channel');
 
-        // Horizon::night();
-        $this->app->singleton(JobRepository::class, function($app) {
-            return new RedisJobRepository($app['redis.connection']);
-        });
+        Horizon::night();
+        // $this->app->singleton(JobRepository::class, function($app) {
+        //     return new RedisJobRepository($app['redis.connection']);
+        // });
         
 
     }
