@@ -33,10 +33,10 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
 
     protected function authorization()
     {
-        // $this->gate();
+        $this->gate();
 
         Horizon::auth(function ($request) {
-            return true;
+            return Gate::check('viewHorizon', [$request->user()]);
         });
     }
 
