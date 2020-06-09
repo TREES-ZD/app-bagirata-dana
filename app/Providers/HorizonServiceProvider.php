@@ -35,9 +35,9 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     {
         // $this->gate();
 
-        // Horizon::auth(function ($request) {
-        //     return true;
-        // });
+        Horizon::auth(function ($request) {
+            return true;
+        });
     }
 
     /**
