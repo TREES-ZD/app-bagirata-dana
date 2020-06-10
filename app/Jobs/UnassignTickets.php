@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Agent;
+use Exception;
 use App\Assignment;
 use App\AvailabilityLog;
 use Illuminate\Support\Arr;
@@ -42,49 +43,55 @@ class UnassignTickets implements ShouldQueue
      */
     public function handle(ZendeskService $zendesk)
     {
-        $unnasignedTickets = $this->agent->getUnassignedTickets();
-        $unnasignedTicketsByTicketId = $unnasignedTickets->keyBy('zendesk_ticket_id');
-        try {
-            $tickets = $zendesk->getTicketsByIds($unnasignedTickets->pluck('zendesk_ticket_id')->toArray());
-        } catch (ApiResponseException $apiException) {
-            Log::error($apiException);
-            return;
-        }
+        $unnasignedTickets = $this->agent->getUnassignedTickets()->chunk(100);
+        $unnasignedTickets->each(function($tickets) use ($zendesk) {
 
-        foreach ($tickets as $i => $ticket) {
-            $type = Str::upper("already_" . $ticket->status);
+            $unnasignedTicketsByTicketId = $tickets->keyBy('zendesk_ticket_id');
+            
+            $tickets = $zendesk->getTicketsByIds($tickets->pluck('zendesk_ticket_id')->all());
+      
 
-            if (in_array($ticket->status, ["new", "open", "pending"])) {
-                $type = Agent::UNASSIGNMENT;
-                
-                $zendesk->updateTicket($ticket->id, [
-                    "custom_fields" => [
-                        [
-                        "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
-                        "value" => null
+            foreach ($tickets as $i => $ticket) {
+                $type = Str::upper("already_" . $ticket->status);
+
+                if (in_array($ticket->status, ["new", "open", "pending"])) {
+                    $type = Agent::UNASSIGNMENT;
+                    
+                    $zendesk->updateTicket($ticket->id, [
+                        "custom_fields" => [
+                            [
+                            "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
+                            "value" => null
+                            ]
+                        ],
+                        "tags" => array_merge($ticket->tags, ["bagirata_agent_unavailable"]),
+                        "comment" =>  [
+                            "body" => "BAGIRATA Agent Unavailable: " . $this->agent->fullName,
+                            "author_id" => $this->agent->zendesk_agent_id,
+                            "public" => false
                         ]
-                    ],
-                    "tags" => array_merge($ticket->tags, ["bagirata_agent_unavailable"]),
-                    "comment" =>  [
-                        "body" => "BAGIRATA Agent Unavailable: " . $this->agent->fullName,
-                        "author_id" => $this->agent->zendesk_agent_id,
-                        "public" => false
-                    ]
+                    ]);
+                }
+    
+                $this->agent->assignments()->create([
+                    "type" => $type,
+                    "zendesk_view_id" => $unnasignedTicketsByTicketId->get($ticket->id)->zendesk_view_id,
+                    "batch_id" => $unnasignedTicketsByTicketId->get($ticket->id)->batch_id,
+                    "agent_id" => $this->agent->id,
+                    "agent_name" => $this->agent->fullName,
+                    "zendesk_ticket_id" => $ticket->id,
+                    "zendesk_ticket_subject" => $ticket->subject,
+                    "group_id" => $this->agent->zendesk_group_id,
+                    "response_status" => 200
                 ]);
             }
+    
+        });
+        
+    }
 
-            $this->agent->assignments()->create([
-                "type" => $type,
-                "zendesk_view_id" => $unnasignedTicketsByTicketId->get($ticket->id)->zendesk_view_id,
-                "batch_id" => $unnasignedTicketsByTicketId->get($ticket->id)->batch_id,
-                "agent_id" => $this->agent->id,
-                "agent_name" => $this->agent->fullName,
-                "zendesk_ticket_id" => $ticket->id,
-                "zendesk_ticket_subject" => $ticket->subject,
-                "group_id" => $this->agent->zendesk_group_id,
-                "response_status" => 200
-            ]);
-        }
-
+    public function failed(Exception $exception)
+    {
+        logs()->error($exception->getMessage());
     }
 }
