@@ -92,10 +92,6 @@ class ProcessTask implements ShouldQueue
        
     }
 
-    public function tags() {
-        return ['task', 'task:'.$this->viewId];
-    }
-
     public function getResponse()
     {
         return $this->response;
