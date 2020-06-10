@@ -10,6 +10,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
 use App\Services\ZendeskService;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -92,6 +93,10 @@ class UnassignTickets implements ShouldQueue
 
     public function failed(Exception $exception)
     {
+        if ($exception instanceof ClientException) {
+            logs()->info("Rate limit exceeded");
+            logs()->error($exception->getMessage());
+        }
         logs()->error($exception->getMessage());
     }
 }
