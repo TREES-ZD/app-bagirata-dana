@@ -47,8 +47,9 @@ class ProcessTask implements ShouldQueue
      */
     public function handle(ZendeskService $zendesk)
     {
+        Log::info("Processing task");
+
         $agents = $this->task->getAvailableAgents();
-        Log::info("Processing task", ['task' => $this->task->toJson(), 'available_agents' => $agents->count()]);
         if ($agents->count() < 1) {
             return;
         }
@@ -65,42 +66,28 @@ class ProcessTask implements ShouldQueue
         $assignments->each(function($assignment) use ($zendesk, $batch_id) {
             $agent = $assignment->get("agent");
             $ticket = $assignment->get("ticket");
-
-            try {
-                $response = $zendesk->updateTicket($ticket->id, [
-                    "assignee_id" => $agent->zendesk_agent_id,
-                    "group_id" => $agent->zendesk_group_id,
-                    "custom_fields" => [
-                        [
-                        "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
-                        "value" => $agent->zendesk_custom_field_id
-                        ]
+   
+            $zendesk->updateTicket($ticket->id, [
+                "assignee_id" => $agent->zendesk_agent_id,
+                "group_id" => $agent->zendesk_group_id,
+                "custom_fields" => [
+                    [
+                    "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
+                    "value" => $agent->zendesk_custom_field_id
                     ]
-                ]);
-                $this->task->assignments()->create([
-                    "type" => Agent::ASSIGNMENT,
-                    "batch_id" => $batch_id,
-                    "agent_id" => $agent->id,
-                    "agent_name" => $agent->fullName,
-                    "zendesk_ticket_id" => $ticket->id,
-                    "zendesk_ticket_subject" => $ticket->subject,
-                    "group_id" => $agent->zendesk_group_id,
-                    "response_status" => "200"
-                ]);
-            } catch (\Zendesk\API\Exceptions\ApiResponseException $e) {
-                Log::error((array) $e);
-
-                $this->task->assignments()->create([
-                    "type" => Agent::ASSIGNMENT,
-                    "batch_id" => $batch_id,
-                    "agent_id" => $agent->id,
-                    "agent_name" => $agent->fullName,
-                    "zendesk_ticket_id" => $ticket->id,
-                    "zendesk_ticket_subject" => $ticket->subject,
-                    "group_id" => $agent->zendesk_group_id,
-                    "response_status" => 400
-                ]);
-            }            
+                ]
+            ]);
+            $this->task->assignments()->create([
+                "type" => Agent::ASSIGNMENT,
+                "batch_id" => $batch_id,
+                "agent_id" => $agent->id,
+                "agent_name" => $agent->fullName,
+                "zendesk_ticket_id" => $ticket->id,
+                "zendesk_ticket_subject" => $ticket->subject,
+                "group_id" => $agent->zendesk_group_id,
+                "response_status" => 200
+            ]);
+                        
         });
        
     }
