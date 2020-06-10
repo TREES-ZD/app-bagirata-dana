@@ -103,7 +103,7 @@ class ZendeskService
     }
 
     public function getTicketsByIds(array $ids) {
-        $response =Zendesk::tickets()->findMany($ids);
+        $response = Zendesk::tickets()->findMany($ids);
         return collect($response->tickets);
     }
 
