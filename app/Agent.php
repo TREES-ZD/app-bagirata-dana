@@ -65,7 +65,11 @@ class Agent extends Model implements Sortable
 
     public function getUnassignedTickets() {
         $assignedTickets = $this->assignments()->where('type', 'ASSIGNMENT')->where('response_status', 200)->get()->pluck('zendesk_ticket_id');
-        $unassignedTickets = $this->assignments()->where('type', 'UNASSIGNMENT')->get()->pluck('zendesk_ticket_id');
+        $unassignedTickets = $this->assignments()
+                            ->where('type', '!=', 'ASSIGNMENT')
+                            ->get()
+                            ->pluck('zendesk_ticket_id');
+
         $assignedTicketsNotUnassigned = $assignedTickets->diff($unassignedTickets);
         return $this->assignments()->where('type', 'ASSIGNMENT')->where('response_status', 200)->whereIn('zendesk_ticket_id', $assignedTicketsNotUnassigned)->get();
     }
