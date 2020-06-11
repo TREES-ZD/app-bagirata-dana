@@ -4,13 +4,14 @@ namespace App\Jobs;
 
 use App\Task;
 use App\Agent;
-use App\Services\RoundRobinService;
 use Exception;
 use App\TaskLog;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
 use App\Services\ZendeskService;
+use App\Services\RoundRobinService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Zendesk\API\HttpClient as ZendeskAPI;
@@ -77,6 +78,7 @@ class ProcessTask implements ShouldQueue
                     ]
                 ]
             ]);
+            Redis::sadd('agent:'.$agent->id.':assignedTickets', $ticket->id);
             $this->task->assignments()->create([
                 "type" => Agent::ASSIGNMENT,
                 "batch_id" => $batch_id,

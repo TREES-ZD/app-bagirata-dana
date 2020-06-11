@@ -10,10 +10,11 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
 use App\Services\ZendeskService;
-use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
+use GuzzleHttp\Exception\ClientException;
 use Zendesk\API\HttpClient as ZendeskAPI;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -44,12 +45,15 @@ class UnassignTickets implements ShouldQueue
      */
     public function handle(ZendeskService $zendesk)
     {
-        $unnasignedTickets = $this->agent->getUnassignedTickets()->chunk(100);
-        $unnasignedTickets->each(function($tickets) use ($zendesk) {
+        // $unnasignedTickets = $this->agent->getUnassignedTickets()->chunk(100);
+        $unassignedTicketIds = Redis::smembers('agent:'.$this->agent->id.':assignedTickets');
 
-            $unnasignedTicketsByTicketId = $tickets->keyBy('zendesk_ticket_id');
+        collect($unassignedTicketIds)->chunk(100)->each(function($ticketIds) use ($zendesk) {
+
+            // $unnasignedTicketsByTicketId = $tickets->keyBy('zendesk_ticket_id');
             
-            $tickets = $zendesk->getTicketsByIds($tickets->pluck('zendesk_ticket_id')->all());
+            // $tickets = $zendesk->getTicketsByIds($tickets->pluck('zendesk_ticket_id')->all());
+            $tickets = $zendesk->getTicketsByIds($ticketIds->all());
       
 
             foreach ($tickets as $i => $ticket) {
@@ -73,11 +77,11 @@ class UnassignTickets implements ShouldQueue
                         ]
                     ]);
                 }
-    
+                Redis::srem('agent:'.$this->agent->id.':assignedTickets', $ticket->id);
                 $this->agent->assignments()->create([
                     "type" => $type,
-                    "zendesk_view_id" => $unnasignedTicketsByTicketId->get($ticket->id)->zendesk_view_id,
-                    "batch_id" => $unnasignedTicketsByTicketId->get($ticket->id)->batch_id,
+                    "zendesk_view_id" => "TEMP_NO",
+                    "batch_id" => "TEMP_NO",
                     "agent_id" => $this->agent->id,
                     "agent_name" => $this->agent->fullName,
                     "zendesk_ticket_id" => $ticket->id,
