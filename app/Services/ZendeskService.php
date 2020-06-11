@@ -143,9 +143,7 @@ class ZendeskService
 
         return $tickets->filter(function($ticket) {
             return $ticket->assignee_id == null && in_array($ticket->status, ["new", "open", "pending"]);
-        })->unique(function($ticket) {
-            return $ticket->id;
-        });        
+        });
     }
 
     public function updateTicket(...$params) {
