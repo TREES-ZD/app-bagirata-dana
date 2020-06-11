@@ -15,6 +15,7 @@ use Encore\Admin\Facades\Admin;
 use Jxlwqq\DataTable\DataTable;
 use Encore\Admin\Layout\Content;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redis;
 
 class HomeController extends Controller
 {
@@ -46,6 +47,15 @@ class HomeController extends Controller
         $agentsWithAssignmentCount = $agents->orderBy('assignment_count', 'DESC')->take(20)->get();
         $totalAvailableAgents = $agents->where('status', Agent::AVAILABLE)->count();
 
+        if ($request->type == "current") {
+            $agentsWithAssignmentCount = Agent::get()->map(function($agent) {
+                return [
+                    'full_name' => $agent->full_name,
+                    'assignment_count' => count(Redis::smembers('agent:'.$agent->id.':assignedTickets'))
+                ];   
+            })->sortByDesc('assignment_count')->take(20);
+        }
+        
         return $content
             ->title('Home')
             ->description('Description...')
