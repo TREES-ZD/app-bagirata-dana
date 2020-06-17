@@ -33,7 +33,7 @@ class UpdateProcessedAssignments implements ShouldQueue
      * @param  TicketsProcessed  $event
      * @return void
      */
-    public function handle(AssignmentsProcessed $event, \App\Services\ZendeskService $zendesk)
+    public function handle(AssignmentsProcessed $event, ZendeskService $zendesk)
     {   
         $jobStatus = $event->jobStatus;
         $assignments = collect($event->assignments);
