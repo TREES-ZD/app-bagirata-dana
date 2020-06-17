@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +14,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        Collection::macro('unassignableTickets', function () {
+            return $this->filter(function($ticket) {
+                return in_array($ticket->status, ["new", "open", "pending"]);
+            });
+        });
     }
 
     /**

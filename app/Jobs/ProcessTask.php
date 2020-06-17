@@ -8,9 +8,12 @@ use Exception;
 use App\TaskLog;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
+use App\Events\TicketsProcessed;
 use App\Services\ZendeskService;
 use App\Services\RoundRobinService;
 use Illuminate\Support\Facades\Log;
+use App\Events\AssignmentsProcessed;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -63,39 +66,28 @@ class ProcessTask implements ShouldQueue
 
         $assignments = $this->task->createAssignments($agents, $tickets);
 
-        $batch_id = (string) Str::uuid();
-        $assignments->each(function($assignment) use ($zendesk, $batch_id) {
-            $agent = $assignment->get("agent");
-            $ticket = $assignment->get("ticket");
-   
-            $zendesk->updateTicket($ticket->id, [
-                "assignee_id" => $agent->zendesk_agent_id,
-                "group_id" => $agent->zendesk_group_id,
-                "custom_fields" => [
-                    [
-                    "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
-                    "value" => $agent->zendesk_custom_field_id
+        $assignments->chunk(100)->each(function($assignments) use ($zendesk) {
+            $tickets = $assignments->map(function($assignment) {
+                $agent = $assignment->get("agent");
+                $ticket = $assignment->get("ticket");
+                
+                return [
+                    "id" => $ticket->id,
+                    "assignee_id" => $agent->zendesk_agent_id,
+                    "group_id" => $agent->zendesk_group_id,
+                    "custom_fields" => [
+                        [
+                        "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
+                        "value" => $agent->zendesk_custom_field_id
+                        ]
                     ]
-                ]
-            ]);
-            Redis::sadd('agent:'.$agent->id.':assignedTickets', $ticket->id);
-            $this->task->assignments()->create([
-                "type" => Agent::ASSIGNMENT,
-                "batch_id" => $batch_id,
-                "agent_id" => $agent->id,
-                "agent_name" => $agent->fullName,
-                "zendesk_ticket_id" => $ticket->id,
-                "zendesk_ticket_subject" => $ticket->subject,
-                "group_id" => $agent->zendesk_group_id,
-                "response_status" => 200
-            ]);
-                        
-        });
-       
-    }
+                ];
+            });
 
-    public function getResponse()
-    {
-        return $this->response;
+            $response = $zendesk->updateManyTickets($tickets->values()->all());
+
+            event(new AssignmentsProcessed($response->job_status, $assignments->values()->all(), $this->viewId));
+        });
+
     }
 }
