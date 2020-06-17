@@ -45,7 +45,11 @@ class UpdateProcessedAssignments implements ShouldQueue
 
             if ($response->job_status->status == "completed") {
                 // $ticketResults = collect($response->job_status->results)->groupBy('id');
-                dispatch_now(new LogAssignments($assignments));
+                try {
+                    dispatch_now(new LogAssignments($assignments));
+                } catch (Exception $e) {
+                    logs()->error($e->getMessage());
+                }
                 return;
             }
 
