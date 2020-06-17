@@ -40,7 +40,7 @@ class UpdateProcessedAssignments implements ShouldQueue
         $viewId = $event->viewId;
         
         while (true) {
-            sleep(5);
+            sleep(10);
             $response = app(\App\Services\ZendeskService::class)->getJobStatus($jobStatus->id);
 
             if ($response->job_status->status == "completed") {
