@@ -33,7 +33,7 @@ class UpdateProcessedAssignments implements ShouldQueue
      * @param  TicketsProcessed  $event
      * @return void
      */
-    public function handle(AssignmentsProcessed $event)
+    public function handle(AssignmentsProcessed $event, ZendeskService $zendesk)
     {   
         $jobStatus = $event->jobStatus;
         $assignments = collect($event->assignments);
@@ -41,15 +41,12 @@ class UpdateProcessedAssignments implements ShouldQueue
         
         while (true) {
             sleep(10);
-            $response = app(\App\Services\ZendeskService::class)->getJobStatus($jobStatus->id);
+            $response = $zendesk->getJobStatus($jobStatus->id);
 
             if ($response->job_status->status == "completed") {
-                // $ticketResults = collect($response->job_status->results)->groupBy('id');
-                try {
-                    dispatch_now(new LogAssignments($assignments));
-                } catch (Exception $e) {
-                    logs()->error($e->getMessage());
-                }
+                $ticketResults = collect($response->job_status->results)->groupBy('id');
+
+                dispatch_now(new LogAssignments($assignments));
                 return;
             }
 

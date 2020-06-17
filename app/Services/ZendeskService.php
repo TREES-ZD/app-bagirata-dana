@@ -155,7 +155,7 @@ class ZendeskService
     }
 
     public function getJobStatus($id) {
-        return Zendesk::get('api/v2/job_statuses/'.$id);
+        return Zendesk::get('job_statuses/'.$id);
     }
 
     public function unassignTickets($ids, $agent_id, $agent_fullName) {
