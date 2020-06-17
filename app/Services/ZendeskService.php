@@ -150,6 +150,37 @@ class ZendeskService
         return Zendesk::tickets()->update(...$params);        
     }
 
+    public function updateManyTickets(...$params) {
+        return Zendesk::tickets()->updateMany(...$params);        
+    }
+
+    public function getJobStatus($id) {
+        return Zendesk::get('job_statuses/'.$id);
+    }
+
+    public function unassignTickets($ids, $agent_id, $agent_fullName) {
+        if (count($ids) < 1) {
+            return;
+        }
+
+        $params = [
+            "ids" => $ids,
+            "custom_fields" => [
+                [
+                "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
+                "value" => null
+                ]
+            ],
+            "comment" =>  [
+                "body" => "BAGIRATA Agent Unavailable: " . $agent_fullName,
+                "author_id" => $agent_id,
+                "public" => false
+            ]
+        ];
+
+        return Zendesk::tickets()->updateManyTickets($params);
+    }
+
     public function getGroupMemberships() {
         $groupMemberships = Cache::remember("groupMemberships", 24 * 60 * 7, function () {
             $response = Zendesk::groupMemberships()->findAll();
