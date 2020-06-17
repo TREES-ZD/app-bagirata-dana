@@ -17,14 +17,16 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class UpdateProcessedAssignments implements ShouldQueue
 {
+    protected $zendesk;
+
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(ZendeskService $zendesk)
     {
-        //
+        $this->zendesk = $zendesk;
     }
 
     /**
@@ -33,7 +35,7 @@ class UpdateProcessedAssignments implements ShouldQueue
      * @param  TicketsProcessed  $event
      * @return void
      */
-    public function handle(AssignmentsProcessed $event, ZendeskService $zendesk)
+    public function handle(AssignmentsProcessed $event)
     {   
         $jobStatus = $event->jobStatus;
         $assignments = collect($event->assignments);
@@ -41,7 +43,7 @@ class UpdateProcessedAssignments implements ShouldQueue
         
         while (true) {
             sleep(10);
-            $response = $zendesk->getJobStatus($jobStatus->id);
+            $response = $this->zendesk->getJobStatus($jobStatus->id);
 
             if ($response->job_status->status == "completed") {
                 $ticketResults = collect($response->job_status->results)->groupBy('id');
