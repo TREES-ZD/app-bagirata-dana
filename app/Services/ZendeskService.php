@@ -178,7 +178,7 @@ class ZendeskService
             ]
         ];
 
-        return Zendesk::tickets()->updateManyTickets($params);
+        return Zendesk::tickets()->updateMany($params);
     }
 
     public function getGroupMemberships() {
