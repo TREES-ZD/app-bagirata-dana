@@ -56,6 +56,7 @@ class ProcessTask implements ShouldQueue
 
         $agents = $this->task->getAvailableAgents();
         if ($agents->count() < 1) {
+            $this->delete();
             return;
         }
 
