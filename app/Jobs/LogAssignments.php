@@ -44,7 +44,7 @@ class LogAssignments implements ShouldQueue
         $assignments = $assignments->map(function($assignment, $i) {
                             return [
                                 "type" => Agent::ASSIGNMENT,
-                                "batch_id" => $this->batch_id,
+                                "batch_id" => $this->batchId,
                                 "agent_id" => $assignment->agent_id,
                                 "agent_name" => $assignment->agent_fullName,
                                 "zendesk_view_id" => "viewId",
