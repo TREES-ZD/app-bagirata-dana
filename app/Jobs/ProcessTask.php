@@ -67,7 +67,7 @@ class ProcessTask implements ShouldQueue
 
         $assignments = $this->task->createAssignments($agents, $tickets);
 
-        $batchId = Str::uuid();
+        $batchId = (string) Str::uuid();
         Cache::remember(sprintf("assignments:%s", $batchId), 3000, function() use ($assignments) {
             return $assignments->map(function($assignment) {
                 $agent = $assignment->get('agent');
