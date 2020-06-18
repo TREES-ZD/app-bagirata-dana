@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Agent;
 use App\Assignment;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -15,16 +16,16 @@ class LogAssignments implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $assignments;
+    protected $batchId;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($assignments)
+    public function __construct($batchId)
     {
-        $this->assignments = $assignments;
+        $this->batchId = $batchId;
     }
 
     /**
@@ -34,27 +35,25 @@ class LogAssignments implements ShouldQueue
      */
     public function handle()
     {
-        $assignments = $this->assignments
-        ->each(function($assignment) {
-            $agent = $assignment->get('agent');
-            $ticket = $assignment->get('ticket');                    
-            Redis::sadd(sprintf("agent:%s:assignedTickets", $agent->id), $ticket->id);
-        })
-        ->map(function($assignment, $i) {
-            $agent = $assignment->get('agent');
-            $ticket = $assignment->get('ticket');
-            return [
-                "type" => Agent::ASSIGNMENT,
-                "batch_id" => "batch_id",
-                "agent_id" => $agent->id,
-                "agent_name" => $agent->fullName,
-                "zendesk_view_id" => "viewId",
-                "zendesk_ticket_id" => $ticket->id,
-                "zendesk_ticket_subject" => $ticket->subject,
-                "response_status" => 200,
-                "created_at" => now()->addSeconds($i)
-            ];
+        $assignments = collect(Cache::get(sprintf("assignments:%s", $this->batchId)));
+
+        $assignments->each(function($assignment) {
+            Redis::sadd(sprintf("agent:%s:assignedTickets", $assignment->agent_id), $assignment->ticket_id);
         });
+
+        $assignments = $assignments->map(function($assignment, $i) {
+                            return [
+                                "type" => Agent::ASSIGNMENT,
+                                "batch_id" => $this->batch_id,
+                                "agent_id" => $assignment->agent_id,
+                                "agent_name" => $assignment->agent_fullName,
+                                "zendesk_view_id" => "viewId",
+                                "zendesk_ticket_id" => $assignment->ticket_id,
+                                "zendesk_ticket_subject" => $assignment->ticket_subject,
+                                "response_status" => 200,
+                                "created_at" => now()->addSeconds($i)
+                            ];
+                        });
         
         Assignment::insert($assignments->all());
     }

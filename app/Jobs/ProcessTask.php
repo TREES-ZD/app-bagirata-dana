@@ -13,6 +13,7 @@ use App\Services\ZendeskService;
 use App\Services\RoundRobinService;
 use Illuminate\Support\Facades\Log;
 use App\Events\AssignmentsProcessed;
+use App\Listeners\UpdateProcessedAssignments;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Queue\SerializesModels;
@@ -66,7 +67,22 @@ class ProcessTask implements ShouldQueue
 
         $assignments = $this->task->createAssignments($agents, $tickets);
 
-        $assignments->chunk(100)->each(function($assignments) use ($zendesk) {
+        $batchId = Str::uuid();
+        Cache::remember(sprintf("assignments:%s", $batchId), 3000, function() use ($assignments) {
+            return $assignments->map(function($assignment) {
+                $agent = $assignment->get('agent');
+                $ticket = $assignment->get('ticket');
+
+                return (object) [
+                    'agent_id' => $agent->id,
+                    'agent_fullName' => $agent->id,
+                    'ticket_id' => $ticket->id,
+                    'ticket_subject' => $ticket->subject
+                ];
+            })->values()->all();
+        });
+
+        $assignments->chunk(100)->each(function($assignments) use ($zendesk, $batchId) {
             $tickets = $assignments->map(function($assignment) {
                 $agent = $assignment->get("agent");
                 $ticket = $assignment->get("ticket");
@@ -86,7 +102,7 @@ class ProcessTask implements ShouldQueue
 
             $response = $zendesk->updateManyTickets($tickets->values()->all());
 
-            event(new AssignmentsProcessed($response->job_status, $assignments->values()->all(), $this->viewId));
+            event(new AssignmentsProcessed($response->job_status, $batchId, $this->viewId));
         });
 
     }

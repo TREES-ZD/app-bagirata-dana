@@ -38,7 +38,7 @@ class UpdateProcessedAssignments implements ShouldQueue
     public function handle(AssignmentsProcessed $event)
     {   
         $jobStatus = $event->jobStatus;
-        $assignments = collect($event->assignments);
+        $batchId = $event->batchId;
         $viewId = $event->viewId;
         
         while (true) {
@@ -48,7 +48,7 @@ class UpdateProcessedAssignments implements ShouldQueue
             if ($response->job_status->status == "completed") {
                 $ticketResults = collect($response->job_status->results)->groupBy('id');
 
-                dispatch_now(new LogAssignments($assignments));
+                dispatch_now(new LogAssignments($batchId));
                 return;
             }
 

@@ -16,7 +16,7 @@ class AssignmentsProcessed
 
     public $jobStatus;
 
-    public $assignments;
+    public $batchId;
 
     public $viewId;
 
@@ -25,10 +25,10 @@ class AssignmentsProcessed
      *
      * @return void
      */
-    public function __construct($jobStatus, $assignments, $viewId)
+    public function __construct($jobStatus, $batchId, $viewId)
     {
         $this->jobStatus = $jobStatus;
-        $this->assignments = $assignments;
+        $this->batchId = $batchId;
         $this->viewId = $viewId;
     }
 
