@@ -19,7 +19,7 @@ class UpdateProcessedAssignments implements ShouldQueue
 {
     protected $zendesk;
 
-    public $retryAfter = 30;
+    public $retryAfter = 60;
 
     /**
      * Create the event listener.

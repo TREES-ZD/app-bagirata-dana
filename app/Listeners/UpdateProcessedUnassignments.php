@@ -12,7 +12,7 @@ class UpdateProcessedUnassignments implements ShouldQueue
 
     public $queue = 'unassignment';
     
-    public $retryAfter = 30;
+    public $retryAfter = 60;
 
     /**
      * Create the event listener.
