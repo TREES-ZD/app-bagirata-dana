@@ -76,7 +76,7 @@ class ProcessTask implements ShouldQueue
 
                 return (object) [
                     'agent_id' => $agent->id,
-                    'agent_fullName' => $agent->id,
+                    'agent_fullName' => $agent->fullName,
                     'ticket_id' => $ticket->id,
                     'ticket_subject' => $ticket->subject
                 ];
