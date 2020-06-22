@@ -18,18 +18,18 @@ class UnassignmentsProcessed
 
     public $agent;
 
-    public $tickets;
+    public $batchId;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($jobStatus, $agent, $tickets)
+    public function __construct($jobStatus, $agent, $batchId)
     {
         $this->jobStatus = $jobStatus;
         $this->agent = $agent;
-        $this->tickets = $tickets;
+        $this->batchId = $batchId;
     }
 
     /**

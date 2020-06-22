@@ -6,13 +6,14 @@ use App\Agent;
 use Exception;
 use App\Assignment;
 use App\AvailabilityLog;
-use App\Events\UnassignmentsProcessed;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
 use App\Services\ZendeskService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
+use App\Events\UnassignmentsProcessed;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use GuzzleHttp\Exception\ClientException;
@@ -48,7 +49,11 @@ class UnassignTickets implements ShouldQueue
     {
         $assignedTicketIds = Redis::smembers(sprintf("agent:%s:assignedTickets", $this->agent->id));
         collect($assignedTicketIds)->chunk(100)->each(function($ticketIds) use ($zendesk) {
-            $tickets = $zendesk->getTicketsByIds($ticketIds->values()->all());
+            $batchId = (string) Str::uuid();
+
+            $tickets = Cache::remember(sprintf("tickets:%batchId", $batchId), 3000, function() use ($zendesk, $ticketIds) {
+                return $zendesk->getTicketsByIds($ticketIds->values()->all());
+            });
 
             $unassignableTickets = collect($tickets)->unassignableTickets();
             
@@ -61,7 +66,7 @@ class UnassignTickets implements ShouldQueue
             
             $response = $zendesk->unassignTickets($unassignableTickets->pluck('id')->values()->all(), $this->agent->zendesk_agent_id, $this->agent->fullName);
 
-            event(new UnassignmentsProcessed(optional($response)->job_status, $this->agent, $tickets));
+            event(new UnassignmentsProcessed(optional($response)->job_status, $this->agent, $batchId));
         });
         
     }

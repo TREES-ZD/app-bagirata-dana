@@ -31,10 +31,10 @@ class UpdateProcessedUnassignments implements ShouldQueue
     {
         $jobStatus = $event->jobStatus;
         $agent = $event->agent;
-        $tickets = $event->tickets;
+        $batchId = $event->batchId;
 
         if (!$jobStatus) {
-            dispatch_now(new LogUnassignments($agent, $tickets));
+            dispatch_now(new LogUnassignments($agent, $batchId));
             return;
         }
 
@@ -43,7 +43,7 @@ class UpdateProcessedUnassignments implements ShouldQueue
             $response = app(\App\Services\ZendeskService::class)->getJobStatus($jobStatus->id);
 
             if ($response->job_status->status == "completed") {
-                dispatch_now(new LogUnassignments($agent, $tickets));
+                dispatch_now(new LogUnassignments($agent, $batchId));
                 return;
             }
 
