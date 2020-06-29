@@ -43,7 +43,7 @@ class Kernel extends ConsoleKernel
 
             $frequency = $task->interval; // everyHour, everyMinute, twiceDaily etc.
             $schedule->call(function() use ($task) {
-                ProcessTask::dispatch($task);
+                ProcessTask::dispatch($task)->onQueue('assignment');
             })->$frequency();
         }
     }
