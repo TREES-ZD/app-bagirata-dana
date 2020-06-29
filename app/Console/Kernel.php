@@ -3,7 +3,7 @@
 namespace App\Console;
 
 use App\Task;
-use App\Jobs\ProcessTask;
+use App\Jobs\Task\ProcessTask;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -29,11 +29,17 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')
         //          ->hourly();
 
-        // Get all tasks from the database
-        $tasks = Task::where('enabled', true)->get();
+        // Get all enabled tasks where from the database
+        $activeTasks = Task::where('enabled', true)
+                        ->withCount(['rules' => function($q) {
+                            $q->where('rules.priority', '>', 0);
+                            $q->where('agents.status', true);
+                        }])
+                        ->get()
+                        ->filter(function($task) { return $task->rules_count > 0;});
 
         // Go through each task to dynamically set them up.
-        foreach ($tasks as $task) {
+        foreach ($activeTasks as $task) {
 
             $frequency = $task->interval; // everyHour, everyMinute, twiceDaily etc.
             $schedule->call(function() use ($task) {
