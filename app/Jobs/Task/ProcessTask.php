@@ -75,7 +75,7 @@ class ProcessTask implements ShouldQueue
             return $assignments;
         });
 
-        $assignments->chunk(100)->each(function($assignments) use ($zendesk, $batchId) {
+        $assignments->chunk(100)->each(function($assignments, $page) use ($zendesk, $batchId) {
             $tickets = $assignments->map(function($assignment) {                
                 return [
                     "id" => $assignment->ticket_id,
@@ -92,7 +92,7 @@ class ProcessTask implements ShouldQueue
 
             $response = $zendesk->updateManyTickets($tickets->values()->all());
             CheckJobStatus::withChain([
-                (new LogAssignments($batchId))->onQueue('assignment-job'),
+                (new LogAssignments($batchId, $page))->onQueue('assignment-job'),
             ])->dispatch($batchId, $response->job_status->id)->allOnQueue('assignment-job');
 
             // event(new AssignmentsProcessed($response->job_status, $batchId, $this->viewId));

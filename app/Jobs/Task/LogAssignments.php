@@ -19,14 +19,17 @@ class LogAssignments implements ShouldQueue
 
     protected $batchId;
 
+    protected $page;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($batchId)
+    public function __construct($batchId, $page)
     {
         $this->batchId = $batchId;
+        $this->page = $page;
     }
 
     /**
@@ -36,7 +39,7 @@ class LogAssignments implements ShouldQueue
      */
     public function handle()
     {        
-        $assignments = collect(Cache::get(sprintf("assignments:%s", $this->batchId)));
+        $assignments = collect(Cache::get(sprintf("assignments:%s", $this->batchId)))->chunk(100)->get($this->page)->values();
 
         $assignments->each(function($assignment) {
             Redis::sadd(sprintf("agent:%s:assignedTickets", $assignment->agent_id), $assignment->ticket_id);
@@ -55,7 +58,6 @@ class LogAssignments implements ShouldQueue
                                 "created_at" => now()->addSeconds($i)
                             ];
                         });
-        
         Assignment::insert($assignments->all());
     }
 }
