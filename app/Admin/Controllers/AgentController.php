@@ -48,7 +48,10 @@ class AgentController extends Controller
                 $batch->disableDelete();
                 $batch->add(new BatchSetAvailable());
                 $batch->add(new BatchSetUnavailable());
-                $batch->add(new BatchDelete());
+
+                if (Admin::user()->isAdministrator()) {
+                    $batch->add(new BatchDelete());
+                }
             });
             $grid->disableActions();
 
