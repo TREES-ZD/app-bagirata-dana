@@ -46,9 +46,9 @@ class AgentController extends Controller
             // });
             $grid->batchActions(function ($batch) {
                 $batch->disableDelete();
-                $batch->add(new BatchDelete());
                 $batch->add(new BatchSetAvailable());
                 $batch->add(new BatchSetUnavailable());
+                $batch->add(new BatchDelete());
             });
             $grid->disableActions();
 
