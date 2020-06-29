@@ -13,17 +13,19 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Column;
 use Encore\Admin\Widgets\Table;
 use App\Services\ZendeskService;
+use Encore\Admin\Actions\Toastr;
 use Encore\Admin\Layout\Content;
 use App\Admin\Actions\MakeOnline;
 use App\Http\Controllers\Controller;
 use App\Admin\Actions\Agent\SyncAgent;
 use App\Admin\Actions\Post\ImportPost;
-use App\Admin\Actions\Agent\SyncAgentAction;
 use Encore\Admin\Controllers\Dashboard;
 use Illuminate\Support\Facades\Artisan;
 use App\Admin\Actions\Agent\BatchDelete;
 use App\Admin\Actions\Post\BatchReplicate;
-use Encore\Admin\Actions\Toastr;
+use App\Admin\Actions\Agent\SyncAgentAction;
+use App\Admin\Actions\Agent\BatchSetAvailable;
+use App\Admin\Actions\Agent\BatchSetUnavailable;
 
 class AgentController extends Controller
 {
@@ -45,6 +47,8 @@ class AgentController extends Controller
             $grid->batchActions(function ($batch) {
                 $batch->disableDelete();
                 $batch->add(new BatchDelete());
+                $batch->add(new BatchSetAvailable());
+                $batch->add(new BatchSetUnavailable());
             });
             $grid->disableActions();
 
