@@ -51,7 +51,7 @@ Route::group([
 
 Route::get('run', function(Request $request) {
     if ($request->has('_pjax')) {
-        App\Jobs\ProcessTask::dispatch(Task::where('zendesk_view_id', $request->view_id)->first());    
+        App\Jobs\Task\ProcessTask::dispatch(Task::where('zendesk_view_id', $request->view_id)->first())->onQueue('assignment');    
     }
     return redirect()->back();
 });
@@ -60,7 +60,7 @@ Route::post('run', function() {
     return response()->json();
 });
 Route::post('unassign', function(Request $request) {
-    App\Jobs\UnassignTickets::dispatchNow(Agent::find($request->agent_id));
+    App\Jobs\Agent\UnassignTickets::dispatchNow(Agent::find($request->agent_id))->onQueue('unassignment');
     return response()->json();
 });
 Route::post('syncAgents', function(Request $request) {

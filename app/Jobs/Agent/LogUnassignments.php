@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Agent;
 
 use App\Agent;
+use App\Assignment;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
+use App\Services\ZendeskService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Queue\SerializesModels;
@@ -16,19 +18,19 @@ class LogUnassignments implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $agent;
-
     protected $batchId;
+
+    protected $agent;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($agent, $batchId)
+    public function __construct($batchId, $agent)
     {
-        $this->agent = $agent;
         $this->batchId = $batchId;
+        $this->agent = $agent;
     }
 
     /**
@@ -38,18 +40,26 @@ class LogUnassignments implements ShouldQueue
      */
     public function handle()
     {
-        $tickets = Cache::get(sprintf("tickets:%batchId", $this->batchId));
+        $tickets = Cache::get(sprintf("tickets:%s", $this->batchId));
 
-        foreach ($tickets as $i => $ticket) {
+        $jobResults = Cache::get("jobResults:$this->batchId");
+        
+        $successTicketIds = collect($jobResults)->filter(function ($result) {
+            return optional($result)->success;
+        });
+
+        Redis::srem(sprintf("agent:%s:assignedTickets", $this->agent->id), ...$successTicketIds->pluck('id')->all());
+
+        $successTickets = $tickets->whereIn('id', $successTicketIds->pluck('id')->values()->all());
+
+        $unassignments = $successTickets->map(function($ticket, $i) {
             $type = Str::upper("already_" . $ticket->status);
 
             if (in_array($ticket->status, ["new", "open", "pending"])) {
                 $type = Agent::UNASSIGNMENT;
             }
 
-            Redis::srem(sprintf("agent:%s:assignedTickets", $this->agent->id), $ticket->id);
-            
-            $this->agent->assignments()->create([
+            return [
                 "type" => $type,
                 "zendesk_view_id" => "TEMP_NO",
                 "batch_id" => "TEMP_NO",
@@ -57,10 +67,12 @@ class LogUnassignments implements ShouldQueue
                 "agent_name" => $this->agent->fullName,
                 "zendesk_ticket_id" => $ticket->id,
                 "zendesk_ticket_subject" => $ticket->subject,
-                "group_id" => $this->agent->zendesk_group_id,
-                "response_status" => 200
-            ]);
-        }
+                "response_status" => 200,
+                "created_at" => now()
+            ];
+        });
+
+        Assignment::insert($unassignments->all());
 
     }
 }

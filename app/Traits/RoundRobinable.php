@@ -27,10 +27,15 @@ trait RoundRobinable
 
                 $agentNum = ($index % $agents->count());
                 $agent = $agents->get($agentNum);
-                $matches->add(collect([
-                    "agent" => $agent,
-                    "ticket" => $ticket
-                ]));
+                $matches->add((object) [
+                    'agent_id' => $agent->id,
+                    'agent_fullName' => $agent->fullName,
+                    "agent_zendesk_agent_id" => $agent->zendesk_agent_id,
+                    "agent_zendesk_group_id" => $agent->zendesk_group_id,
+                    'agent_zendesk_custom_field_id' => $agent->zendesk_custom_field_id,
+                    'ticket_id' => $ticket->id,
+                    'ticket_subject' => $ticket->subject
+                ]);
             });
 
         });

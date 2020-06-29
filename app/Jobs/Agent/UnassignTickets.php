@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Agent;
 
 use App\Agent;
 use Exception;
@@ -8,9 +8,11 @@ use App\Assignment;
 use App\AvailabilityLog;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use App\Jobs\CheckJobStatus;
 use Illuminate\Bus\Queueable;
 use App\Services\ZendeskService;
 use Illuminate\Support\Facades\Log;
+use App\Jobs\Agent\LogUnassignments;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 use App\Events\UnassignmentsProcessed;
@@ -51,22 +53,37 @@ class UnassignTickets implements ShouldQueue
         collect($assignedTicketIds)->chunk(100)->each(function($ticketIds) use ($zendesk) {
             $batchId = (string) Str::uuid();
 
-            $tickets = Cache::remember(sprintf("tickets:%batchId", $batchId), 3000, function() use ($zendesk, $ticketIds) {
+            $tickets = collect(Cache::remember(sprintf("tickets:%s", $batchId), 3000, function() use ($zendesk, $ticketIds) {
                 return $zendesk->getTicketsByIds($ticketIds->values()->all());
-            });
+            }));
 
-            $unassignableTickets = collect($tickets)->unassignableTickets();
-            
+            $filterCallback = function ($ticket) {
+                return in_array($ticket->status, ["new", "open", "pending"]); //TODO: check if assignee is still the agent
+            };
+            $unassignableTickets = $tickets->filter($filterCallback);
+            $nonUnassignableTickets = $tickets->reject($filterCallback);
+
             $unavailableTickets = $ticketIds->diff(collect($tickets)->pluck('id'));
 
-            // Remove unavailable tickets (ticket that might be deleted in Zendesk)
+            // Remove unavailable tickets (ticket that not new)
+            if ($nonUnassignableTicketsCount = Redis::srem(sprintf("agent:%s:assignedTickets", $this->agent->id), ...$nonUnassignableTickets->values()->all())) {
+                logs()->debug($nonUnassignableTicketsCount);
+            }
+
+            // Remove unavailable tickets (ticket that might already be deleted)
             if ($unavailableTicketsCount = Redis::srem(sprintf("agent:%s:assignedTickets", $this->agent->id), ...$unavailableTickets->values()->all())) {
                 logs()->debug($unavailableTicketsCount);
             }
-            
-            $response = $zendesk->unassignTickets($unassignableTickets->pluck('id')->values()->all(), $this->agent->zendesk_agent_id, $this->agent->fullName);
 
-            event(new UnassignmentsProcessed(optional($response)->job_status, $this->agent, $batchId));
+            if ($unassignableTickets->count() > 0) {
+                $response = $zendesk->unassignTickets($unassignableTickets->pluck('id')->values()->all(), $this->agent->zendesk_agent_id, $this->agent->fullName);
+
+                CheckJobStatus::withChain([
+                    (new LogUnassignments($batchId, $this->agent))->onQueue('unassignment-job'),
+                ])->dispatch($batchId, $response->job_status->id)->onQueue('unassignment-job'); 
+            }
+            
+            // event(new UnassignmentsProcessed(optional($response)->job_status, $this->agent, $batchId));
         });
         
     }

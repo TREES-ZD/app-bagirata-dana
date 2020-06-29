@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Task;
 
 use App\Agent;
 use App\Assignment;
+use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
@@ -34,7 +35,7 @@ class LogAssignments implements ShouldQueue
      * @return void
      */
     public function handle()
-    {
+    {        
         $assignments = collect(Cache::get(sprintf("assignments:%s", $this->batchId)));
 
         $assignments->each(function($assignment) {

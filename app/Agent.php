@@ -2,7 +2,7 @@
 
 namespace App;
 
-use App\Jobs\UnassignTickets;
+use App\Jobs\Agent\UnassignTickets;
 use App\Scopes\AgentUserScope;
 use Exception;
 use Spatie\EloquentSortable\Sortable;
@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\EloquentSortable\SortableTrait;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Tests\Integration\Jobs\UnassignTicketsTest;
 
 class Agent extends Model implements Sortable
 {
