@@ -44,7 +44,7 @@ class CheckUnassignedTickets implements ShouldQueue
             $job = $ticketRepository->checkJobStatus($this->jobStatusId);
 
             if ($job->status == "completed") {
-                LogUnassignments::dispatch($this->batch, $this->ticketIds)->onQueue('unasignment-job');
+                LogUnassignments::dispatch($this->batch, $this->ticketIds)->onQueue('unassignment-job');
                 return;
             }
 
