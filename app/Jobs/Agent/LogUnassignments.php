@@ -7,10 +7,13 @@ use App\Assignment;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
 use App\Services\ZendeskService;
+use App\Repositories\AgentRepository;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
+use App\Repositories\TicketRepository;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
+use App\Repositories\AssignmentRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
@@ -18,19 +21,19 @@ class LogUnassignments implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $batchId;
+    protected $batch;
 
-    protected $agent;
+    protected $checkedTicketIds;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($batchId, $agent)
+    public function __construct($batch, $checkedTicketIds)
     {
-        $this->batchId = $batchId;
-        $this->agent = $agent;
+        $this->batch = $batch;
+        $this->checkedTicketIds = $checkedTicketIds;
     }
 
     /**
@@ -38,41 +41,15 @@ class LogUnassignments implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(AgentRepository $agentRepository, AssignmentRepository $assignmentRepository, TicketRepository $ticketRepository)
     {
-        $tickets = Cache::get(sprintf("tickets:%s", $this->batchId));
-
-        $jobResults = Cache::get("jobResults:$this->batchId");
+        $preparedAssignments = $assignmentRepository->getPrepared($this->batch)->whereIn('ticket_id', $this->checkedTicketIds);
+        $updatedTickets = $ticketRepository->find($this->checkedTicketIds);
         
-        $successTicketIds = collect($jobResults)->filter(function ($result) {
-            return optional($result)->success;
-        });
+        $assignments = $preparedAssignments->reconcileUnassignment($updatedTickets);
 
-        Redis::srem(sprintf("agent:%s:assignedTickets", $this->agent->id), ...$successTicketIds->pluck('id')->all());
+        $agentRepository->updateUnassignment($assignments);
 
-        $successTickets = $tickets->whereIn('id', $successTicketIds->pluck('id')->values()->all());
-
-        $unassignments = $successTickets->map(function($ticket, $i) {
-            $type = Str::upper("already_" . $ticket->status);
-
-            if (in_array($ticket->status, ["new", "open", "pending"])) {
-                $type = Agent::UNASSIGNMENT;
-            }
-
-            return [
-                "type" => $type,
-                "zendesk_view_id" => "TEMP_NO",
-                "batch_id" => "TEMP_NO",
-                "agent_id" => $this->agent->id,
-                "agent_name" => $this->agent->fullName,
-                "zendesk_ticket_id" => $ticket->id,
-                "zendesk_ticket_subject" => $ticket->subject,
-                "response_status" => 200,
-                "created_at" => now()
-            ];
-        });
-
-        Assignment::insert($unassignments->all());
-
+        $assignments->logs();
     }
 }

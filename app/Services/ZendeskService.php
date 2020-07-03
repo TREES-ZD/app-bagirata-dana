@@ -2,8 +2,9 @@
 
 namespace App\Services;
 
-use Huddle\Zendesk\Facades\Zendesk;
+use App\Agent;
 use Illuminate\Support\Arr;
+use Huddle\Zendesk\Facades\Zendesk;
 use Illuminate\Support\Facades\Cache;
 use Zendesk\API\HttpClient as ZendeskAPI;
 use phpDocumentor\Reflection\Types\Callable_;
@@ -189,6 +190,23 @@ class ZendeskService
         });
 
         return $groupMemberships;
+    }
+
+    public function getAssignedTickets(Agent $agent) {
+        $page = 1;
+        $tickets = collect();
+        while ($page) {
+            $response = Zendesk::search()->find("type:ticket assignee:$agent->zendesk_agent_id group:$agent->zendesk_group_id tags:$agent->zendesk_custom_field_id", ["page" => $page]);
+            
+            $tickets = $tickets->merge($response->results);
+            if ($response->next_page) {
+                $page++;
+            } else {
+                $page = null;
+            }
+        }
+
+        return $tickets;
     }
 
     public function getUsersByKey($key = "*", $nameOnly = false) {

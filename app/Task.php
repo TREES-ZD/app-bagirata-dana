@@ -23,10 +23,14 @@ class Task extends Model
     }
 
     public function getAvailableAgents() {
-        return $this->rules()
+        $agents = $this->rules()
                     ->disableCache()
                     ->where('status', true)
                     ->get();
+
+        return $agents->sortBy(function($a) {
+                        return $a->assignments->last() ? $a->assignments->last()->created_at->timestamp : 1;
+                    })->values();
     }
 
 }

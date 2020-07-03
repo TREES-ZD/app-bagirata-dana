@@ -6,10 +6,13 @@ use App\Agent;
 use App\Assignment;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
+use App\Repositories\AgentRepository;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
+use App\Repositories\AssignmentRepository;
+use App\Repositories\TicketRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
@@ -17,19 +20,19 @@ class LogAssignments implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $batchId;
+    protected $batch;
 
-    protected $page;
+    protected $checkedTicketIds;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($batchId, $page)
+    public function __construct($batch, $checkedTicketIds)
     {
-        $this->batchId = $batchId;
-        $this->page = $page;
+        $this->batch = $batch;
+        $this->checkedTicketIds = $checkedTicketIds;
     }
 
     /**
@@ -37,27 +40,15 @@ class LogAssignments implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(AgentRepository $agentRepository, AssignmentRepository $assignmentRepository, TicketRepository $ticketRepository)
     {        
-        $assignments = collect(Cache::get(sprintf("assignments:%s", $this->batchId)))->chunk(100)->get($this->page)->values();
+        $preparedAssignments = $assignmentRepository->getPrepared($this->batch)->whereIn('ticket_id', $this->checkedTicketIds);
+        $updatedTickets = $ticketRepository->find($this->checkedTicketIds);
+        
+        $assignments = $preparedAssignments->reconcileAssignment($updatedTickets);
 
-        $assignments->each(function($assignment) {
-            Redis::sadd(sprintf("agent:%s:assignedTickets", $assignment->agent_id), $assignment->ticket_id);
-        });
+        $agentRepository->updateAssignment($assignments);
 
-        $assignments = $assignments->map(function($assignment, $i) {
-                            return [
-                                "type" => Agent::ASSIGNMENT,
-                                "batch_id" => $this->batchId,
-                                "agent_id" => $assignment->agent_id,
-                                "agent_name" => $assignment->agent_fullName,
-                                "zendesk_view_id" => "viewId",
-                                "zendesk_ticket_id" => $assignment->ticket_id,
-                                "zendesk_ticket_subject" => $assignment->ticket_subject,
-                                "response_status" => 200,
-                                "created_at" => now()->addSeconds($i)
-                            ];
-                        });
-        Assignment::insert($assignments->all());
+        $assignments->logs();
     }
 }

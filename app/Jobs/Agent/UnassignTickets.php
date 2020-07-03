@@ -16,6 +16,8 @@ use App\Jobs\Agent\LogUnassignments;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 use App\Events\UnassignmentsProcessed;
+use App\Repositories\AssignmentRepository;
+use App\Repositories\TicketRepository;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use GuzzleHttp\Exception\ClientException;
@@ -30,6 +32,8 @@ class UnassignTickets implements ShouldQueue
 
     private $agent;
 
+    private $batch;
+
     public $timeout = 1200;
     
     /**
@@ -40,6 +44,7 @@ class UnassignTickets implements ShouldQueue
     public function __construct($agent)
     {
         $this->agent = $agent;
+        $this->batch = (string) Str::uuid();
     }
 
     /**
@@ -47,44 +52,17 @@ class UnassignTickets implements ShouldQueue
      *
      * @return void
      */
-    public function handle(ZendeskService $zendesk)
+    public function handle(TicketRepository $ticketRepository, AssignmentRepository $assignmentRepository)
     {
-        $assignedTicketIds = Redis::smembers(sprintf("agent:%s:assignedTickets", $this->agent->id));
-        collect($assignedTicketIds)->chunk(100)->each(function($ticketIds) use ($zendesk) {
-            $batchId = (string) Str::uuid();
+        $assignedTickets = $ticketRepository->getAssigned($this->agent);
+        
+        $unassignments = $assignmentRepository->prepareUnassignment($this->batch, $this->agent, $assignedTickets);
 
-            $tickets = collect(Cache::remember(sprintf("tickets:%s", $batchId), 3000, function() use ($zendesk, $ticketIds) {
-                return $zendesk->getTicketsByIds($ticketIds->values()->all());
-            }));
-
-            $filterCallback = function ($ticket) {
-                return in_array($ticket->status, ["new", "open", "pending"]); //TODO: check if assignee is still the agent
-            };
-            $unassignableTickets = $tickets->filter($filterCallback);
-            $nonUnassignableTickets = $tickets->reject($filterCallback);
-
-            $unavailableTickets = $ticketIds->diff(collect($tickets)->pluck('id'));
-
-            // Remove unavailable tickets (ticket that not new)
-            if ($nonUnassignableTicketsCount = Redis::srem(sprintf("agent:%s:assignedTickets", $this->agent->id), ...$nonUnassignableTickets->values()->all())) {
-                logs()->debug($nonUnassignableTicketsCount);
-            }
-
-            // Remove unavailable tickets (ticket that might already be deleted)
-            if ($unavailableTicketsCount = Redis::srem(sprintf("agent:%s:assignedTickets", $this->agent->id), ...$unavailableTickets->values()->all())) {
-                logs()->debug($unavailableTicketsCount);
-            }
-
-            if ($unassignableTickets->count() > 0) {
-                $response = $zendesk->unassignTickets($unassignableTickets->pluck('id')->values()->all(), $this->agent->zendesk_agent_id, $this->agent->fullName);
-
-                CheckJobStatus::withChain([
-                    (new LogUnassignments($batchId, $this->agent))->onQueue('unassignment-job'),
-                ])->dispatch($batchId, $response->job_status->id)->onQueue('unassignment-job'); 
-            }
+        $unassignments->chunk(100)->each(function($assignments) use ($ticketRepository) {
+            $response = $ticketRepository->zendesk->unassignTickets($assignments->ticketIds()->all(), $this->agent->zendesk_agent_id, $this->agent->fullName);
             
-            // event(new UnassignmentsProcessed(optional($response)->job_status, $this->agent, $batchId));
-        });
+            CheckUnassignedTickets::dispatch($this->batch, $response->job_status->id, $assignments->ticketIds()->all())->onQueue('unassignment-job');            
+        });        
         
     }
 

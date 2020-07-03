@@ -17,9 +17,11 @@ use Illuminate\Support\Facades\Log;
 use App\Events\AssignmentsProcessed;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
+use App\Repositories\TicketRepository;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Zendesk\API\HttpClient as ZendeskAPI;
+use App\Repositories\AssignmentRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Listeners\UpdateProcessedAssignments;
@@ -31,6 +33,8 @@ class ProcessTask implements ShouldQueue
     protected $viewId;
 
     protected $task;
+
+    protected $batch;
 
     protected $response;
 
@@ -45,6 +49,7 @@ class ProcessTask implements ShouldQueue
     {
         $this->task = $task;
         $this->viewId = $task->zendesk_view_id;
+        $this->batch = (string) Str::uuid();
     }
 
     /**
@@ -52,51 +57,17 @@ class ProcessTask implements ShouldQueue
      *
      * @return void
      */
-    public function handle(ZendeskService $zendesk)
-    {
-        Log::info("Processing task");
+    public function handle(TicketRepository $ticketRepository, AssignmentRepository $assignmentRepository)
+    {    
+        $tickets = $ticketRepository->getAssignableTicketsByView($this->viewId);
+        $agents = $this->task->getAvailableAgents($this->task->id);
 
-        $agents = $this->task->getAvailableAgents();
-        if ($agents->count() < 1) {
-            $this->delete();
-            return;
-        }
-
-        $tickets = $zendesk->getAssignableTicketsByView($this->viewId);
-
-        $agents = $agents->sortBy(function($a) {
-            return $a->assignments->last() ? $a->assignments->last()->created_at->timestamp : 1;
-        })->values();
-
-        $assignments = $this->task->createAssignments($agents, $tickets);
-
-        $batchId = (string) Str::uuid();
-        Cache::remember(sprintf("assignments:%s", $batchId), 3000, function() use ($assignments) {
-            return $assignments;
+        $assignments = $assignmentRepository->prepare($this->batch, $agents, $tickets);
+            
+        $assignments->chunk(100)->each(function($assignments) use ($ticketRepository) {
+            $response = $ticketRepository->zendesk->updateManyTickets($assignments->toTickets(env("ZENDESK_AGENT_NAMES_FIELD", 360000282796))->all());
+            
+            CheckAssignedTickets::dispatch($this->batch, $response->job_status->id, $assignments->ticketIds()->all())->onQueue('assignment-job');
         });
-
-        $assignments->chunk(100)->each(function($assignments, $page) use ($zendesk, $batchId) {
-            $tickets = $assignments->map(function($assignment) {                
-                return [
-                    "id" => $assignment->ticket_id,
-                    "assignee_id" => $assignment->agent_zendesk_agent_id,
-                    "group_id" => $assignment->agent_zendesk_group_id,
-                    "custom_fields" => [
-                        [
-                        "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
-                        "value" => $assignment->agent_zendesk_custom_field_id
-                        ]
-                    ]
-                ];
-            });
-
-            $response = $zendesk->updateManyTickets($tickets->values()->all());
-            CheckJobStatus::withChain([
-                (new LogAssignments($batchId, $page))->onQueue('assignment-job'),
-            ])->dispatch($batchId, $response->job_status->id)->allOnQueue('assignment-job');
-
-            // event(new AssignmentsProcessed($response->job_status, $batchId, $this->viewId));
-        });
-
     }
 }
