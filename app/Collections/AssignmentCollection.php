@@ -57,7 +57,7 @@ class AssignmentCollection extends Collection
 
             $customField = collect($ticket->custom_fields)->groupBy("id");
             $agentName = $customField->get(env("ZENDESK_AGENT_NAMES_FIELD", 360000282796))->first();
-            
+
             if (!$ticket->assignee_id && !optional($agentName)->value) {
                 $assignment->status = 200;
             } else {
@@ -70,6 +70,10 @@ class AssignmentCollection extends Collection
 
     public function ticketIds() {
         return $this->pluck('ticket_id')->values();
+    }
+
+    public function success() {
+        return $this->where('status', 200);
     }
 
     public function logs() {
