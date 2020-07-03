@@ -34,4 +34,8 @@ class TicketRepository
     public function find(array $ids) {
         return new TicketCollection($this->zendesk->getTicketsByIds($ids)->values()->all());
     }
+
+    public function checkJobStatus($jobStatusId) {
+        return $this->zendesk->getJobStatus($jobStatusId);
+    }
 }

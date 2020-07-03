@@ -38,15 +38,13 @@ class CheckUnassignedTickets implements ShouldQueue
      * @return void
      */
     public function handle(TicketRepository $ticketRepository)
-    {
-        $tickets = $ticketRepository->find($this->ticketIds);
-        
+    {        
         sleep(5);
         while (1) {
-            $updatedTickets = $tickets->checkForUpdate();
+            $job = $ticketRepository->checkJobStatus($this->jobStatusId);
 
-            if ($updatedTickets->areAllUnassigned()) {
-                LogUnassignments::dispatch($this->batch, $this->ticketIds)->onQueue('unassignment-job');
+            if ($job->status == "completed") {
+                LogUnassignments::dispatch($this->batch, $this->ticketIds)->onQueue('unasignment-job');
                 return;
             }
 

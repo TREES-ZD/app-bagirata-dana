@@ -41,13 +41,11 @@ class CheckAssignedTickets implements ShouldQueue
      */
     public function handle(TicketRepository $ticketRepository)
     {
-        $tickets = $ticketRepository->find($this->ticketIds);
-
         sleep(5);
         while (1) {
-            $updatedTickets = $tickets->checkForUpdate();
+            $job = $ticketRepository->checkJobStatus($this->jobStatusId);
 
-            if ($updatedTickets->areAllAssigned()) {
+            if ($job->status == "completed") {
                 LogAssignments::dispatch($this->batch, $this->ticketIds)->onQueue('assignment-job');
                 return;
             }
