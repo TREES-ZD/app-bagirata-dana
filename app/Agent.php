@@ -47,10 +47,6 @@ class Agent extends Model implements Sortable
         static::updated(function($agent) {
              if ($agent->isDirty('status')) {
 
-                if ($agent->status == self::UNAVAILABLE) {
-                    UnassignTickets::dispatch($agent)->onQueue('unassignment');
-                }
-
                 AvailabilityLog::create([
                     "status" => $agent->status == self::AVAILABLE ? AvailabilityLog::AVAILABLE : AvailabilityLog::UNAVAILABLE,
                     "agent_id" => $agent->id,
