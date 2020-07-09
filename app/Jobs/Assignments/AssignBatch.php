@@ -63,6 +63,10 @@ class AssignBatch implements ShouldQueue
         $assignments = $assignmentRepository->prepareAssignment($this->batch, $tasks);
 
         $jobStatuses = $assignments->update();
-        CheckJobStatuses::dispatch($this->batch, $jobStatuses->ids()->all())->onQueue('assignment-job');
+
+        if ($jobStatuses->count() > 0) {
+            CheckJobStatuses::dispatch($this->batch, $jobStatuses->ids()->all())->onQueue('assignment-job');
+        }
+        
     }
 }
