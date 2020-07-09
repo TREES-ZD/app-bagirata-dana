@@ -2,8 +2,8 @@
 
 namespace App\Console;
 
+use App\Jobs\Assignments\AssignBatch;
 use App\Task;
-use App\Jobs\Task\ProcessTask;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -38,14 +38,14 @@ class Kernel extends ConsoleKernel
                         ->get()
                         ->filter(function($task) { return $task->rules_count > 0;});
 
-        // Go through each task to dynamically set them up.
-        foreach ($activeTasks as $task) {
 
-            $frequency = $task->interval; // everyHour, everyMinute, twiceDaily etc.
-            $schedule->call(function() use ($task) {
-                ProcessTask::dispatch($task)->onQueue('assignment');
+        $activeTasks->groupBy('interval')->each(function($tasks, $interval) use ($schedule) {
+            $frequency = $interval;
+            $schedule->call(function() use ($tasks) {
+                AssignBatch::dispatch($tasks->values())->onQueue('assignment');
             })->$frequency();
-        }
+        });
+
     }
 
     /**

@@ -51,12 +51,12 @@ Route::group([
 
 Route::get('run', function(Request $request) {
     if ($request->has('_pjax')) {
-        App\Jobs\Task\ProcessTask::dispatch(Task::where('zendesk_view_id', $request->view_id)->first())->onQueue('assignment');    
+        App\Jobs\Assignments\AssignBatch::dispatch(Task::where('zendesk_view_id', $request->view_id)->get())->onQueue('assignment');    
     }
     return redirect()->back();
 });
 Route::post('run', function() {
-    App\Jobs\ProcessTask::dispatchNow(Task::find(1));
+    App\Jobs\Assignments\AssignBatch::dispatchNow(Task::where('id', 1)->get());
     return response()->json();
 });
 Route::post('unassign', function(Request $request) {
