@@ -5,26 +5,45 @@ namespace App\Collections;
 use App\Agent;
 use App\Assignment;
 use Illuminate\Support\Collection;
+use App\Repositories\TicketRepository;
+use App\Services\Zendesk\JobCollection;
+use App\Services\Zendesk\TicketCollection;
+use App\Services\Zendesk\JobStatusCollection;
 
 class AssignmentCollection extends Collection
 {
     protected $name = "assignments";
 
-    public function toTickets($agentNameFieldId) {
-        return $this->map(function($assignment) use ($agentNameFieldId) {                
+    public function assignmentParams() {
+        return $this->map(function($assignment) {                
             return [
                 "id" => $assignment->ticket_id,
                 "assignee_id" => $assignment->agent_zendesk_agent_id,
                 "group_id" => $assignment->agent_zendesk_group_id,
                 "custom_fields" => [
                     [
-                    "id" => $agentNameFieldId,
+                    "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
                     "value" => $assignment->agent_zendesk_custom_field_id
                     ]
                 ]
             ];
-        })->values();
+        });
+    }
 
+    public function reconcile($successTicketIds, $failedTicketIds) {
+        
+        $processAssignments = $this->whereIn('ticket_id', array_merge($successTicketIds, $failedTicketIds))->map(function($assignment) use ($successTicketIds, $failedTicketIds){
+
+            if (in_array($assignment->ticket_id, $failedTicketIds)) {
+                $assignment->status = "FAILED";
+            } else if (in_array($assignment->ticket_id, $successTicketIds)) {
+                $assignment->status = 200;
+            }
+
+            return $assignment;
+        });
+
+        return $processAssignments;
     }
 
     public function reconcileAssignment(TicketCollection $updatedTickets) {
@@ -74,6 +93,14 @@ class AssignmentCollection extends Collection
 
     public function success() {
         return $this->where('status', 200);
+    }
+
+    public function update() {
+        $jobStatuses = $this->chunk(100)->map(function($assignments) {
+            return app(TicketRepository::class)->assign($assignments->values()->assignmentParams());
+        })->flatten();
+
+        return new JobStatusCollection($jobStatuses->values()->all());
     }
 
     public function logs() {

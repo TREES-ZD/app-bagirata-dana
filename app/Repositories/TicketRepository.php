@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Agent;
 use App\Services\ZendeskService;
 use Illuminate\Support\Collection;
+use App\Collections\AgentCollection;
 use App\Collections\TicketCollection;
 use Illuminate\Support\Facades\Cache;
 use App\Repositories\Traits\Batchable;
@@ -24,15 +25,31 @@ class TicketRepository
     }
 
     public function getAssignableTicketsByView($viewId) {
-        return new TicketCollection($this->zendesk->getAssignableTicketsByView($viewId)->values()->all());
+        return $this->zendesk->getAssignableTicketsByView($viewId)->values()->all();
+    }
+
+    public function getAssignableByView($viewId) {
+        return $this->zendesk->getAssignableTicketsByView($viewId);
     }
 
     public function getAssigned(Agent $agent) {
-        return new TicketCollection($this->zendesk->getAssignedTickets($agent)->values()->all());
+        return $this->zendesk->getAssignedTickets($agent)->values()->all();
+    }
+
+    public function getAssignedByAgents(AgentCollection $agents) {
+        $agents = $agents->map(function($agent) {
+            return $this->zendesk->getAssignedTickets($agent)->values()->all();
+        });
+        
+        return $agents->flatten()->all();
+    }
+
+    public function assign($tickets) {
+        return $this->zendesk->updateManyTickets($tickets);
     }
 
     public function find(array $ids) {
-        return new TicketCollection($this->zendesk->getTicketsByIds($ids)->values()->all());
+        return $this->zendesk->getTicketsByIds($ids)->values()->all();
     }
 
     public function checkJobStatus($jobStatusId) {

@@ -4,9 +4,13 @@ namespace App\Services;
 
 use App\Agent;
 use Illuminate\Support\Arr;
+use App\Services\Zendesk\Ticket;
+use App\Services\Zendesk\JobStatus;
 use Huddle\Zendesk\Facades\Zendesk;
 use Illuminate\Support\Facades\Cache;
 use Zendesk\API\HttpClient as ZendeskAPI;
+use App\Services\Zendesk\TicketCollection;
+use App\Services\Zendesk\JobStatusCollection;
 use phpDocumentor\Reflection\Types\Callable_;
 
 class ZendeskService
@@ -105,7 +109,9 @@ class ZendeskService
 
     public function getTicketsByIds(array $ids) {
         $response = Zendesk::tickets()->findMany($ids);
-        return collect($response->tickets);
+        return (new TicketCollection($response->tickets))->map(function($ticket) {
+            return new Ticket($ticket);
+        });
     }
 
     public function getViews() {
@@ -124,13 +130,15 @@ class ZendeskService
         $response = Zendesk::views($viewId)->tickets();
         $tickets = $response->tickets;
 
-        return collect($tickets);
+        return (new TicketCollection($tickets))->map(function($ticket) {
+            return new Ticket($ticket);
+        });
     }
 
     public function getAssignableTicketsByView($viewId) {
 
         $page = 1;
-        $tickets = collect();
+        $tickets = new TicketCollection();
         while ($page) {
             $response = Zendesk::views($viewId)->tickets(['page' => $page]);
             
@@ -144,6 +152,8 @@ class ZendeskService
 
         return $tickets->filter(function($ticket) {
             return $ticket->assignee_id == null && in_array($ticket->status, ["new", "open", "pending"]);
+        })->map(function($ticket) {
+            return new Ticket($ticket);
         });
     }
 
@@ -151,12 +161,21 @@ class ZendeskService
         return Zendesk::tickets()->update(...$params);        
     }
 
-    public function updateManyTickets(...$params) {
-        return Zendesk::tickets()->updateMany(...$params);        
+    public function updateManyTickets($tickets) {
+        $response = Zendesk::tickets()->updateMany($tickets->all());    
+        return new JobStatus($response->job_status);
     }
 
     public function getJobStatus($id) {
         return Zendesk::get('job_statuses/'.$id);
+    }
+
+    public function getJobStatuses($ids) {
+        $response = Zendesk::jobStatuses()->findMany($ids);
+
+        return (new JobStatusCollection($response->job_statuses))->map(function($jobStatus) {
+            return new JobStatus($jobStatus);
+        });
     }
 
     public function unassignTickets($ids, $agent_id, $agent_fullName) {
@@ -194,7 +213,7 @@ class ZendeskService
 
     public function getAssignedTickets(Agent $agent) {
         $page = 1;
-        $tickets = collect();
+        $tickets = new TicketCollection();
         while ($page) {
             $response = Zendesk::search()->find("type:ticket assignee:$agent->zendesk_agent_id group:$agent->zendesk_group_id tags:$agent->zendesk_custom_field_id", ["page" => $page]);
             
@@ -206,7 +225,9 @@ class ZendeskService
             }
         }
 
-        return $tickets;
+        return $tickets->map(function($ticket) {
+            return new Ticket($ticket);
+        });
     }
 
     public function getUsersByKey($key = "*", $nameOnly = false) {

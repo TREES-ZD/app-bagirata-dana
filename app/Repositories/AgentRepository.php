@@ -2,8 +2,10 @@
 
 namespace App\Repositories;
 
+use App\Agent;
 use App\Traits\RoundRobinable;
 use Illuminate\Support\Collection;
+use App\Collections\AgentCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 use App\Repositories\Traits\Batchable;
@@ -23,7 +25,18 @@ class AgentRepository
         });
     }
 
-    public function clear() {
+    public function getUnassignable() {
+        return new AgentCollection(Agent::all()->all());
+    }
 
+    public function getAvailable() {
+        $agents = $this->rules()
+        ->disableCache()
+        ->where('status', true)
+        ->get();
+
+        return $agents->sortBy(function($a) {
+                    return $a->assignments->last() ? $a->assignments->last()->created_at->timestamp : 1;
+                })->values();
     }
 }

@@ -33,4 +33,13 @@ class Task extends Model
                     })->values();
     }
 
+    public function scopeAssignable($query) {
+        return $query->where('enabled', true)
+        ->withCount(['rules' => function($q) {
+            $q->where('rules.priority', '>', 0);
+            $q->where('agents.status', true);
+        }])
+        ->get()
+        ->filter(function($task) { return $task->rules_count > 0;});
+    }
 }

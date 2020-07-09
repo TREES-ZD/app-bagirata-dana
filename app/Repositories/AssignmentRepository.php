@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Agent;
 use App\Assignment;
+use App\Collections\AgentCollection;
 use App\Traits\RoundRobinable;
 use Illuminate\Support\Collection;
 use App\Collections\TicketCollection;
@@ -16,6 +17,13 @@ class AssignmentRepository
     use RoundRobinable, Batchable;
 
     protected $cachePrefix = "assignments";
+
+    protected $ticketRepository;
+
+    public function __construct(TicketRepository $ticketRepository)
+    {
+        $this->ticketRepository = $ticketRepository;
+    }
 
     public function prepare($batch, $agents, $tickets) {
         $batchedAssignments = $this->createAssignments($agents, $tickets)->map(function($assignment) use ($batch) {
@@ -32,9 +40,33 @@ class AssignmentRepository
         return new AssignmentCollection($this->cache($batch)->all());
     }
 
+    public function makeAssignments(Collection $tasks) {
+        return (new AssignmentCollection($tasks->all()))->map(function($task) {
+            $agents = $task->getAvailableAgents();
+            $tickets = $this->ticketRepository->getAssignableByView($task->zendesk_view_id);
+            
+            return $this->createAssignments($agents, $tickets);
+        })->flatten();        
+    }
+
+    public function prepareAssignment($batch, Collection $tasks) {
+        $assignments = $this->makeAssignments($tasks);
+
+        $batchedAssignments = $assignments->map(function($assignment) use ($batch) {
+            $assignment->type = Agent::ASSIGNMENT;
+            $assignment->batch = $batch;
+            $assignment->status = "PENDING";
+            return $assignment;
+        });
+
+        return $this->cache($batch, $batchedAssignments->values());
+    }
     
-    public function prepareUnassignment($batch, Agent $agent, Collection $tickets) {
-        $batchedUnassignments = $tickets->map(function($ticket) use ($batch, $agent) {
+    public function prepareUnassignment($batch, Collection $agents) {
+        $tickets = $this->ticketRepository->getAssigned($agents);
+
+        $batchedUnassignments = $tickets->map(function($ticket) use ($batch, $agents) {
+            $agent = $agents->getByTicket($ticket);
             return (object) [
                 'agent_id' => $agent->id,
                 'agent_fullName' => $agent->fullName,
@@ -50,9 +82,5 @@ class AssignmentRepository
         });
 
         return new AssignmentCollection($this->cache($batch, $batchedUnassignments->values())->all());
-    }
-     
-    public function buildAssignments($batch, TicketCollection $tickets) {
-        return $tickets->all();
     }
 }
