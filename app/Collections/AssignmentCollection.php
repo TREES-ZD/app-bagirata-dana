@@ -115,6 +115,18 @@ class AssignmentCollection extends Collection
         return $this->where('status', 200);
     }
 
+    public function onlyAssignment() {
+        return $this->filter(function($assignment) {
+            return $assignment->type == Agent::ASSIGNMENT;
+        });
+    }
+
+    public function onlyUnassignment() {
+        return $this->filter(function($assignment) {
+            return $assignment->type == Agent::UNASSIGNMENT;
+        });
+    }
+
     public function update() {
         $jobStatuses = $this->chunk(100)->map(function($assignments) {
             return app(TicketRepository::class)->assign($assignments->values()->assignmentParams());

@@ -13,14 +13,12 @@ use App\Collections\AssignmentCollection;
 
 class AgentRepository
 {
-    public function updateAssignment(AssignmentCollection $assignments) {        
-        $assignments->success()->groupBy('agent_id')->each(function($assignments, $agent_id) {
-            Redis::sadd(sprintf("agent:%s:assignedTickets", $agent_id), ...$assignments->ticketIds()->all());
+    public function updateCurrentAssignmentLog(AssignmentCollection $assignments) {
+        $assignments->onlyAssignment()->success()->groupBy('agent_id')->each(function($assignments, $agent_id) {
+            Redis::srem(sprintf("agent:%s:assignedTickets", $agent_id), ...$assignments->ticketIds()->all());
         });
-    }
 
-    public function updateUnassignment(AssignmentCollection $assignments) {
-        $assignments->success()->groupBy('agent_id')->each(function($assignments, $agent_id) {
+        $assignments->onlyUnassignment()->success()->groupBy('agent_id')->each(function($assignments, $agent_id) {
             Redis::srem(sprintf("agent:%s:assignedTickets", $agent_id), ...$assignments->ticketIds()->all());
         });
     }

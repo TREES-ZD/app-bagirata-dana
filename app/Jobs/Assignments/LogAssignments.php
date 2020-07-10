@@ -54,6 +54,7 @@ class LogAssignments implements ShouldQueue
         $processedAssignments = $assignments->reconcile($this->successTicketIds, $this->failedTicketIds);
 
         $processedAssignments->logs();
-        $agentRepository->updateAssignment($assignments);
+        
+        $agentRepository->updateCurrentAssignmentLog($processedAssignments);
     }
 }
