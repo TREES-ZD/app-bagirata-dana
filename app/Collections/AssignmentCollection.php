@@ -9,6 +9,7 @@ use App\Repositories\TicketRepository;
 use App\Services\Zendesk\JobCollection;
 use App\Services\Zendesk\TicketCollection;
 use App\Services\Zendesk\JobStatusCollection;
+use Zendesk\API\Exceptions\ApiResponseException;
 
 class AssignmentCollection extends Collection
 {
@@ -27,6 +28,25 @@ class AssignmentCollection extends Collection
                     ]
                 ]
             ];
+        });
+    }
+
+    public function unassignmentParams() {
+        return $this->map(function($assignment) {                
+            return [
+                "id" => $assignment->ticket_id,
+                "custom_fields" => [
+                    [
+                    "id" => env("ZENDESK_AGENT_NAMES_FIELD", 360000282796),
+                    "value" => null
+                    ]
+                ],
+                "comment" =>  [
+                    "body" => "BAGIRATA Agent Unavailable: " . $assignment->agent_fullName,
+                    "author_id" => $assignment->agent_zendesk_agent_id,
+                    "public" => false
+                ]
+                ];
         });
     }
 
@@ -98,6 +118,18 @@ class AssignmentCollection extends Collection
     public function update() {
         $jobStatuses = $this->chunk(100)->map(function($assignments) {
             return app(TicketRepository::class)->assign($assignments->values()->assignmentParams());
+        })->flatten();
+
+        return new JobStatusCollection($jobStatuses->values()->all());
+    }
+
+    public function updateUnassignment() {
+        $jobStatuses = $this->chunk(100)->map(function($assignments) {
+            try {
+                return app(TicketRepository::class)->assign($assignments->values()->unassignmentParams());
+            } catch (ApiResponseException $e) {
+                logs()->error($e);
+            }
         })->flatten();
 
         return new JobStatusCollection($jobStatuses->values()->all());
