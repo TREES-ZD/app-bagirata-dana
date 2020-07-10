@@ -25,6 +25,14 @@ class AgentRepository
         });
     }
 
+    public function clearCurrentAssignmentLog(AgentCollection $agents) {
+        $keys = $agents->map(function($agent) {
+            return 'agent:'.$agent->id.':assignedTickets';
+        })->all();
+
+        return Redis::command('del', $keys);
+    }
+
     public function getUnassignable() {
         return new AgentCollection(Agent::all()->all());
     }
