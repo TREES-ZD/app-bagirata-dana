@@ -47,7 +47,7 @@ class UnassignBatch implements ShouldQueue
     public function __construct(AgentCollection $agents = null)
     {
         $this->batch = (string) Str::uuid();
-        $this->agentIds = $agents ?? $agents->pluck('id');
+        $this->agentIds = optional($agents)->pluck('id');
     }
 
     /**
