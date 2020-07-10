@@ -62,11 +62,17 @@ class AssignmentRepository
         return $this->cache($batch, $batchedAssignments->values());
     }
     
-    public function prepareUnassignment($batch, Collection $agents) {
-        $tickets = $this->ticketRepository->getAssigned($agents);
+    public function prepareUnassignment($batch, AgentCollection $agents) {
+        $tickets = $this->ticketRepository->getAssignedByAgents($agents);
 
-        $batchedUnassignments = $tickets->map(function($ticket) use ($batch, $agents) {
-            $agent = $agents->getByTicket($ticket);
+        $agentDictionary = $agents->groupById();
+        $batchedUnassignments = $tickets->map(function($ticket) use ($batch, $agentDictionary) {
+            $agent = $agentDictionary->getByTicket($ticket);
+            
+            if (!$agent) {
+                return;
+            }
+
             return (object) [
                 'agent_id' => $agent->id,
                 'agent_fullName' => $agent->fullName,
@@ -79,6 +85,8 @@ class AssignmentRepository
                 'type' => Agent::UNASSIGNMENT,
                 'status' => "PENDING"
             ];
+        })->reject(function($ticket) {
+            return !$ticket;
         });
 
         return new AssignmentCollection($this->cache($batch, $batchedUnassignments->values())->all());

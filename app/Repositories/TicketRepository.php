@@ -6,10 +6,10 @@ use App\Agent;
 use App\Services\ZendeskService;
 use Illuminate\Support\Collection;
 use App\Collections\AgentCollection;
-use App\Collections\TicketCollection;
 use Illuminate\Support\Facades\Cache;
 use App\Repositories\Traits\Batchable;
 use App\Collections\AssignmentCollection;
+use App\Services\Zendesk\TicketCollection;
 
 class TicketRepository
 {
@@ -37,11 +37,11 @@ class TicketRepository
     }
 
     public function getAssignedByAgents(AgentCollection $agents) {
-        $agents = $agents->map(function($agent) {
+        $tickets = $agents->map(function($agent) {
             return $this->zendesk->getAssignedTickets($agent)->values()->all();
-        });
+        })->flatten();
         
-        return $agents->flatten()->all();
+        return new TicketCollection($tickets->values()->all());
     }
 
     public function assign($tickets) {
