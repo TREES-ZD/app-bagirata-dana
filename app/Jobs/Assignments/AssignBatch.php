@@ -59,7 +59,7 @@ class AssignBatch implements ShouldQueue
      */
     public function handle(AssignmentRepository $assignmentRepository)
     {   
-        $tasks = Task::whereIn('id', $this->taskIds)->disableCache()->get();
+        $tasks = Task::whereIn('id', $this->taskIds)->get();
         $assignments = $assignmentRepository->prepareAssignment($this->batch, $tasks);
 
         $jobStatuses = $assignments->update();
