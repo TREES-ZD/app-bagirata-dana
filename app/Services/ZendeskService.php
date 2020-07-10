@@ -139,7 +139,7 @@ class ZendeskService
 
         $page = 1;
         $tickets = new TicketCollection();
-        while ($page) {
+        while ($page && $page <= 10) {
             $response = Zendesk::views($viewId)->tickets(['page' => $page]);
             
             $tickets = $tickets->merge($response->tickets);
