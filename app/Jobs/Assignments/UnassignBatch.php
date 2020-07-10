@@ -47,7 +47,7 @@ class UnassignBatch implements ShouldQueue
     public function __construct(AgentCollection $agents = null)
     {
         $this->batch = (string) Str::uuid();
-        $this->agentIds = $agents->pluck('id');
+        $this->agentIds = $agents ?? $agents->pluck('id');
     }
 
     /**
@@ -60,7 +60,7 @@ class UnassignBatch implements ShouldQueue
         $agents = !$this->agentIds ? $agentRepository->getUnassignable() : Agent::disableCache()->whereIn('id', $this->agentIds)->get();
 
         $unassignments = $assignmentRepository->prepareUnassignment($this->batch, $agents);
-        
+
         $unassignments->logs();
 
         $jobStatuses = $unassignments->updateUnassignment();
