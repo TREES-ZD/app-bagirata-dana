@@ -3,8 +3,8 @@
 namespace App\Collections;
 
 use App\Services\Zendesk\Ticket;
-use Illuminate\Support\Collection;
 use App\Collections\BatchableCollection;
+use Illuminate\Database\Eloquent\Collection;
 
 
 class AgentCollection extends Collection
@@ -22,6 +22,7 @@ class AgentCollection extends Collection
         $agentName = $customField->get(env("ZENDESK_AGENT_NAMES_FIELD", 360000282796))->first();
 
         $id = sprintf("%s-%s-%s", $ticket->assignee_id, $ticket->group_id, optional($agentName)->value);
+        
         return $this->get($id);
     }
 }

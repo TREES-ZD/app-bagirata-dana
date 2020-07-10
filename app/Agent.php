@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Collections\AgentCollection;
 use App\Jobs\Agent\UnassignTickets;
 use App\Scopes\AgentUserScope;
 use Exception;
@@ -54,6 +55,11 @@ class Agent extends Model implements Sortable
                 ]);
             }
         });
+    }
+
+    public function newCollection(array $models = [])
+    {
+        return new AgentCollection($models);
     }
 
     public function getFullIdAttribute() {
