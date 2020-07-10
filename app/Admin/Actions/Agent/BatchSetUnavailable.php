@@ -13,7 +13,7 @@ class BatchSetUnavailable extends BatchAction
 
     public function handle(Collection $collection)
     {
-        $agents = Agent::where('status', true)->whereIn('id', $collection->pluck('id'))->get();
+        $agents = Agent::disableCache()->where('status', true)->whereIn('id', $collection->pluck('id'))->get();
 
         $agents->each(function($agent) {
             $agent->status = false;
