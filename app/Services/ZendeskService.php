@@ -198,7 +198,9 @@ class ZendeskService
             ]
         ];
 
-        return Zendesk::tickets()->updateMany($params);
+        $response = Zendesk::tickets()->updateMany($params);
+
+        return new JobStatus($response->job_status);
     }
 
     public function getGroupMemberships() {
@@ -214,7 +216,7 @@ class ZendeskService
     public function getAssignedTickets(Agent $agent) {
         $page = 1;
         $tickets = new TicketCollection();
-        while ($page) {
+        while ($page && $page <= 10) {
             $response = Zendesk::search()->find("type:ticket assignee:$agent->zendesk_agent_id group:$agent->zendesk_group_id tags:$agent->zendesk_custom_field_id", ["page" => $page]);
             
             $tickets = $tickets->merge($response->results);
