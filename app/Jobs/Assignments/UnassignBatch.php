@@ -66,7 +66,7 @@ class UnassignBatch implements ShouldQueue
         $jobStatuses = $unassignments->updateUnassignment();
 
         if ($jobStatuses->count() > 0) {
-            CheckJobStatuses::dispatch($this->batch, $jobStatuses->pluck('id')->all())->onQueue('unassignment-job');        
+            CheckJobStatuses::dispatch($this->batch, $jobStatuses->ids()->all())->onQueue('unassignment-job');        
         }
     }
 }
