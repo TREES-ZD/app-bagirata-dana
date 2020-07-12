@@ -18,6 +18,8 @@ class CheckJobStatuses implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $timeout = 1200;
+
     public $batch;
     public $jobStatusIds;
 
