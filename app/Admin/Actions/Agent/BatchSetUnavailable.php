@@ -20,10 +20,6 @@ class BatchSetUnavailable extends BatchAction
             $agent->save();
         });
 
-        if ($agents->count() > 0) {
-            UnassignBatch::dispatch($agents)->onQueue('unassignment');
-        }
-
         return $this->response()->success('Success setting unavailable ' . $agents->count() . ' agent(s)')->refresh();
     }
 
