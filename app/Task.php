@@ -26,6 +26,11 @@ class Task extends Model
         $agents = $this->rules()
                     ->disableCache()
                     ->where('status', true)
+                    ->with(['assignments' => function($query) {
+                        $query->where("type", "ASSIGNMENT")
+                                ->latest()
+                                ->limit(1);
+                    }])
                     ->get();
 
         return $agents->sortBy(function($a) {
