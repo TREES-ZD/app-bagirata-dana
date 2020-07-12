@@ -64,15 +64,4 @@ class AgentRepository
 
         return Agent::find($unassignEligibleAgentIds);
     }
-
-    public function getAvailable() {
-        $agents = $this->rules()
-        ->disableCache()
-        ->where('status', true)
-        ->get();
-
-        return $agents->sortBy(function($a) {
-                    return $a->assignments->last() ? $a->assignments->last()->created_at->timestamp : 1;
-                })->values();
-    }
 }
