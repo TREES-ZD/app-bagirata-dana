@@ -3,6 +3,9 @@
 namespace App\Console;
 
 use App\Jobs\Assignments\AssignBatch;
+use App\Jobs\Assignments\UnassignBatch;
+use App\Repositories\AgentRepository;
+use App\Repositories\TicketRepository;
 use App\Task;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -45,6 +48,15 @@ class Kernel extends ConsoleKernel
                 AssignBatch::dispatch($tasks->values())->onQueue('assignment');
             })->$frequency();
         });
+
+        $schedule->call(function() {
+            $unassignEligibleAgents = app(AgentRepository::class)->getUnassignEligible();
+        
+            if ($unassignEligibleAgents->isNotEmpty()) {
+                UnassignBatch::dispatch()->onQueue('unassignment');
+            }
+        })->everyMinute();
+
 
     }
 

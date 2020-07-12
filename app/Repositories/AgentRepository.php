@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Agent;
+use App\AvailabilityLog;
 use App\Traits\RoundRobinable;
 use Illuminate\Support\Collection;
 use App\Collections\AgentCollection;
@@ -44,8 +45,24 @@ class AgentRepository
         return Redis::command('del', $keys);
     }
 
-    public function getUnassignable() {
-        return new AgentCollection(Agent::all()->all());
+    /**
+     * Get agents who have been unavailable for at least for 2 minutes, and at most 30 minutes so we can retry
+     *
+     * @return AgentCollection
+     */
+    public function getUnassignEligible() {
+        $unassignEligibleAgentIds = AvailabilityLog::whereBetween('created_at', [now()->subMinutes(30), now()->subMinutes(2)])
+                        ->latest()
+                        ->get()
+                        ->groupBy('agent_id')
+                        ->map
+                        ->first()
+                        ->filter(function($log) { 
+                            return $log->status == "Unavailable";
+                        })
+                        ->pluck('agent_id');
+
+        return Agent::find($unassignEligibleAgentIds);
     }
 
     public function getAvailable() {
