@@ -11,6 +11,10 @@ class Ticket
         $this->ticket = $ticket;
     }
 
+    public function id() {
+        return $this->ticket->id;
+    }
+
     public function unassigned() {
         $customField = collect($this->ticket->custom_fields)->groupBy("id");
         $agentName = optional($customField->get(env("ZENDESK_AGENT_NAMES_FIELD", 360000282796)))->first();
@@ -23,6 +27,10 @@ class Ticket
         $agentName = optional($customField->get(env("ZENDESK_AGENT_NAMES_FIELD", 360000282796)))->first();
 
         return $this->ticket->assignee_id && $this->ticket->group_id && optional($agentName)->value;
+    }
+
+    public function isAssignable() {
+        return $this->ticket->assignee_id == null && in_array($this->ticket->status, ["new", "open", "pending"]);
     }
 
     public function __get($name)

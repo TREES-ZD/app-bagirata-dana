@@ -135,14 +135,23 @@ class ZendeskService
         });
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param [type] $viewId
+     * @return TicketCollection
+     */
     public function getAssignableTicketsByView($viewId) {
-
         $page = 1;
         $tickets = new TicketCollection();
-        while ($page && $page <= 10) {
+        while ($page && $page <= 5 || $page > 2 && $tickets->isEmpty()) {
             $response = Zendesk::views($viewId)->tickets(['page' => $page]);
             
-            $tickets = $tickets->merge($response->tickets);
+            $ticketResults = collect($response->tickets)->map(function($ticket) {
+                return new Ticket($ticket);
+            });
+
+            $tickets = $tickets->merge($ticketResults->all());
             if ($response->next_page) {
                 $page++;
             } else {
@@ -150,11 +159,7 @@ class ZendeskService
             }
         }
 
-        return $tickets->filter(function($ticket) {
-            return $ticket->assignee_id == null && in_array($ticket->status, ["new", "open", "pending"]);
-        })->map(function($ticket) {
-            return new Ticket($ticket);
-        });
+        return $tickets->unique->id()->filter->isAssignable();
     }
 
     public function updateTicket(...$params) {
