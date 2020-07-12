@@ -17,14 +17,14 @@ class JobStatus
 
     public function successTicketIds() {
         return collect($this->results)->filter(function($ticket) {
-            return $ticket->status;
+            return optional($ticket)->status;
             }
         )->pluck('id');
     }
 
     public function failedTicketIds() {
         return collect($this->results)->reject(function($ticket) {
-            return $ticket->status;
+            return optional($ticket)->status;
             }
         )->pluck('id');
     }
