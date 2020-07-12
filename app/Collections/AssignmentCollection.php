@@ -51,80 +51,23 @@ class AssignmentCollection extends Collection
     }
 
     public function reconcile($successTicketIds, $failedTicketIds) {
-        
-        $processAssignments = $this->whereIn('ticket_id', array_merge($successTicketIds, $failedTicketIds))->map(function($assignment) use ($successTicketIds, $failedTicketIds){
-
-            if (in_array($assignment->ticket_id, $failedTicketIds)) {
-                $assignment->status = "FAILED";
-            } else if (in_array($assignment->ticket_id, $successTicketIds)) {
-                $assignment->status = 200;
-            }
-
-            return $assignment;
-        });
-
-        return $processAssignments;
-    }
-
-    public function reconcileAssignment(TicketCollection $updatedTickets) {
-        
-        return $this->map(function($assignment) use ($updatedTickets) {
-            $ticket = $updatedTickets->firstWhere('id', $assignment->ticket_id);
-
-            if (!$ticket) return $assignment;
-
-            $assignment->type = Agent::ASSIGNMENT;
-
-            $customField = collect($ticket->custom_fields)->groupBy("id");
-            $agentName = $customField->get(env("ZENDESK_AGENT_NAMES_FIELD", 360000282796))->first();
-
-            if ($ticket->assignee_id == $assignment->agent_zendesk_agent_id && $ticket->group_id == $assignment->agent_zendesk_group_id && optional($agentName)->value == $assignment->agent_zendesk_custom_field_id) {
-                $assignment->status = 200;
-            } else {
-                $assignment->status = "FAILED";
-            }
-
-            return $assignment;
-        });
-    }
-
-    public function reconcileUnassignment(TicketCollection $updatedTickets) {
-        return $this->map(function($assignment) use ($updatedTickets) {
-            $ticket = $updatedTickets->firstWhere('id', $assignment->ticket_id);
-
-            if (!$ticket) return $assignment;
-
-            $customField = collect($ticket->custom_fields)->groupBy("id");
-            $agentName = $customField->get(env("ZENDESK_AGENT_NAMES_FIELD", 360000282796))->first();
-
-            if (!$ticket->assignee_id && !optional($agentName)->value) {
-                $assignment->status = 200;
-            } else {
-                $assignment->status = "FAILED";
-            }
-
-            return $assignment;
-        });
+        return $this->updateStatus($successTicketIds, $failedTicketIds);
     }
 
     public function ticketIds() {
         return $this->pluck('ticket_id')->values();
     }
 
-    public function success() {
-        return $this->where('status', 200);
-    }
-
     public function onlyAssignment() {
-        return $this->filter(function($assignment) {
-            return $assignment->type == Agent::ASSIGNMENT;
-        });
+        return $this->where('type', Agent::ASSIGNMENT);
     }
 
     public function onlyUnassignment() {
-        return $this->filter(function($assignment) {
-            return $assignment->type == Agent::UNASSIGNMENT;
-        });
+        return $this->where('type', Agent::ASSIGNMENT);
+    }
+
+    public function success() {
+        return $this->where('status', 200);
     }
 
     public function update() {
@@ -147,8 +90,23 @@ class AssignmentCollection extends Collection
         return new JobStatusCollection($jobStatuses->values()->all());
     }
 
-    public function logs() {
-        $assignments = $this->map(function($assignment, $i) {
+    public function createLogs() {
+        return Assignment::insert($this->toLogParams());
+    }
+
+    public function updateLogs() {
+        return $this->groupBy(['batch', 'status'])->map(function($assignmentsByStatus, $batch) {
+
+            return $assignmentsByStatus->map(function($assignments, $status) use ($batch) {
+                $assignmentBuilder = Assignment::where('batch_id', $batch)->whereIn('zendesk_ticket_id', $assignments->pluck('ticket_id')->values()->all());
+                return $assignmentBuilder->update(['response_status' => $status]);
+            });
+
+        });        
+    }
+
+    private function toLogParams() {
+        return $this->map(function($assignment, $i) {
             return [
                 "type" => $assignment->type,
                 "batch_id" => $assignment->batch,
@@ -157,10 +115,24 @@ class AssignmentCollection extends Collection
                 "zendesk_view_id" => "viewId",
                 "zendesk_ticket_id" => $assignment->ticket_id,
                 "zendesk_ticket_subject" => $assignment->ticket_subject,
-                "response_status" => $assignment->status,
+                "response_status" => $assignment->status ?? "PENDING",
                 "created_at" => $assignment->type == Agent::ASSIGNMENT ? now()->addSeconds($i) : now()
             ];
+        })->all();
+    }
+
+    private function updateStatus($successTicketIds, $failedTicketIds) {
+        $processAssignments = $this->whereIn('ticket_id', array_merge($successTicketIds, $failedTicketIds))->map(function($assignment) use ($successTicketIds, $failedTicketIds){
+
+            if (in_array($assignment->ticket_id, $failedTicketIds)) {
+                $assignment->status = "FAILED";
+            } else if (in_array($assignment->ticket_id, $successTicketIds)) {
+                $assignment->status = 200;
+            }
+
+            return $assignment;
         });
-        Assignment::insert($assignments->all());
+
+        return $processAssignments;
     }
 }

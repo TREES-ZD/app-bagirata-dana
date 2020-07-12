@@ -25,48 +25,24 @@ class AssignmentRepository
         $this->ticketRepository = $ticketRepository;
     }
 
-    public function prepare($batch, $agents, $tickets) {
-        $batchedAssignments = $this->createAssignments($agents, $tickets)->map(function($assignment) use ($batch) {
-            $assignment->type = Agent::ASSIGNMENT;
-            $assignment->batch = $batch;
-            $assignment->status = "PENDING";
-            return $assignment;
-        });
-
-        return new AssignmentCollection($this->cache($batch, $batchedAssignments->values())->all());
-    }
-
-    public function getPrepared($batch) {
+    public function retrieveAssignments($batch) {
         return new AssignmentCollection($this->cache($batch)->all());
     }
 
-    public function makeAssignments(Collection $tasks) {
-        return (new AssignmentCollection($tasks->all()))->map(function($task) {
+    public function makeAssignments($batch, Collection $tasks) {
+        return (new AssignmentCollection($tasks->all()))->map(function($task) use ($batch) {
             $agents = $task->getAvailableAgents();
             $tickets = $this->ticketRepository->getAssignableByView($task->zendesk_view_id);
             
-            return $this->createAssignments($agents, $tickets);
+            return $this->createAssignments($agents, $tickets, $batch);
         })->flatten();        
     }
 
-    public function prepareAssignment($batch, Collection $tasks) {
-        $assignments = $this->makeAssignments($tasks);
-
-        $batchedAssignments = $assignments->map(function($assignment) use ($batch) {
-            $assignment->type = Agent::ASSIGNMENT;
-            $assignment->batch = $batch;
-            $assignment->status = "PENDING";
-            return $assignment;
-        });
-
-        return $this->cache($batch, $batchedAssignments->values());
-    }
-    
-    public function prepareUnassignment($batch, AgentCollection $agents) {
+    public function makeUnassignments($batch, AgentCollection $agents) {
         $tickets = $this->ticketRepository->getAssignedByAgents($agents);
 
         $agentDictionary = $agents->groupById();
-        $batchedUnassignments = $tickets->map(function($ticket) use ($batch, $agentDictionary) {
+        $unassignments = $tickets->map(function($ticket) use ($agentDictionary, $batch) {
             $agent = $agentDictionary->getByTicket($ticket);
             
             if (!$agent) {
@@ -81,14 +57,25 @@ class AssignmentRepository
                 'agent_zendesk_custom_field_id' => $agent->zendesk_custom_field_id,
                 'ticket_id' => $ticket->id,
                 'ticket_subject' => $ticket->subject,
-                'batch' => $batch,
                 'type' => Agent::UNASSIGNMENT,
-                'status' => "PENDING"
+                'batch' => $batch
             ];
         })->reject(function($ticket) {
             return !$ticket;
         });
+        
+        return $unassignments;
+    }
 
-        return new AssignmentCollection($this->cache($batch, $batchedUnassignments->values())->all());
+    public function prepareAssignment($batch, Collection $tasks) {
+        $assignments = $this->makeAssignments($batch, $tasks);
+
+        return new AssignmentCollection($this->cache($batch, $assignments)->all());
+    }
+    
+    public function prepareUnassignment($batch, AgentCollection $agents) {
+        $unassigments = $this->makeUnassignments($batch, $agents);
+
+        return new AssignmentCollection($this->cache($batch, $unassigments)->all());
     }
 }

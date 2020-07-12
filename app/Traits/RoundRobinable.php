@@ -2,12 +2,13 @@
 
 namespace App\Traits;
 
+use App\Agent;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 trait RoundRobinable
 { 
-    public function createAssignments(Collection $agents, Collection $tickets) {
+    public function createAssignments(Collection $agents, Collection $tickets, $batch) {
         if ($agents->count() < 1 || $tickets->count() < 1) {
             return collect();
         }
@@ -16,14 +17,14 @@ trait RoundRobinable
         $ticketsByGroup = $tickets->groupBy('group_id');
 
         $matches = collect();
-        $ticketsByGroup->each(function($tickets, $group_id) use ($agentsByGroup, $matches, $agents) {
+        $ticketsByGroup->each(function($tickets, $group_id) use ($agentsByGroup, $matches, $agents, $batch) {
             $agents = $group_id != "" ? $agentsByGroup->get($group_id) : $agents;
 
             if (!$agents || $agents->count() < 1) {
                 return;
             }
 
-            $tickets->each(function($ticket, $index) use ($agents, $matches) {
+            $tickets->each(function($ticket, $index) use ($agents, $matches, $batch) {
 
                 $agentNum = ($index % $agents->count());
                 $agent = $agents->get($agentNum);
@@ -34,7 +35,9 @@ trait RoundRobinable
                     "agent_zendesk_group_id" => $agent->zendesk_group_id,
                     'agent_zendesk_custom_field_id' => $agent->zendesk_custom_field_id,
                     'ticket_id' => $ticket->id,
-                    'ticket_subject' => $ticket->subject
+                    'ticket_subject' => $ticket->subject,
+                    'type' => Agent::ASSIGNMENT,
+                    "batch" => $batch
                 ]);
             });
 

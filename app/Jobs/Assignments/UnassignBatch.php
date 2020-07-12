@@ -57,15 +57,15 @@ class UnassignBatch implements ShouldQueue
      */
     public function handle(AssignmentRepository $assignmentRepository, AgentRepository $agentRepository)
     {
-        $agents = !$this->agentIds ? $agentRepository->getUnassignable() : Agent::disableCache()->whereIn('id', $this->agentIds)->get();
+        $agents = !$this->agentIds ? $agentRepository->getUnassignable() : Agent::disableCache()->find($this->agentIds);
 
         $unassignments = $assignmentRepository->prepareUnassignment($this->batch, $agents);
 
-        $unassignments->logs();
+        $unassignments->createLogs();
 
         $jobStatuses = $unassignments->updateUnassignment();
 
-        if ($jobStatuses->count() > 0) {
+        if ($jobStatuses->isNotEmpty()) {
             CheckJobStatuses::dispatch($this->batch, $jobStatuses->ids()->all())->onQueue('unassignment-job');        
         }
     }

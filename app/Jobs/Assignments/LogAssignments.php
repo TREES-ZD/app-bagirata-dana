@@ -45,16 +45,12 @@ class LogAssignments implements ShouldQueue
      */
     public function handle(AssignmentRepository $assignmentRepository, AgentRepository $agentRepository)
     {
-        logs()->debug($this->batch);
-        logs()->debug("SUCCESS" . serialize($this->successTicketIds));
-        logs()->debug("Fail" . serialize($this->failedTicketIds));
-
-        $assignments = $assignmentRepository->getPrepared($this->batch);
+        $assignments = $assignmentRepository->retrieveAssignments($this->batch);
 
         $processedAssignments = $assignments->reconcile($this->successTicketIds, $this->failedTicketIds);
-
-        $processedAssignments->logs();
         
+        $processedAssignments->updateLogs();
+
         $agentRepository->updateCurrentAssignmentLog($processedAssignments);
     }
 }
