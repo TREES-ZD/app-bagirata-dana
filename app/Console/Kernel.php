@@ -53,7 +53,7 @@ class Kernel extends ConsoleKernel
             $unassignEligibleAgents = app(AgentRepository::class)->getUnassignEligible();
         
             if ($unassignEligibleAgents->isNotEmpty()) {
-                UnassignBatch::dispatch()->onQueue('unassignment');
+                UnassignBatch::dispatch()->onQueue('assignment');
             }
         })->everyMinute();
 
