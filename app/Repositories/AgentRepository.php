@@ -51,7 +51,7 @@ class AgentRepository
      * @return AgentCollection
      */
     public function getUnassignEligible() {
-        $unassignEligibleAgentIds = AvailabilityLog::whereBetween('created_at', [now()->subMinutes(30), now()->subMinutes(1)])
+        $unassignEligibleAgentIds = AvailabilityLog::whereBetween('created_at', [now()->subMinutes(30), now()])
                         ->latest()
                         ->get()
                         ->groupBy('agent_id')
