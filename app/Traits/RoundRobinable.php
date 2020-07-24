@@ -28,6 +28,8 @@ trait RoundRobinable
 
                 $agentNum = ($index % $agents->count());
                 $agent = $agents->get($agentNum);
+
+                /* TESTING DIAS */
                 if ($agent->zendesk_group_id != $ticket->group_id || $ticket->group_id === null) {
                     $matches->add((object) [
                         'agent_id' => $agent->id,
