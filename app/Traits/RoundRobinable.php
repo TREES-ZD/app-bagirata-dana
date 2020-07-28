@@ -15,6 +15,7 @@ trait RoundRobinable
         
         $agentsByGroup = $agents->groupBy('zendesk_group_id');
         $ticketsByGroup = $tickets->groupBy('group_id');
+        error_log(print_r($ticketsByGroup, true))
 
         $matches = collect();
         $ticketsByGroup->each(function($tickets, $group_id) use ($agentsByGroup, $matches, $agents, $batch) {
@@ -45,10 +46,10 @@ trait RoundRobinable
                 } else {
                     $sameGroupId = $agent->zendesk_group_id == $ticket->group_id;
                     error_log("TICKET GROUP NOT NULL");
-                    error_log(print_r($ticket->id));
-                    error_log(print_r($ticket->group_id));
-                    error_log(print_r($agent->zendesk_group_id));
-                    error_log(print_r($sameGroupId));
+                    error_log(print_r($ticket->id, true));
+                    error_log(print_r($ticket->group_id, true));
+                    error_log(print_r($agent->zendesk_group_id, true));
+                    error_log(print_r($sameGroupId, true));
 
                     if ($agent->zendesk_group_id == $ticket->group_id) {
                         $matches->add((object) [
