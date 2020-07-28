@@ -55,10 +55,6 @@ trait RoundRobinable
                             'type' => Agent::ASSIGNMENT,
                             "batch" => $batch
                         ]);
-                    } else {
-                        error_log('error');
-                        error_log(print_r($agent->zendesk_group_id, TRUE));
-                        error_log(print_r($ticket->group_id, TRUE));
                     }
                 }
             });
