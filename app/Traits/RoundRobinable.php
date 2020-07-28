@@ -15,7 +15,7 @@ trait RoundRobinable
         
         $agentsByGroup = $agents->groupBy('zendesk_group_id');
         $ticketsByGroup = $tickets->groupBy('group_id');
-        error_log(print_r($ticketsByGroup, true))
+        error_log(print_r($ticketsByGroup, true));
 
         $matches = collect();
         $ticketsByGroup->each(function($tickets, $group_id) use ($agentsByGroup, $matches, $agents, $batch) {
