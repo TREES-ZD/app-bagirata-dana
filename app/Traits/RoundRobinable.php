@@ -20,8 +20,8 @@ trait RoundRobinable
         $ticketsByGroup->each(function($tickets, $group_id) use ($agentsByGroup, $matches, $agents, $batch) {
             $agents = $group_id != "" ? $agentsByGroup->get($group_id) : $agents;
 
-            error_log('TICKET BY GROUP');
-            error_log(print_r($group_id, true));
+            // error_log('TICKET BY GROUP');
+            // error_log(print_r($group_id, true));
 
             if (!$agents || $agents->count() < 1) {
                 return;
@@ -31,6 +31,9 @@ trait RoundRobinable
 
                 $agentNum = ($index % $agents->count());
                 $agent = $agents->get($agentNum);
+
+                error_log('AGENTS');
+                error_log(print_r($agents, true));
 
                 error_log('TESTING');
                 error_log(print_r($ticket->id, true));
