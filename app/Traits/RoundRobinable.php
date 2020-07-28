@@ -43,7 +43,7 @@ trait RoundRobinable
                         "batch" => $batch
                     ]);
                 } else {
-                    if ($agent->zendesk_group_id === $ticket->group_id) {
+                    if ($agent->zendesk_group_id == $ticket->group_id) {
                         $matches->add((object) [
                             'agent_id' => $agent->id,
                             'agent_fullName' => $agent->fullName,
