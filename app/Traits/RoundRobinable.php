@@ -33,7 +33,7 @@ trait RoundRobinable
                 $agent = $agents->get($agentNum);
 
                 error_log('AGENTS');
-                error_log(print_r($agents, true));
+                // error_log(print_r($agents, true));
 
                 error_log('TESTING');
                 error_log(print_r($ticket->id, true));
