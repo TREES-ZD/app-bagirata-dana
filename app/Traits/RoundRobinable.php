@@ -43,6 +43,7 @@ trait RoundRobinable
                         "batch" => $batch
                     ]);
                 } else {
+                    error_log('Some message here.');
                     if ($agent->zendesk_group_id === $ticket->group_id) {
                         $matches->add((object) [
                             'agent_id' => $agent->id,
