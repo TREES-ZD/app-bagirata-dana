@@ -42,18 +42,20 @@ trait RoundRobinable
                         'type' => Agent::ASSIGNMENT,
                         "batch" => $batch
                     ]);
-                } else if ($agent->zendesk_group_id === $group_id) {
-                    $matches->add((object) [
-                        'agent_id' => $agent->id,
-                        'agent_fullName' => $agent->fullName,
-                        "agent_zendesk_agent_id" => $agent->zendesk_agent_id,
-                        "agent_zendesk_group_id" => $agent->zendesk_group_id,
-                        'agent_zendesk_custom_field_id' => $agent->zendesk_custom_field_id,
-                        'ticket_id' => $ticket->id,
-                        'ticket_subject' => $ticket->subject,
-                        'type' => Agent::ASSIGNMENT,
-                        "batch" => $batch
-                    ]);
+                } else {
+                    if ($agent->zendesk_group_id === $ticket->group_id) {
+                        $matches->add((object) [
+                            'agent_id' => $agent->id,
+                            'agent_fullName' => $agent->fullName,
+                            "agent_zendesk_agent_id" => $agent->zendesk_agent_id,
+                            "agent_zendesk_group_id" => $agent->zendesk_group_id,
+                            'agent_zendesk_custom_field_id' => $agent->zendesk_custom_field_id,
+                            'ticket_id' => $ticket->id,
+                            'ticket_subject' => $ticket->subject,
+                            'type' => Agent::ASSIGNMENT,
+                            "batch" => $batch
+                        ]);
+                    }
                 }
             });
 
