@@ -21,7 +21,7 @@ trait RoundRobinable
             $agents = $group_id != "" ? $agentsByGroup->get($group_id) : $agents;
 
             error_log('TICKET BY GROUP');
-            error_log(print_r($ticket->group_id, true));
+            error_log(print_r($group_id, true));
 
             if (!$agents || $agents->count() < 1) {
                 return;
