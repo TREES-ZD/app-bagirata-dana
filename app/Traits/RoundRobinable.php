@@ -45,10 +45,11 @@ trait RoundRobinable
                 } else {
                     $sameGroupId = $agent->zendesk_group_id == $ticket->group_id;
                     error_log("TICKET GROUP NOT NULL");
+                    error_log(print_r($ticket->id));
                     error_log(print_r($ticket->group_id));
                     error_log(print_r($agent->zendesk_group_id));
                     error_log(print_r($sameGroupId));
-                    
+
                     if ($agent->zendesk_group_id == $ticket->group_id) {
                         $matches->add((object) [
                             'agent_id' => $agent->id,
