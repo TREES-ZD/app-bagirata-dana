@@ -163,11 +163,11 @@ class ZendeskService
     }
 
     public function updateTicket(...$params) {
-        return Zendesk::tickets()->update(...$params);        
+        return Zendesk::tickets()->update(...$params);
     }
 
     public function updateManyTickets($tickets) {
-        $response = Zendesk::tickets()->updateMany($tickets->all());    
+        $response = Zendesk::tickets()->updateMany($tickets->all());
         return new JobStatus($response->job_status);
     }
 
