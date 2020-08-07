@@ -14,7 +14,9 @@ trait RoundRobinable
         }
         
         $agentsByGroup = $agents->groupBy('zendesk_group_id');
-        $ticketsByGroup = $tickets->groupBy('group_id');
+        $ticketsByGroup = $tickets->groupBy(function ($ticket) {
+            return $ticket->group_id;
+        });
 
         $matches = collect();
         $ticketsByGroup->each(function($tickets, $group_id) use ($agentsByGroup, $matches, $agents, $batch) {
@@ -28,19 +30,17 @@ trait RoundRobinable
 
                 $agentNum = ($index % $agents->count());
                 $agent = $agents->get($agentNum);
-                if ($agent->zendesk_group_id != $ticket->group_id || $ticket->group_id === null) {
-                    $matches->add((object) [
-                        'agent_id' => $agent->id,
-                        'agent_fullName' => $agent->fullName,
-                        "agent_zendesk_agent_id" => $agent->zendesk_agent_id,
-                        "agent_zendesk_group_id" => $agent->zendesk_group_id,
-                        'agent_zendesk_custom_field_id' => $agent->zendesk_custom_field_id,
-                        'ticket_id' => $ticket->id,
-                        'ticket_subject' => $ticket->subject,
-                        'type' => Agent::ASSIGNMENT,
-                        "batch" => $batch
-                    ]);
-                }
+                $matches->add((object) [
+                    'agent_id' => $agent->id,
+                    'agent_fullName' => $agent->fullName,
+                    "agent_zendesk_agent_id" => $agent->zendesk_agent_id,
+                    "agent_zendesk_group_id" => $agent->zendesk_group_id,
+                    'agent_zendesk_custom_field_id' => $agent->zendesk_custom_field_id,
+                    'ticket_id' => $ticket->id,
+                    'ticket_subject' => $ticket->subject,
+                    'type' => Agent::ASSIGNMENT,
+                    "batch" => $batch
+                ]);
             });
 
         });
