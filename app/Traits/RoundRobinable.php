@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 trait RoundRobinable
 { 
-    public function createAssignmentsOld(Collection $agents, Collection $tickets, $batch) {
+    public function createAssignments(Collection $agents, Collection $tickets, $batch) {
         if ($agents->count() < 1 || $tickets->count() < 1) {
             return collect();
         }
@@ -48,7 +48,7 @@ trait RoundRobinable
         return $matches;
     }
 
-    public function createAssignments(AgentCollection $agents, TicketCollection $tickets, $batch) {
+    public function createAssignmentsNew(AgentCollection $agents, TicketCollection $tickets, $batch) {
         if ($agents->isEmpty() || $tickets->isEmpty()) return;
 
         $agents = $agents->filter->status;
