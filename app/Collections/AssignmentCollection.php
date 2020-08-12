@@ -3,6 +3,7 @@
 namespace App\Collections;
 
 use App\Agent;
+use Exception;
 use App\Assignment;
 use Illuminate\Support\Collection;
 use App\Repositories\TicketRepository;
@@ -91,7 +92,10 @@ class AssignmentCollection extends Collection
     }
 
     public function createLogs() {
-        return Assignment::insert($this->toLogParams());
+        if ($this->isNotEmpty()) {            
+            return Assignment::insert($this->toLogParams());
+        }
+        return;
     }
 
     public function updateLogs() {
@@ -116,7 +120,7 @@ class AssignmentCollection extends Collection
                 "zendesk_ticket_id" => $assignment->ticket_id,
                 "zendesk_ticket_subject" => $assignment->ticket_subject,
                 "response_status" => $assignment->status ?? "PENDING",
-                "created_at" => $assignment->type == Agent::ASSIGNMENT ? now()->addSeconds($i) : now()
+                "created_at" => $assignment->created_at
             ];
         })->all();
     }
