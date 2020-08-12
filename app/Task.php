@@ -2,9 +2,10 @@
 
 namespace App;
 
-use Illuminate\Support\Collection;
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\RoundRobinable;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
 
 class Task extends Model
 { 
@@ -27,15 +28,14 @@ class Task extends Model
                     ->disableCache()
                     ->where('status', true)
                     ->with(['assignments' => function($query) {
-                        $query->where("type", "ASSIGNMENT")
-                                ->latest()
-                                ->limit(1);
+                        $query->select('agent_id', DB::raw("MAX(created_at) as assignment_created_at"))
+                              ->groupBy('agent_id');
                     }])
                     ->get();
 
         return $agents->sortBy(function($a) {
-                        return $a->assignments->last() ? $a->assignments->last()->created_at->timestamp : 1;
-                    })->values();
+                        return $a->assignments->first() ? $a->assignments->first()->assignment_created_at : 1;
+                })->values();
     }
 
     public function scopeAssignable($query) {
