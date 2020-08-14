@@ -58,7 +58,8 @@ class AssignmentRepository
                 'ticket_id' => $ticket->id,
                 'ticket_subject' => $ticket->subject,
                 'type' => Agent::UNASSIGNMENT,
-                'batch' => $batch
+                'batch' => $batch,
+                'created_at' => now()
             ];
         })->reject(function($ticket) {
             return !$ticket;
