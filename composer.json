@@ -73,6 +73,6 @@
             "@php artisan key:generate --ansi"
         ],
         "remigrate": "@php artisan migrate:rollback && php artisan admin:install && php artisan db:seed",
-        "scheduler": "php artisan queue:work --queue unassignment-job,assignment-job,unassignment,assignment"
+        "assignments": "php artisan queue:work --queue unassignment-job,assignment-job,unassignment,assignment"
     }
 }
