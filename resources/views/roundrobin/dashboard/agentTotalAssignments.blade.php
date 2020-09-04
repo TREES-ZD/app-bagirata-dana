@@ -34,6 +34,12 @@
                                     </span>
                                 </div>
                             </div>
+
+                            <div class="form-group">
+                                <label for="filter">Current</label>
+                                <input type="checkbox" class="form-check-input" name="current" @if(request('current') == "on") {{'checked'}} @endif>
+                            </div>
+
                             <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"
                                     aria-hidden="true"></span></button>
                         </form>

@@ -47,7 +47,7 @@ class HomeController extends Controller
         $agentsWithAssignmentCount = $agents->orderBy('assignment_count', 'DESC')->take(20)->get();
         $totalAvailableAgents = $agents->where('status', Agent::AVAILABLE)->count();
 
-        if ($request->type == "current") {
+        if ($request->current == "on") {
             $agentsWithAssignmentCount = Agent::get()->map(function($agent) {
                 return [
                     'full_name' => $agent->full_name,
