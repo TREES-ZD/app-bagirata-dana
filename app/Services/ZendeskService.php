@@ -212,7 +212,8 @@ class ZendeskService
         $groupMemberships = Cache::remember("groupMemberships", 24 * 60 * 7, function () {
             $response = Zendesk::groupMemberships()->findAll();
             $responseTwo = Zendesk::groupMemberships()->findAll(['page' => 2]);
-            return array_merge($response->group_memberships, $responseTwo->group_memberships);
+            $responseThree = Zendesk::groupMemberships()->findAll(['page' => 3]);
+            return array_merge($response->group_memberships, $responseTwo->group_memberships, $responseThree->group_memberships);
         });
 
         return $groupMemberships;
@@ -241,7 +242,8 @@ class ZendeskService
         $users = Cache::remember("users", 24 * 60 * 7, function () {
             $response = Zendesk::search()->find("type:user role:admin role:agent", ['sort_by' => 'updated_at']);
             $responseTwo = Zendesk::search()->find("type:user role:admin role:agent", ['sort_by' => 'updated_at', 'page' => 2]);
-            return array_merge($response->results, $responseTwo->results);
+            $responseThree = Zendesk::search()->find("type:user role:admin role:agent", ['sort_by' => 'updated_at', 'page' => 3]);
+            return array_merge($response->results, $responseTwo->results, $responseThree->results);
         });
 
         $users = $this->filter(static::AGENT_IDS, $users);
