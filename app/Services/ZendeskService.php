@@ -121,9 +121,11 @@ class ZendeskService
         // });
 
         $response = Zendesk::views()->findAll();
-        return $response->views;
-
-        // return $tickets;
+        $responseTwo = Zendesk::views()->findAll(['page' => 2]);
+        $responseThree = Zendesk::views()->findAll(['page' => 3]);
+        $responseFour = Zendesk::views()->findAll(['page' => 4]);
+        
+        return array_merge($response->views, $responseTwo->views, $responseThree->views, $responseFour->views);
     }
 
     public function getTicketsByView($viewId) {
