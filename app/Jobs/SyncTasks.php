@@ -35,28 +35,21 @@ class SyncTasks implements ShouldQueue
     {
         $views = collect($zendesk->getViews());
 
-        $existingTasksByViewId = Task::all()->keyBy(function($task) {
-            // Identify agent based on the pattern ':zendesk_agent_id-:zendesk_group_id-:zendesk_custom_field_id' 
-            return $task->zendesk_view_id;
-        });
-
-        $views = $views->map(function($view) use ($existingTasksByViewId) {
-
-            $existingTask = $existingTasksByViewId->get($view->id);
-
-            return [
-                'zendesk_view_id' => $view->id,
-                'zendesk_view_title' => $view->title,
-                'zendesk_view_position' => $view->position,
-                'interval' => "everyMinute",
-                'group_id' => 1,
-                'limit' => "unlimited",
-                'enabled' => $existingTask['enabled'] ?: false
-            ];
-        });
+        $views = $views
+                ->whereNotIn('id', Task::all()->pluck('zendesk_view_id')->all())
+                ->map(function($view) {
+                    return [
+                        'zendesk_view_id' => $view->id,
+                        'zendesk_view_title' => $view->title,
+                        'zendesk_view_position' => $view->position,
+                        'interval' => "everyMinute",
+                        'group_id' => 1,
+                        'limit' => "unlimited",
+                        'enabled' => false
+                    ];
+                });
 
         DB::transaction(function() use ($views) {
-            Task::truncate();                
             Task::insert($views->toArray());
         });
 
