@@ -23,30 +23,6 @@ class HomeController extends Controller
     {
         $agents = Agent::disableCache();
 
-        if ($request->availability == 'available') {
-            $agents->where('status', Agent::AVAILABLE);
-        } else if ($request->availability == 'unavailable') {
-            $agents->where('status', Agent::UNAVAILABLE);
-        }
-
-        $agents->withCount(['assignments', 
-                    'assignments as assignment_count' => function($query) use ($request) { 
-                        $query->where('type', 'ASSIGNMENT');
-
-                        if ($request->from && $request->to) {
-                            $from = Carbon::parse($request->from);
-                            $to = Carbon::parse($request->to);
-
-                            $query->whereBetween('created_at', [$from, $to]);
-                        }
-
-                        }
-                    ]
-                );
-        
-        $agentsWithAssignmentCount = $agents->orderBy('assignment_count', 'DESC')->take(20)->get();
-        $totalAvailableAgents = $agents->where('status', Agent::AVAILABLE)->count();
-
         if ($request->current == "on") {
             $agentsWithAssignmentCount = Agent::get()->map(function($agent) {
                 return [
@@ -54,8 +30,35 @@ class HomeController extends Controller
                     'assignment_count' => count(Redis::smembers('agent:'.$agent->id.':assignedTickets'))
                 ];   
             })->sortByDesc('assignment_count')->take(20);
+        } else {
+
+            if ($request->availability == 'available') {
+                $agents->where('status', Agent::AVAILABLE);
+            } else if ($request->availability == 'unavailable') {
+                $agents->where('status', Agent::UNAVAILABLE);
+            }
+    
+            $agents->withCount(['assignments', 
+                        'assignments as assignment_count' => function($query) use ($request) { 
+                            $query->where('type', 'ASSIGNMENT');
+    
+                            if ($request->from && $request->to) {
+                                $from = Carbon::parse($request->from);
+                                $to = Carbon::parse($request->to);
+    
+                                $query->whereBetween('created_at', [$from, $to]);
+                            }
+    
+                            }
+                        ]
+                    );
+            
+            $agentsWithAssignmentCount = $agents->orderBy('assignment_count', 'DESC')->take(20)->get();
+    
         }
         
+        $totalAvailableAgents = $agents->where('status', Agent::AVAILABLE)->count();
+
         return $content
             ->title('Home')
             ->description('Description...')
