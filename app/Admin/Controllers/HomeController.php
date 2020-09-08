@@ -41,6 +41,7 @@ class HomeController extends Controller
             $agents->withCount(['assignments', 
                         'assignments as assignment_count' => function($query) use ($request) { 
                             $query->where('type', 'ASSIGNMENT');
+                            $query->where('response_status', '200');
     
                             if ($request->from && $request->to) {
                                 $from = Carbon::parse($request->from);
