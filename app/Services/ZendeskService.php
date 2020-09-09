@@ -226,7 +226,7 @@ class ZendeskService
         $page = 1;
         $tickets = new TicketCollection();
         while ($page && $page <= 10) {
-            $response = Zendesk::search()->find("type:ticket assignee:$agent->zendesk_agent_id group:$agent->zendesk_group_id tags:$agent->zendesk_custom_field_id", ["page" => $page]);
+            $response = Zendesk::search()->find("type:ticket assignee:$agent->zendesk_agent_id group:$agent->zendesk_group_id tags:$agent->zendesk_custom_field_id status<solved", ["page" => $page]);
             
             $tickets = $tickets->merge($response->results);
             if ($response->next_page) {
