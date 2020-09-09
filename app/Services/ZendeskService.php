@@ -124,8 +124,9 @@ class ZendeskService
         $responseTwo = Zendesk::views()->findAll(['page' => 2]);
         $responseThree = Zendesk::views()->findAll(['page' => 3]);
         $responseFour = Zendesk::views()->findAll(['page' => 4]);
+        $responseFive = Zendesk::views()->findAll(['page' => 5]);
         
-        return array_merge($response->views, $responseTwo->views, $responseThree->views, $responseFour->views);
+        return array_merge($response->views, $responseTwo->views, $responseThree->views, $responseFour->views, $responseFive->views);
     }
 
     public function getTicketsByView($viewId) {
