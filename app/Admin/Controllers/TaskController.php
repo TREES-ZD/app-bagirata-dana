@@ -54,7 +54,12 @@ class TaskController extends Controller
                     return '<a href="'.$url.'"><i class="fa fa-play"></i></a>';
                 });
             }
-            $grid->zendesk_view_title("View title");
+            $grid->zendesk_view_title('View title')->display(function () {
+                $subdomain = config('zendesk-laravel.subdomain');
+                $html = sprintf("<a href=\"https://%s.zendesk.com/agent/filters/%s\">%s</a>", $subdomain, $this->zendesk_view_id, $this->zendesk_view_title);
+                return $html;
+                
+            });
             $grid->zendesk_view_id("View ID");
             $grid->interval();
             $grid->limit();
