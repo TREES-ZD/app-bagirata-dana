@@ -50,18 +50,44 @@ trait RoundRobinable
         return $matches;
     }
 
-    public function createAssignments(AgentCollection $agents, TicketCollection $tickets, $batch) {
+    public function createAssignments(AgentCollection $agents, TicketCollection $tickets, $batch, Collection $failedAssignments = null) {
+        $failedAssignments = $failedAssignments ?: collect(); 
         if ($agents->isEmpty() || $tickets->isEmpty()) return collect();
 
         $agents = $agents->filter->status;
         $agentsByGroup = $agents->groupBy('zendesk_group_id');
-        $ticketsByGroup = $tickets->filter->isAssignable()->groupBy(function (Ticket $ticket) {
+        $assignableTickets = $tickets->filter->isAssignable();
+        $reservableFailedAssignments = $failedAssignments->whereIn('agent_id', $agents->pluck('id')->all());
+        $newTickets = $assignableTickets->reject(function(Ticket $ticket) use ($reservableFailedAssignments) {
+            return in_array($ticket->id, $reservableFailedAssignments->pluck('zendesk_ticket_id')->all());
+        });
+        
+        $ticketsByGroup = $newTickets->groupBy(function (Ticket $ticket) {
             return $ticket->group_id;
         });
         $now = now();
         $nowSubMinute = now()->subMinute();
+        $nowSubTwoMinute = now()->subMinutes(2);
 
-        return collect($ticketsByGroup
+        $previousFailedAssingments = $reservableFailedAssignments
+                                    ->map(function($assignment) use ($batch, $agents, $nowSubTwoMinute) {
+                                        $assignedAgent = $agents->firstWhere('id', $assignment->agent_id);
+
+                                        return (object) [
+                                            'agent_id' => $assignedAgent->id,
+                                            'agent_fullName' => $assignedAgent->fullName,
+                                            "agent_zendesk_agent_id" => $assignedAgent->zendesk_agent_id,
+                                            "agent_zendesk_group_id" => $assignedAgent->zendesk_group_id,
+                                            'agent_zendesk_custom_field_id' => $assignedAgent->zendesk_custom_field_id,
+                                            'ticket_id' => $assignment->zendesk_ticket_id,
+                                            'ticket_subject' => $assignment->zendesk_ticket_subject,
+                                            'type' => Agent::ASSIGNMENT,
+                                            "batch" => $batch,
+                                            "created_at" => $nowSubTwoMinute
+                                        ];
+                                    }); 
+
+        $newAssignments = $ticketsByGroup
                 ->reject(function($tickets, $group_id) use ($agentsByGroup, $agents){
                     $agents = $group_id != "" ? $agentsByGroup->get($group_id) : $agents;
                     return !$agents;
@@ -94,7 +120,8 @@ trait RoundRobinable
                                 ];
                             });
                 })
-                ->flatten()->all());
+                ->flatten()->all();
 
+        return $previousFailedAssingments->merge($newAssignments);
     }
 }

@@ -425,4 +425,130 @@ class RoundRobinableTest extends TestCase
         // $this->assertEquals(1, $assignments->get(5)->created_at->diffInMinutes($assignments->get(4)->created_at));
     }
 
+    /**
+     * @group task
+     * @group roundRobin
+     */
+    public function test_ticket_yang_terakhir_gagal_dapat_assignment_akan_diprioritaskan_ke_agent_yang_sama_di_assignment_sebelumnya() {
+        $agentAndi = factory(\App\Agent::class)
+                    ->make([
+                        "id" => 1,
+                        "zendesk_agent_id" => 999,
+                        "zendesk_agent_name" => "LICENSEDAGENT",
+                        "zendesk_group_id" => self::GROUPAD_ID,
+                        "zendesk_group_name" => "GroupAD",
+                        "zendesk_custom_field_id" => "andi",
+                        "zendesk_custom_field_name" => "Andi"
+                    ]);
+        $agentBudi = factory(\App\Agent::class)
+                    ->make([
+                        "id" => 2,
+                        "zendesk_agent_id" => 999,
+                        "zendesk_agent_name" => "LICENSEDAGENT",
+                        "zendesk_group_id" => self::GROUPBC_ID,
+                        "zendesk_group_name" => "GroupBC",
+                        "zendesk_custom_field_id" => "budi",
+                        "zendesk_custom_field_name" => "Budi"
+                    ]);
+        $agents = new AgentCollection([$agentBudi, $agentAndi]);
+        
+        $tickets = new TicketCollection([
+            $ticketThree = new Ticket((object) ["id" => 3, "subject" => "tiket 3", "status" => "open", "assignee_id" => null, "group_id" => null, "custom_fields" => [
+                (object) ["id" => 123456, "value" => null]
+            ]]),
+            $ticketFour = new Ticket((object) ["id" => 4, "subject" => "tiket 4", "status" => "open", "assignee_id" => null, "group_id" => null, "custom_fields" => [
+                (object) ["id" => 123456, "value" => null]
+            ]])
+        ]);
+
+        $assignmentThree = factory(\App\Assignment::class)
+                        ->make([
+                            'id' => 1,
+                            'agent_id' => 1,
+                            'agent_name' => 'LICENSEDAGENT (GroupAD, andi)',
+                            'zendesk_ticket_id' => 3,
+                            'zendesk_ticket_subject' => 'tiket 3',
+                            'type' => 'ASSIGNMENT',
+                            'response_status' => 'FAILED', 
+                        ]);
+        $failedAssignments = collect([$assignmentThree]);
+
+        $assignments = $this->rr->createAssignments($agents, $tickets, "somerandomuuid", $failedAssignments);
+
+        $this->assertCount(2, $assignments);
+        $this->assertEquals(1, $assignments->get(0)->agent_id);
+        $this->assertEquals(3, $assignments->get(0)->ticket_id);
+        $this->assertEquals(2, $assignments->get(1)->agent_id);
+        $this->assertEquals(4, $assignments->get(1)->ticket_id);
+    }
+
+  /**
+     * @group task
+     * @group roundRobin
+     */
+    public function test_failed_assignments_yang_agentnya_sudah_tidak_ada_dihiraukan() {
+        $agentAndi = factory(\App\Agent::class)
+                    ->make([
+                        "id" => 1,
+                        "zendesk_agent_id" => 999,
+                        "zendesk_agent_name" => "LICENSEDAGENT",
+                        "zendesk_group_id" => self::GROUPAD_ID,
+                        "zendesk_group_name" => "GroupAD",
+                        "zendesk_custom_field_id" => "andi",
+                        "zendesk_custom_field_name" => "Andi"
+                    ]);
+        $agentBudi = factory(\App\Agent::class)
+                    ->make([
+                        "id" => 2,
+                        "zendesk_agent_id" => 999,
+                        "zendesk_agent_name" => "LICENSEDAGENT",
+                        "zendesk_group_id" => self::GROUPBC_ID,
+                        "zendesk_group_name" => "GroupBC",
+                        "zendesk_custom_field_id" => "budi",
+                        "zendesk_custom_field_name" => "Budi"
+                    ]);
+        $agentCharlie = factory(\App\Agent::class)
+                    ->make([
+                        "id" => 3,
+                        "zendesk_agent_id" => 999,
+                        "zendesk_agent_name" => "LICENSEDAGENT",
+                        "zendesk_group_id" => self::GROUPBC_ID,
+                        "zendesk_group_name" => "GroupBC",
+                        "zendesk_custom_field_id" => "charlie",
+                        "zendesk_custom_field_name" => "Charlie"
+                    ]);
+        $agents = new AgentCollection([$agentBudi, $agentCharlie]);
+        
+        $tickets = new TicketCollection([
+            $ticketThree = new Ticket((object) ["id" => 3, "subject" => "tiket 3", "status" => "open", "assignee_id" => null, "group_id" => null, "custom_fields" => [
+                (object) ["id" => 123456, "value" => null]
+            ]]),
+            $ticketFour = new Ticket((object) ["id" => 4, "subject" => "tiket 4", "status" => "open", "assignee_id" => null, "group_id" => null, "custom_fields" => [
+                (object) ["id" => 123456, "value" => null]
+            ]]),
+            $ticketFive = new Ticket((object) ["id" => 5, "subject" => "tiket 5", "status" => "open", "assignee_id" => null, "group_id" => null, "custom_fields" => [
+                (object) ["id" => 123456, "value" => null]
+            ]])
+        ]);
+
+        $assignmentThree = factory(\App\Assignment::class)
+                        ->make([
+                            'id' => 1,
+                            'agent_id' => 1,
+                            'agent_name' => 'LICENSEDAGENT (GroupAD, andi)',
+                            'zendesk_ticket_id' => 3,
+                            'zendesk_ticket_subject' => 'tiket 3',
+                            'type' => 'ASSIGNMENT',
+                            'response_status' => 'FAILED', 
+                        ]);
+        $failedAssignments = collect([$assignmentThree]);
+        
+        $assignments = $this->rr->createAssignments($agents, $tickets, "somerandomuuid", $failedAssignments);
+
+        $this->assertCount(3, $assignments);
+        $this->assertNotEquals(1, $assignments->get(0)->agent_id);
+        $this->assertEquals(2, $assignments->get(0)->agent_id);
+        $this->assertEquals(3, $assignments->get(0)->ticket_id);
+    }
+
 }

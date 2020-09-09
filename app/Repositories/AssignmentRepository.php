@@ -33,8 +33,9 @@ class AssignmentRepository
         return (new AssignmentCollection($tasks->all()))->map(function($task) use ($batch) {
             $agents = $task->getAvailableAgents();
             $tickets = $this->ticketRepository->getAssignableByView($task->zendesk_view_id);
+            $previousFailedAssignments = Assignment::where('response_status', '!=', '200')->where('type', 'ASSIGNMENT')->where('created_at', '>', now()->subMinutes(10))->get(); // TODO: tes jika agent offline (reassign) terus online lagi
             
-            return $this->createAssignments($agents, $tickets, $batch);
+            return $this->createAssignments($agents, $tickets, $batch, collect($previousFailedAssignments->all()));
         })->flatten();        
     }
 
