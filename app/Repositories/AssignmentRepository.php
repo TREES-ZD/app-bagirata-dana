@@ -4,13 +4,15 @@ namespace App\Repositories;
 
 use App\Agent;
 use App\Assignment;
-use App\Collections\AgentCollection;
 use App\Traits\RoundRobinable;
+use App\Services\Zendesk\Ticket;
 use Illuminate\Support\Collection;
-use App\Collections\TicketCollection;
+use App\Collections\AgentCollection;
 use Illuminate\Support\Facades\Cache;
 use App\Repositories\Traits\Batchable;
 use App\Collections\AssignmentCollection;
+use App\Services\Zendesk\TicketCollection;
+use Zendesk\API\Resources\Core\TicketComments;
 
 class AssignmentRepository
 {
@@ -30,13 +32,29 @@ class AssignmentRepository
     }
 
     public function makeAssignments($batch, Collection $tasks) {
-        return (new AssignmentCollection($tasks->all()))->map(function($task) use ($batch) {
+        $tickets = $tasks->map(function($task) {
+            return $this->ticketRepository->getAssignableByView($task->zendesk_view_id)->each(function($ticket) use ($task) {
+                $ticket->view_id = $task->zendesk_view_id;
+            });
+        })->flatten();
+
+        // make unique tickets in multiple views
+        $tickets = $tickets->unique(function($ticket) {
+            return $ticket->id;
+        });
+
+        $ticketsByView = $tickets->groupBy(function($ticket) {
+            return $ticket->view_id;
+        });
+
+        return (new AssignmentCollection($ticketsByView->all()))->map(function($tickets, $view_id) use ($tasks, $batch) {
+            $task = $tasks->firstWhere('zendesk_view_id', $view_id);
             $agents = $task->getAvailableAgents();
-            $tickets = $this->ticketRepository->getAssignableByView($task->zendesk_view_id);
-            // $previousFailedAssignments = Assignment::where('response_status', '!=', '200')->where('type', 'ASSIGNMENT')->where('created_at', '>', now()->subMinutes(10))->get(); // TODO: tes jika agent offline (reassign) terus online lagi
-            
-            return $this->createAssignments($agents, $tickets, $batch);
-        })->flatten();        
+            $tickets = new TicketCollection($tickets->values()->all());
+            $previousFailedAssignments = Assignment::where('response_status', '!=', '200')->where('type', 'ASSIGNMENT')->where('created_at', '>', now()->subMinutes(10))->get(); // TODO: tes jika agent offline (reassign) terus online lagi
+
+            return $this->createAssignments($agents, $tickets, $batch, $previousFailedAssignments);
+        })->flatten();
     }
 
     public function makeUnassignments($batch, AgentCollection $agents) {
