@@ -57,7 +57,12 @@ trait RoundRobinable
         $agents = $agents->filter->status;
         $agentsByGroup = $agents->groupBy('zendesk_group_id');
         $assignableTickets = $tickets->filter->isAssignable();
-        $reservableFailedAssignments = $failedAssignments->whereIn('agent_id', $agents->pluck('id')->all());
+        $reservableFailedAssignments = $failedAssignments
+                                        ->unique('zendesk_ticket_id')
+                                        ->filter(function($assignment) use ($agents, $tickets) {
+                                            return in_array($assignment->agent_id, $agents->pluck('id')->all()) && in_array($assignment->zendesk_ticket_id, $tickets->pluck('ticket.id')->all());
+                                        });
+
         $newTickets = $assignableTickets->reject(function(Ticket $ticket) use ($reservableFailedAssignments) {
             return in_array($ticket->id, $reservableFailedAssignments->pluck('zendesk_ticket_id')->all());
         });
