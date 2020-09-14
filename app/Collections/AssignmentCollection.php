@@ -116,7 +116,7 @@ class AssignmentCollection extends Collection
                 "batch_id" => $assignment->batch,
                 "agent_id" => $assignment->agent_id,
                 "agent_name" => $assignment->agent_fullName,
-                "zendesk_view_id" => "viewId",
+                "zendesk_view_id" => $assignment->view_id,
                 "zendesk_ticket_id" => $assignment->ticket_id,
                 "zendesk_ticket_subject" => $assignment->ticket_subject,
                 "response_status" => $assignment->status ?? "PENDING",

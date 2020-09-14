@@ -50,7 +50,7 @@ trait RoundRobinable
         return $matches;
     }
 
-    public function createAssignments(AgentCollection $agents, TicketCollection $tickets, $batch, Collection $failedAssignments = null) {
+    public function createAssignments(AgentCollection $agents, TicketCollection $tickets, $batch, Collection $failedAssignments = null, $view_id = "viewId") {
         $failedAssignments = $failedAssignments ?: collect(); 
         if ($agents->isEmpty() || $tickets->isEmpty()) return collect();
 
@@ -75,7 +75,7 @@ trait RoundRobinable
         $nowSubTwoMinute = now()->subMinutes(2);
 
         $previousFailedAssingments = $reservableFailedAssignments
-                                    ->map(function($assignment) use ($batch, $agents, $nowSubTwoMinute) {
+                                    ->map(function($assignment) use ($batch, $agents, $nowSubTwoMinute, $view_id) {
                                         $assignedAgent = $agents->firstWhere('id', $assignment->agent_id);
 
                                         return (object) [
@@ -86,6 +86,7 @@ trait RoundRobinable
                                             'agent_zendesk_custom_field_id' => $assignedAgent->zendesk_custom_field_id,
                                             'ticket_id' => $assignment->zendesk_ticket_id,
                                             'ticket_subject' => $assignment->zendesk_ticket_subject,
+                                            'view_id' => $view_id,
                                             'type' => Agent::ASSIGNMENT,
                                             "batch" => $batch,
                                             "created_at" => $nowSubTwoMinute
@@ -97,12 +98,12 @@ trait RoundRobinable
                     $agents = $group_id != "" ? $agentsByGroup->get($group_id) : $agents;
                     return !$agents;
                 })
-                ->map(function($tickets, $group_id) use ($agentsByGroup, $agents, $now, $nowSubMinute, $batch) {
+                ->map(function($tickets, $group_id) use ($agentsByGroup, $agents, $now, $nowSubMinute, $batch, $view_id) {
                     $agents = $group_id != "" ? $agentsByGroup->get($group_id) : $agents;
                     $total_tickets = $tickets->count();
                     
                     return $tickets
-                            ->map(function($ticket, $index) use ($total_tickets, $now, $nowSubMinute, $agents, $batch) {
+                            ->map(function($ticket, $index) use ($total_tickets, $now, $nowSubMinute, $agents, $batch, $view_id) {
                                 $total_agents = $agents->count();
                                 $turn = ($index % $agents->count());
                                 $assignedAgent = $agents->get($turn);
@@ -119,6 +120,7 @@ trait RoundRobinable
                                     'agent_zendesk_custom_field_id' => $assignedAgent->zendesk_custom_field_id,
                                     'ticket_id' => $ticket->id,
                                     'ticket_subject' => $ticket->subject,
+                                    'view_id' => $view_id,
                                     'type' => Agent::ASSIGNMENT,
                                     "batch" => $batch,
                                     "created_at" => !$lastTicketFromAgent && $hasExcess ? $nowSubMinute : $now

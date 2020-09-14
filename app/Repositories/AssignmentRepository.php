@@ -53,7 +53,7 @@ class AssignmentRepository
             $agents = $task->getAvailableAgents();
             $tickets = new TicketCollection($tickets->values()->all());
 
-            return $this->createAssignments($agents, $tickets, $batch, collect($previousFailedAssignments->all()));
+            return $this->createAssignments($agents, $tickets, $batch, collect($previousFailedAssignments->all()), $view_id);
         })->flatten();
     }
 
