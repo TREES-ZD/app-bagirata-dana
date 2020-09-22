@@ -25,6 +25,8 @@ class Agent extends Model implements Sortable
 
     public const UNASSIGNMENT = "UNASSIGNMENT";
 
+    public const RECONCILED_UNASSIGNMENT = "RECONCILED_UNASSIGNMENT";
+
     public const AVAILABLE = true;
     public const UNAVAILABLE = false;
 

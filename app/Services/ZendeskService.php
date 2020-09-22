@@ -241,6 +241,25 @@ class ZendeskService
         });
     }
 
+    public function observedTickets() {
+        $page = 1;
+        $tickets = new TicketCollection();
+        while ($page && $page <= 5) {
+            $response = Zendesk::search()->find("tags:bagirata_observe status<solved", ["page" => $page]);
+            
+            $tickets = $tickets->merge($response->results);
+            if ($response->next_page) {
+                $page++;
+            } else {
+                $page = null;
+            }
+        }
+
+        return $tickets->map(function($ticket) {
+            return new Ticket($ticket);
+        });
+    }
+
     public function getUsersByKey($key = "*", $nameOnly = false) {
         $users = Cache::remember("users", 24 * 60 * 7, function () {
             $response = Zendesk::search()->find("type:user role:admin role:agent", ['sort_by' => 'updated_at']);

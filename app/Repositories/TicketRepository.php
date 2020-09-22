@@ -55,4 +55,8 @@ class TicketRepository
     public function checkJobStatus($jobStatusId) {
         return $this->zendesk->getJobStatus($jobStatusId)->job_status;
     }
+
+    public function getObserved() {
+        return $this->zendesk->observedTickets();
+    }
 }

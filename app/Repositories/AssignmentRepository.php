@@ -87,6 +87,44 @@ class AssignmentRepository
         return $unassignments;
     }
 
+    public function makeObservedUnassignments($batch) {
+        $observedTickets = $this->ticketRepository->getObserved();
+        $agents = Agent::disableCache()->where('status', true);
+
+        $unassignableTickets = $observedTickets->reject(function(Ticket $ticket) use ($agents) {
+            return $agents->where('zendesk_agent_id', $ticket->assignee_id)->where('zendesk_group_id', $ticket->group_id)->where('zendesk_custom_field_id', $ticket->customFieldValue())->first();
+        });
+        
+        if ($unassignableTickets->isEmpty()) {
+            return collect();
+        }
+
+        $agentNames = $unassignableTickets->map(function(Ticket $ticket) {
+            return $ticket->customFieldValue();
+        })->all();
+
+        $agents = Agent::disableCache()->whereIn('zendesk_custom_field_id', $agentNames)->get();
+          
+        $agentDictionary = $agents->groupById();
+        $unassigments = $unassignableTickets->map(function(Ticket $ticket) use ($batch, $agentDictionary) {
+            $agent = $agentDictionary->getByTicket($ticket);
+            return (object) [
+                'agent_id' => $agent->id,
+                'agent_fullName' => $agent->fullName,
+                "agent_zendesk_agent_id" => $agent->zendesk_agent_id,
+                "agent_zendesk_group_id" => $agent->zendesk_group_id,
+                'agent_zendesk_custom_field_id' => $agent->zendesk_custom_field_id,
+                'ticket_id' => $ticket->id,
+                'ticket_subject' => $ticket->subject,
+                'type' => Agent::RECONCILED_UNASSIGNMENT,
+                'batch' => $batch,
+                'created_at' => now()
+            ];
+        });
+
+        return $unassigments;
+    }
+
     public function prepareAssignment($batch, Collection $tasks) {
         $assignments = $this->makeAssignments($batch, $tasks);
 
@@ -95,6 +133,9 @@ class AssignmentRepository
     
     public function prepareUnassignment($batch, AgentCollection $agents) {
         $unassigments = $this->makeUnassignments($batch, $agents);
+        $observedUnassignments = $this->makeObservedUnassignments($batch);
+
+        $unassigments = $unassigments->merge($observedUnassignments);
 
         return new AssignmentCollection($this->cache($batch, $unassigments)->all());
     }

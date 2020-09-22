@@ -33,6 +33,12 @@ class Ticket
         return $this->ticket->assignee_id == null && in_array($this->ticket->status, ["new", "open", "pending"]);
     }
 
+    public function customFieldValue() {
+        $customField = collect($this->ticket->custom_fields)->groupBy("id");
+        $agent = optional($customField->get(env("ZENDESK_AGENT_NAMES_FIELD", 360000282796)))->first();
+        return optional($agent)->value;
+    }
+
     public function __get($name)
     {
         return $this->ticket->$name;
