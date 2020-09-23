@@ -135,7 +135,7 @@ class AssignmentRepository
         $unassigments = $this->makeUnassignments($batch, $agents);
         $observedUnassignments = $this->makeObservedUnassignments($batch);
 
-        $unassigments = $unassigments->merge($observedUnassignments);
+        $unassigments = $unassigments->merge($observedUnassignments)->unique('ticket_id');
 
         return new AssignmentCollection($this->cache($batch, $unassigments)->all());
     }
