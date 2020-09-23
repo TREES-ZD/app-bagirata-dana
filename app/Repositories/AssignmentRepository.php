@@ -116,7 +116,7 @@ class AssignmentRepository
                 'agent_zendesk_custom_field_id' => $agent->zendesk_custom_field_id,
                 'ticket_id' => $ticket->id,
                 'ticket_subject' => $ticket->subject,
-                'type' => Agent::RECONCILED_UNASSIGNMENT,
+                'type' => Agent::OBSERVED_UNASSIGNMENT,
                 'batch' => $batch,
                 'created_at' => now()
             ];
@@ -135,7 +135,7 @@ class AssignmentRepository
         $unassigments = $this->makeUnassignments($batch, $agents);
         $observedUnassignments = $this->makeObservedUnassignments($batch);
 
-        $unassigments = $unassigments->merge($observedUnassignments)->unique('ticket_id');
+        $unassigments = $unassigments->merge($observedUnassignments)->unique('agent_zendesk_group');
 
         return new AssignmentCollection($this->cache($batch, $unassigments)->all());
     }

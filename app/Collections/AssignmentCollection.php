@@ -43,7 +43,7 @@ class AssignmentCollection extends Collection
                     ]
                 ],
                 "comment" =>  [
-                    "body" => "BAGIRATA Agent Unavailable: " . $assignment->agent_fullName,
+                    "body" => $assignment->type == Agent::OBSERVED_UNASSIGNMENT ? "BAGIRATA Observed Unassignment: " . $assignment->agent_fullName : "BAGIRATA Agent Unavailable: " . $assignment->agent_fullName,
                     "author_id" => $assignment->agent_zendesk_agent_id,
                     "public" => false
                 ]
