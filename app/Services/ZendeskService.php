@@ -216,7 +216,8 @@ class ZendeskService
             $response = Zendesk::groupMemberships()->findAll();
             $responseTwo = Zendesk::groupMemberships()->findAll(['page' => 2]);
             $responseThree = Zendesk::groupMemberships()->findAll(['page' => 3]);
-            return array_merge($response->group_memberships, $responseTwo->group_memberships, $responseThree->group_memberships);
+            $responseFour = Zendesk::groupMemberships()->findAll(['page' => 4]);
+            return array_merge($response->group_memberships, $responseTwo->group_memberships, $responseThree->group_memberships, $responseFour->group_memberships);
         });
 
         return $groupMemberships;
