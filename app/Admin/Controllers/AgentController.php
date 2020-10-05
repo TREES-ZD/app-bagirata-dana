@@ -38,9 +38,10 @@ class AgentController extends Controller
 
     public function index(Content $content) {
         $grid = Admin::grid(new Agent, function (Grid $grid) {
+
             $grid->disableColumnSelector();
             $grid->disableExport();
-            $grid->disableFilter();
+            // $grid->disableFilter();
             // $grid->tools(function ($tools) {
             //     $tools->append(new SyncAgentAction());
             // });
@@ -60,7 +61,22 @@ class AgentController extends Controller
             }
             
             $grid->model()->orderBy('zendesk_custom_field_name');
-            
+            $grid->filter(function($filter){
+                // Remove the default id filter
+                $filter->disableIdFilter();
+
+                // Add a column filter
+                $filter->ilike('zendesk_agent_name', 'Assignee');
+                $filter->ilike('zendesk_group_name', 'Group');
+                $filter->ilike('zendesk_custom_field_name', 'Agent Name');
+                $filter->in('status', 'Availability')->radio([
+                    '' => 'All',
+                    true => 'Available',
+                    false => 'Unavailable',
+                ]);
+                
+            });            // $grid->expandFilter();
+
             $grid->paginate(20);
             $grid->fullName("Agent Full Name");
             $grid->zendesk_agent_name("Assignee")->sortable();
