@@ -217,7 +217,8 @@ class ZendeskService
             $responseTwo = Zendesk::groupMemberships()->findAll(['page' => 2]);
             $responseThree = Zendesk::groupMemberships()->findAll(['page' => 3]);
             $responseFour = Zendesk::groupMemberships()->findAll(['page' => 4]);
-            return array_merge($response->group_memberships, $responseTwo->group_memberships, $responseThree->group_memberships, $responseFour->group_memberships);
+            $responseFive = Zendesk::groupMemberships()->findAll(['page' => 5]);
+            return array_merge($response->group_memberships, $responseTwo->group_memberships, $responseThree->group_memberships, $responseFour->group_memberships, $responseFive->group_memberships);
         });
 
         return $groupMemberships;
@@ -266,7 +267,9 @@ class ZendeskService
             $response = Zendesk::search()->find("type:user role:admin role:agent", ['sort_by' => 'updated_at']);
             $responseTwo = Zendesk::search()->find("type:user role:admin role:agent", ['sort_by' => 'updated_at', 'page' => 2]);
             $responseThree = Zendesk::search()->find("type:user role:admin role:agent", ['sort_by' => 'updated_at', 'page' => 3]);
-            return array_merge($response->results, $responseTwo->results, $responseThree->results);
+            $responseFour = Zendesk::search()->find("type:user role:admin role:agent", ['sort_by' => 'updated_at', 'page' => 4]);
+            $responseFive = Zendesk::search()->find("type:user role:admin role:agent", ['sort_by' => 'updated_at', 'page' => 5]);
+            return array_merge($response->results, $responseTwo->results, $responseThree->results, $responseFour->results, $responseFive->results);
         });
 
         $users = $this->filter(static::AGENT_IDS, $users);
