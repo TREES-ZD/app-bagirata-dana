@@ -252,7 +252,7 @@ return [
     | Set a default avatar for newly created users.
     |
     */
-    'default_avatar' => '/images/dana-logo.png',
+    'default_avatar' => env('ADMIN_LOGO', '/images/dana-logo.png'),
 
     /*
     |--------------------------------------------------------------------------
