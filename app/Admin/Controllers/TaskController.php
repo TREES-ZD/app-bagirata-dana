@@ -44,7 +44,7 @@ class TaskController extends Controller
                 }
             });
             $grid->disableCreateButton();
-            $grid->paginate(50);
+            $grid->paginate(30);
             $grid->filter(function($filter){
                 // Remove the default id filter
                 $filter->disableIdFilter();
