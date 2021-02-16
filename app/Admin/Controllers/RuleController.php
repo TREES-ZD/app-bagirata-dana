@@ -32,7 +32,7 @@ class RuleController extends Controller
             $grid->disableExport();
             $grid->disableCreateButton();
             $grid->disableActions();
-            $grid->disableFilter();
+            // $grid->disableFilter();
             $grid->batchActions(function ($batch) {
                 $batch->disableDelete();
                 // $batch->add(new BatchDelete());
@@ -40,8 +40,36 @@ class RuleController extends Controller
             $grid->disableBatchActions();
             $grid->disableColumnSelector();
 
-            $tasks = Task::all();
+            $grid->filter(function($filter){
+                // Remove the default id filter
+                $filter->disableIdFilter();
 
+                // Add a column filter
+                $filter->ilike('zendesk_agent_name', 'Assignee');
+                $filter->ilike('zendesk_group_name', 'Group');
+                $filter->ilike('zendesk_custom_field_name', 'Agent Name');
+                $filter->in('status', 'Availability')->radio([
+                    '' => 'All',
+                    true => 'Available',
+                    false => 'Unavailable',
+                ]);
+                $filter->layoutOnly()->ilike('task_view_title', 'Task title'); //tidak panggil database
+                $filter->layoutOnly()->in('task_status', 'Task status')->radio([
+                    '' => 'All',
+                    true => 'Enabled',
+                    false => 'Disabled',
+                ]);
+            });
+
+            $taskBuilder = Task::query();
+            if ($title = request('task_view_title')) {
+                $taskBuilder->where('zendesk_view_title', 'like', '%'.$title.'%');
+            }
+            if ($status = request('task_status')) {
+                $taskBuilder->where('enabled', (bool) $status);
+            }
+            $tasks = $taskBuilder->get();
+            
             // column not in table
             $grid->fixColumns(1, 0);
             $grid->paginate(100);

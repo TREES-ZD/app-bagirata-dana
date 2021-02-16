@@ -26,14 +26,16 @@ class TaskController extends Controller
         $grid = Admin::grid(new Task, function (Grid $grid) use ($groups) {
             $grid->disableColumnSelector();
             // $grid->disableActions();  
-            $grid->disableFilter();  
+            // $grid->disableFilter();  
             $grid->disableExport();
             $grid->disableActions();
-            $grid->tools(function ($tools) {
-                if (Admin::user()->isAdministrator()) {
-                    $tools->append(new SyncTasksAction());
-                }
-            });
+            
+            if (Admin::user()->isAdministrator()) {
+                $grid->with([
+                    'customActions' => collect([new SyncTasksAction()])
+                ]);
+            }
+
             $grid->batchActions(function ($batch) {
                 $batch->disableDelete();
 
@@ -42,6 +44,20 @@ class TaskController extends Controller
                 }
             });
             $grid->disableCreateButton();
+            
+            $grid->filter(function($filter){
+                // Remove the default id filter
+                $filter->disableIdFilter();
+
+                // Add a column filter
+                $filter->ilike('zendesk_view_title', 'View Title');
+                $filter->ilike('zendesk_view_id', 'View ID');
+                $filter->in('enabled', 'Status')->radio([
+                    '' => 'All',
+                    true => 'Enabled',
+                    false => 'Disabled',
+                ]);
+            });  
             
             if (Admin::user()->isAdministrator()) {
                 $grid->enabled()->select([

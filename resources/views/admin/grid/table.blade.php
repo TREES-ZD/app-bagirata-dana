@@ -11,6 +11,11 @@
             {!! $grid->renderColumnSelector() !!}
             {!! $grid->renderExportButton() !!}
             {!! $grid->renderCreateButton() !!}
+            @if (isset($customActions))
+                @foreach($customActions as $action)
+                        {!! $action !!}
+                @endforeach
+            @endif
         </div>
 
         <div class="pull-left">
