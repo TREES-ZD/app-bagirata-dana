@@ -45,30 +45,50 @@ class RuleController extends Controller
                 $filter->disableIdFilter();
 
                 // Add a column filter
-                $filter->ilike('zendesk_agent_name', 'Assignee');
-                $filter->ilike('zendesk_group_name', 'Group');
-                $filter->ilike('zendesk_custom_field_name', 'Agent Name');
-                $filter->in('status', 'Availability')->radio([
-                    '' => 'All',
-                    true => 'Available',
-                    false => 'Unavailable',
-                ]);
-                $filter->layoutOnly()->ilike('task_view_title', 'Task title'); //tidak panggil database
-                $filter->layoutOnly()->in('task_status', 'Task status')->radio([
-                    '' => 'All',
-                    true => 'Enabled',
-                    false => 'Disabled',
-                ]);
+                $filter->column(1/2, function($filter) {
+                    $filter->ilike('zendesk_agent_name', 'Assignee');
+                    $filter->ilike('zendesk_group_name', 'Group');
+                    $filter->ilike('zendesk_custom_field_name', 'Agent Name');
+                    $filter->in('status', 'Availability')->radio([
+                        '' => 'All',
+                        true => 'Available',
+                        false => 'Unavailable',
+                    ]);    
+                });
+                $filter->column(1/2, function($filter) {
+                    $filter->layoutOnly()->ilike('task_view_title', 'Task title'); //tidak panggil database
+                    $filter->layoutOnly()->in('task_status', 'Task status')->radio([
+                        '' => 'All',
+                        true => 'Enabled',
+                        false => 'Disabled',
+                    ]);
+                    $filter->layoutOnly()->in('only_show_assigned', 'Only show assigned')->select([
+                        true => 'Yes',
+                        false => 'No'
+                    ]);
+                });
+
             });
 
             $taskBuilder = Task::query();
             if ($title = request('task_view_title')) {
-                $taskBuilder->where('zendesk_view_title', 'like', '%'.$title.'%');
+                $taskBuilder->where('zendesk_view_title', 'like', "%".$title."%");
             }
             if ($status = request('task_status')) {
                 $taskBuilder->where('enabled', (bool) $status);
             }
+
             $tasks = $taskBuilder->get();
+            $rules = DB::table('rules')->whereIn('task_id', $tasks->pluck('id'))->get();
+            $rulesByTask = $rules->groupBy('task_id');
+            $tasks->each(function($task) use ($rulesByTask) {
+                $task->rulesTable = $rulesByTask->get($task->id) ?: collect();
+            });
+            
+            if (request('only_show_assigned')) {
+                $agentIds = $rules->pluck('agent_id')->unique();
+                $grid->model()->whereIn('id', $agentIds->all());
+            }
             
             // column not in table
             $grid->fixColumns(1, 0);
@@ -85,9 +105,9 @@ class RuleController extends Controller
             });            
 
             $tasks->each(function($task) use ($grid) {
-                $grid->column($task->id, $task->zendesk_view_title)->display(function () use ($task) {;
-                    $rule = $this->rules->contains($task->id);
-                    return $rule && $this->rules->first() ? $this->rules->first()->pivot->priority : "-";
+                $grid->column($task->id, sprintf("%s", $task->zendesk_view_title))->display(function () use ($task) {
+                    $rule = $task->rulesTable->firstWhere('agent_id', $this->id);
+                    return $rule ? $rule->priority : "-";
                 })->editable();
             });
          
