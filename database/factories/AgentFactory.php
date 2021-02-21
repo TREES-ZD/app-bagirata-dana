@@ -5,6 +5,7 @@
 use App\Agent;
 use App\Assignment;
 use Faker\Generator as Faker;
+use Illuminate\Support\Str;
 
 $factory->define(Agent::class, function (Faker $faker) {
     $agentName = $faker->firstName;
@@ -25,6 +26,18 @@ $factory->define(Agent::class, function (Faker $faker) {
 $factory->state(Agent::class, 'unavailable', [
     'status' => false
 ]);
+
+foreach (["one", "two", "three", "four", "five", "six"] as $key => $value) {
+    $factory->state(Agent::class, 'agent'.Str::ucfirst($value), [
+            "zendesk_agent_id" => $key + 1,
+            "zendesk_agent_name" => "AGENT_".Str::upper($value)
+        ]);
+
+    $factory->state(Agent::class, 'group'.Str::ucfirst($value), [
+            "zendesk_group_id" => $key + 101,
+            "zendesk_group_name" => "GROUP_".Str::upper($value)
+        ]);
+}
 
 $factory->afterCreatingState(Agent::class, 'assigned', function ($agent, $faker) {
 
