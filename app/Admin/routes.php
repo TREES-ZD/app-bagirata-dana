@@ -11,6 +11,8 @@ use App\Services\ZendeskService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Zendesk\API\HttpClient as ZendeskAPI;
+use Encore\Admin\Facades\Admin;
+use Illuminate\Support\Facades\Route;
 
 Admin::routes();
 
@@ -69,10 +71,6 @@ Route::get('run', function(Request $request) {
 });
 Route::post('run', function() {
     App\Jobs\Assignments\AssignBatch::dispatchNow(Task::where('id', 1)->get());
-    return response()->json();
-});
-Route::post('unassign', function(Request $request) {
-    App\Jobs\Agent\UnassignTickets::dispatchNow(Agent::find($request->agent_id))->onQueue('unassignment');
     return response()->json();
 });
 Route::post('syncAgents', function(Request $request) {
