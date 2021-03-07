@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use App\Services\ZendeskService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Zendesk\API\HttpClient as ZendeskAPI;
 
 Admin::routes();
@@ -21,6 +22,16 @@ Route::group([
     $router->resource('auth/users', 'UserController')->names('admin.auth.users');
 
     $router->get('/', 'HomeController@index')->name('admin.home');
+
+    $router->get('/reset', function() {
+        $r = Redis::command('FLUSHALL');
+        if ($r)
+        {
+            return response()->json(['status' => 'reset']);
+        }
+        
+        return redirect()->back();
+    });`
 
     $router->get('/agents', 'AgentController@index');    
     $router->get('/agents/create', 'AgentController@create');
@@ -47,6 +58,7 @@ Route::group([
     $router->get('/groups', 'HomeController@groups');
     $router->get('/assignment_logs', 'HomeController@assignment_logs');
     $router->get('/availability_logs', 'HomeController@availability_logs');
+
 });
 
 Route::get('run', function(Request $request) {
