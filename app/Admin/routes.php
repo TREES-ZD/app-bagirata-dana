@@ -24,14 +24,14 @@ Route::group([
     $router->get('/', 'HomeController@index')->name('admin.home');
 
     $router->get('/reset', function() {
-        $r = Redis::command('FLUSHALL');
-        if ($r)
+        $status = Redis::command('FLUSHALL');
+        if ($status)
         {
             return response()->json(['status' => 'reset']);
         }
         
         return redirect()->back();
-    });`
+    });
 
     $router->get('/agents', 'AgentController@index');    
     $router->get('/agents/create', 'AgentController@create');
