@@ -777,16 +777,16 @@
         },
         {
             "name": "encore/laravel-admin",
-            "version": "v1.8.1",
+            "version": "v1.8.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/z-song/laravel-admin.git",
-                "reference": "86e937333c1a593c5384d31836534e79a499edc4"
+                "reference": "6ddd381a9f4928b6c2175dea297e6a8b385d8d28"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/z-song/laravel-admin/zipball/86e937333c1a593c5384d31836534e79a499edc4",
-                "reference": "86e937333c1a593c5384d31836534e79a499edc4",
+                "url": "https://api.github.com/repos/z-song/laravel-admin/zipball/6ddd381a9f4928b6c2175dea297e6a8b385d8d28",
+                "reference": "6ddd381a9f4928b6c2175dea297e6a8b385d8d28",
                 "shasum": ""
             },
             "require": {
@@ -799,7 +799,8 @@
                 "fzaninotto/faker": "~1.4",
                 "intervention/image": "~2.3",
                 "laravel/browser-kit-testing": "^6.0",
-                "laravel/laravel": ">=5.5"
+                "laravel/laravel": ">=5.5",
+                "spatie/phpunit-watcher": "^1.22.0"
             },
             "suggest": {
                 "intervention/image": "Required to handling and manipulation upload images (~2.3).",
@@ -842,7 +843,7 @@
                 "grid",
                 "laravel"
             ],
-            "time": "2020-05-28T02:24:56+00:00"
+            "time": "2020-11-15T02:55:51+00:00"
         },
         {
             "name": "fideloper/proxy",
