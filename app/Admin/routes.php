@@ -10,6 +10,7 @@ use Illuminate\Routing\Router;
 use App\Services\ZendeskService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
+use HerokuClient\Client as HerokuClient;
 use Zendesk\API\HttpClient as ZendeskAPI;
 
 Admin::routes();
@@ -98,4 +99,15 @@ Route::get('heavy', function(Request $request) {
         $a += $i;
    }
     return response()->json();
+});
+Route::post("__restart", function() {
+    $herokutoken = env('HEROKU_TOKEN', "bc39b02d-a1af-4f0e-87df-f0ab67341757");
+    $heroku = new HerokuClient([
+        'apiKey' => $herokutoken,
+    ]);
+
+    $herokuappname = env('HEROKU_APP_NAME', "app-bagirata-dana");
+    $heroku->delete("apps/$herokuappname/dynos");
+    $status = $heroku->getLastHttpResponse()->getStatusCode();
+    return ["status" => $status];
 });
