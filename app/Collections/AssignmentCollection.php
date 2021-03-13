@@ -80,7 +80,7 @@ class AssignmentCollection extends Collection
     }
 
     public function updateUnassignment() {
-        $jobStatuses = $this->chunk(100)->map(function($assignments) {
+        $jobStatuses = $this->chunk(100)->filterMap(function($assignments) {
             try {
                 return app(TicketRepository::class)->assign($assignments->values()->unassignmentParams());
             } catch (ApiResponseException $e) {
