@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "21de179f90eedf4ad8fb8e745d7d75a1",
+    "content-hash": "429844df5672bec40facd21dd671ffd8",
     "packages": [
         {
             "name": "barryvdh/laravel-debugbar",
@@ -2433,6 +2433,59 @@
             "time": "2018-07-02T15:55:56+00:00"
         },
         {
+            "name": "php-heroku-client/php-heroku-client",
+            "version": "v3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/TransitScreen/php-heroku-client.git",
+                "reference": "8f25928156233be6c636e7a218cd25721d5301e3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/TransitScreen/php-heroku-client/zipball/8f25928156233be6c636e7a218cd25721d5301e3",
+                "reference": "8f25928156233be6c636e7a218cd25721d5301e3",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/psr7": "^1.0",
+                "http-interop/http-factory-guzzle": "^1.0",
+                "php": "^7.3||^8.0",
+                "php-http/curl-client": "^2.1",
+                "php-http/message": "^1.5",
+                "psr/http-message": "^1.0"
+            },
+            "require-dev": {
+                "ext-curl": "*",
+                "ext-mbstring": "*",
+                "php-http/mock-client": "^1.0",
+                "phpunit/php-code-coverage": "^9.0",
+                "phpunit/phpunit": "^9.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "HerokuClient\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ethan Pooley",
+                    "homepage": "https://github.com/ethanpooley/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A PHP client for the Heroku Platform API",
+            "homepage": "https://github.com/TransitScreen/php-heroku-client",
+            "keywords": [
+                "heroku"
+            ],
+            "time": "2021-02-20T21:23:21+00:00"
+        },
+        {
             "name": "php-http/client-common",
             "version": "2.3.0",
             "source": {
@@ -2502,6 +2555,71 @@
                 "httplug"
             ],
             "time": "2020-07-21T10:04:13+00:00"
+        },
+        {
+            "name": "php-http/curl-client",
+            "version": "2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-http/curl-client.git",
+                "reference": "15b11b7c2f39fe61ef6a70e0c247b4a84e845cdb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-http/curl-client/zipball/15b11b7c2f39fe61ef6a70e0c247b4a84e845cdb",
+                "reference": "15b11b7c2f39fe61ef6a70e0c247b4a84e845cdb",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "php": "^7.1 || ^8.0",
+                "php-http/discovery": "^1.6",
+                "php-http/httplug": "^2.0",
+                "php-http/message": "^1.2",
+                "psr/http-client": "^1.0",
+                "psr/http-factory": "^1.0",
+                "symfony/options-resolver": "^3.4 || ^4.0 || ^5.0"
+            },
+            "provide": {
+                "php-http/async-client-implementation": "1.0",
+                "php-http/client-implementation": "1.0",
+                "psr/http-client-implementation": "1.0"
+            },
+            "require-dev": {
+                "guzzlehttp/psr7": "^1.0",
+                "laminas/laminas-diactoros": "^2.0",
+                "php-http/client-integration-tests": "^3.0",
+                "phpunit/phpunit": "^7.5 || ^9.4"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Http\\Client\\Curl\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Михаил Красильников",
+                    "email": "m.krasilnikov@yandex.ru"
+                }
+            ],
+            "description": "PSR-18 and HTTPlug Async client with cURL",
+            "homepage": "http://php-http.org",
+            "keywords": [
+                "curl",
+                "http",
+                "psr-18"
+            ],
+            "time": "2020-12-14T08:36:51+00:00"
         },
         {
             "name": "php-http/discovery",
