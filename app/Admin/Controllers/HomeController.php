@@ -42,14 +42,9 @@ class HomeController extends Controller
                         'assignments as assignment_count' => function($query) use ($request) { 
                             $query->where('type', 'ASSIGNMENT');
                             $query->where('response_status', '200');
-    
-                            if ($request->from && $request->to) {
-                                $from = Carbon::parse($request->from);
-                                $to = Carbon::parse($request->to);
-    
-                                $query->whereBetween('created_at', [$from, $to]);
-                            }
-    
+
+                            $query->whereBetween('created_at', [$request->from ?: Carbon::now()->subweek(), $request->to ?: Carbon::now()]);
+        
                             }
                         ]
                     );
