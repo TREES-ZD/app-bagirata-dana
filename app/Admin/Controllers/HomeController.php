@@ -23,8 +23,8 @@ class HomeController extends Controller
     public function index(Content $content, Request $request)
     {
         $agentQuery = Agent::disableCache();
+        $filteredAgentQuery = $agentQuery;
         if ($request->current == "on") {
-            $filteredAgentQuery = $agentQuery;
             $agentsWithAssignmentCount = $filteredAgentQuery->get()->map(function($agent) {
                 return [
                     'full_name' => $agent->full_name,
@@ -42,7 +42,7 @@ class HomeController extends Controller
                             ->limit(20)
                             ->get();
 
-            $filteredAgentQuery = $agentQuery->whereIn('id', $filteredAgentIds->pluck('id')->all());
+            $filteredAgentQuery = $filteredAgentQuery->whereIn('id', $filteredAgentIds->pluck('id')->all());
             if ($request->availability == 'available') {
                 $filteredAgentQuery->where('status', Agent::AVAILABLE);
             } else if ($request->availability == 'unavailable') {
