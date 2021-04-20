@@ -49,8 +49,7 @@ class HomeController extends Controller
                         ]
                     );
             
-            $agentsWithAssignmentCount = $agents->orderBy('assignment_count', 'DESC')->take(20)->get();
-    
+            $agentsWithAssignmentCount = $agents->get()->sortBy('assignment_count')->take(20);
         }
         
         $totalAvailableAgents = $agents->where('status', Agent::AVAILABLE)->count();
