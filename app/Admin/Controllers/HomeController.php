@@ -36,6 +36,7 @@ class HomeController extends Controller
                             ->leftJoin('assignments', 'agents.id', '=', 'assignments.agent_id')
                             ->where('type', 'ASSIGNMENT')
                             ->where('response_status', '200')
+                            ->whereBetween('assignments.created_at', [$request->from ?: Carbon::now()->subMonth(), $request->to ?: Carbon::now()])
                             ->select(DB::raw('agents.id, count(*) as assignment_count'))
                             ->groupBy('agents.id')
                             ->orderByDesc('assignment_count')
