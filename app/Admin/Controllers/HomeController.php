@@ -61,7 +61,7 @@ class HomeController extends Controller
                             ->sortByDesc('assignment_count');    
         }
         
-        $totalAvailableAgents = $agentQuery->where('status', Agent::AVAILABLE)->count();
+        $totalAvailableAgents = Agent::disableCache()->where('status', Agent::AVAILABLE)->count();
 
         return $content
             ->title('Home')
