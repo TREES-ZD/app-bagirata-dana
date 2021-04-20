@@ -169,7 +169,9 @@ class HomeController extends Controller
         $from = $request->from ?: "a month ago";
         $to = $request->to ?: "now";
         $time = "from $from to $to";
+
+        $subject = $request->availability ? "Current $request->availability agent(s)" : "Agents";
         
-        return "Agents by total assignment(s) $time";
+        return "$subject by total assignment(s) $time";
     }
 }
