@@ -36,7 +36,7 @@ class HomeController extends Controller
                             ->leftJoin('assignments', 'agents.id', '=', 'assignments.agent_id')
                             ->where('type', 'ASSIGNMENT')
                             ->where('response_status', '200')
-                            ->whereBetween('assignments.created_at', [$request->from ?: Carbon::now()->subMonth(), $request->to ?: Carbon::now()])
+                            ->whereBetween('assignments.created_at', [(bool)strtotime($request->from) ? Carbon::parse($request->from) : Carbon::now()->subMonth(), (bool) strtotime($request->to) ? Carbon::parse($request->to) : Carbon::now()])
                             ->select(DB::raw('agents.id, count(*) as assignment_count'))
                             ->groupBy('agents.id')
                             ->orderByDesc('assignment_count')
@@ -63,11 +63,11 @@ class HomeController extends Controller
         }
         
         $totalAvailableAgents = Agent::disableCache()->where('status', Agent::AVAILABLE)->count();
-
+        $totalAssignmentChartTitle = $this->totalAssignmentChartTitle($request);
         return $content
             ->title('Home')
             ->description('Description...')
-            ->row(function (Row $row) use ($agentsWithAssignmentCount, $totalAvailableAgents) {
+            ->row(function (Row $row) use ($agentsWithAssignmentCount, $totalAvailableAgents, $totalAssignmentChartTitle) {
                 $full_names = $agentsWithAssignmentCount->pluck('full_name');
                 $assignment_counts = $agentsWithAssignmentCount->pluck('assignment_count');
                 
@@ -86,7 +86,7 @@ class HomeController extends Controller
                 ];
                 $dataTable = new DataTable($headers, $rows, $style, $options);        
                 
-                $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts'))));
+                $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts', 'totalAssignmentChartTitle'))));
                 $row->column(4, new Box("Agent(s) available", $totalAvailableAgents ?: "None"));
                 $row->column(4, new Box("Availability logs", view('roundrobin.dashboard.availabilityLogs', compact('availabilityLogs'))));
                 
@@ -163,4 +163,13 @@ class HomeController extends Controller
 
         return $content->body($grid);
     }        
+
+    private function totalAssignmentChartTitle($request)
+    {
+        $from = $request->from ?: "a month ago";
+        $to = $request->to ?: "now";
+        $time = "from $from to $to";
+        
+        return "Agents by total assignment(s) $time";
+    }
 }

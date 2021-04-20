@@ -61,6 +61,7 @@
 <script>
     var full_names = {!! json_encode($full_names) !!};
     var assignment_counts = {!! json_encode($assignment_counts) !!};
+    var totalAssignmentChartTitle = {!! json_encode($totalAssignmentChartTitle) !!};
 
     var ctx = document.getElementById("latest-assignment-chart");
     var myChart = new Chart(ctx, {
@@ -79,7 +80,7 @@
             },
             title: {
                 display: true,
-                text: 'Agent by total assignment(s)'
+                text: totalAssignmentChartTitle
             },
             scales: {
                 xAxes: [{
