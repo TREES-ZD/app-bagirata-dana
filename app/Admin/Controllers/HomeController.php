@@ -170,7 +170,7 @@ class HomeController extends Controller
         $to = $request->to ?: "now";
         $time = "from $from to $to";
 
-        $subject = $request->availability ? "Current $request->availability agent(s)" : "Agents";
+        $subject = $request->availability == "available" || $request->availability == "unavailable" ? "Current $request->availability agent(s)" : "All agents";
         
         return "$subject by total assignment(s) $time";
     }
