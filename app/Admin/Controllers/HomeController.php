@@ -51,7 +51,7 @@ class HomeController extends Controller
             $agents = $agentQuery->get();
     
             $assignmentCountByAgentId = $filteredAgentIds->mapWithKeys(function($filteredAgentId) {
-                return [$filteredAgentId['id'] => $filteredAgentId['assignment_count']];
+                return [$filteredAgentId->id => $filteredAgentId->assignment_count];
             });
             $agentsWithAssignmentCount = $agents->each(function($agent) use ($assignmentCountByAgentId) {
                                     $assignmentCount = $assignmentCountByAgentId->get($agent->id);
