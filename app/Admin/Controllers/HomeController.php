@@ -32,24 +32,26 @@ class HomeController extends Controller
                 ];   
             })->sortByDesc('assignment_count')->take(20);
         } else {
-            $filteredAgentIds = DB::table('agents')
-                            ->leftJoin('assignments', 'agents.id', '=', 'assignments.agent_id')
-                            ->where('type', 'ASSIGNMENT')
-                            ->where('response_status', '200')
-                            ->whereBetween('assignments.created_at', [(bool)strtotime($request->from) ? Carbon::parse($request->from) : Carbon::now()->subMonth(), (bool) strtotime($request->to) ? Carbon::parse($request->to) : Carbon::now()])
-                            ->select(DB::raw('agents.id, count(*) as assignment_count'))
-                            ->groupBy('agents.id')
-                            ->orderByDesc('assignment_count')
-                            ->limit(20)
-                            ->get();
+            $filteredAgentIdsQuery = DB::table('agents')
+                                        ->leftJoin('assignments', 'agents.id', '=', 'assignments.agent_id')
+                                        ->where('type', 'ASSIGNMENT')
+                                        ->where('response_status', '200');
+
+            if ($request->availability == 'available') {
+                $filteredAgentIdsQuery->where('status', Agent::AVAILABLE);
+            } else if ($request->availability == 'unavailable') {
+                $filteredAgentIdsQuery->where('status', Agent::UNAVAILABLE);
+            }            
+
+            $filteredAgentIds = $filteredAgentIdsQuery->whereBetween('assignments.created_at', [(bool)strtotime($request->from) ? Carbon::parse($request->from) : Carbon::now()->subMonth(), (bool) strtotime($request->to) ? Carbon::parse($request->to) : Carbon::now()])
+                                                    ->select(DB::raw('agents.id, count(*) as assignment_count'))
+                                                    ->groupBy('agents.id')
+                                                    ->orderByDesc('assignment_count')
+                                                    ->limit(20)
+                                                    ->get();
 
             $filteredAgentQuery = $filteredAgentQuery->whereIn('id', $filteredAgentIds->pluck('id')->all());
-            if ($request->availability == 'available') {
-                $filteredAgentQuery->where('status', Agent::AVAILABLE);
-            } else if ($request->availability == 'unavailable') {
-                $filteredAgentQuery->where('status', Agent::UNAVAILABLE);
-            }
-
+  
             $agents = $filteredAgentQuery->get();
     
             $assignmentCountByAgentId = $filteredAgentIds->mapWithKeys(function($filteredAgentId) {
