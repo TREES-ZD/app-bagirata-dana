@@ -24,7 +24,8 @@ class HomeController extends Controller
     {
         $agentQuery = Agent::disableCache();
         if ($request->current == "on") {
-            $agentsWithAssignmentCount = $agentQuery->get()->map(function($agent) {
+            $filteredAgentQuery = $agentQuery;
+            $agentsWithAssignmentCount = $filteredAgentQuery->get()->map(function($agent) {
                 return [
                     'full_name' => $agent->full_name,
                     'assignment_count' => count(Redis::smembers('agent:'.$agent->id.':assignedTickets'))
@@ -41,14 +42,14 @@ class HomeController extends Controller
                             ->limit(20)
                             ->get();
 
-            $agentQuery->whereIn('id', $filteredAgentIds->pluck('id')->all());
+            $filteredAgentQuery = $agentQuery->whereIn('id', $filteredAgentIds->pluck('id')->all());
             if ($request->availability == 'available') {
-                $agentQuery->where('status', Agent::AVAILABLE);
+                $filteredAgentQuery->where('status', Agent::AVAILABLE);
             } else if ($request->availability == 'unavailable') {
-                $agentQuery->where('status', Agent::UNAVAILABLE);
+                $filteredAgentQuery->where('status', Agent::UNAVAILABLE);
             }
 
-            $agents = $agentQuery->get();
+            $agents = $filteredAgentQuery->get();
     
             $assignmentCountByAgentId = $filteredAgentIds->mapWithKeys(function($filteredAgentId) {
                 return [$filteredAgentId->id => $filteredAgentId->assignment_count];
