@@ -38,7 +38,8 @@ class HomeController extends Controller
                 $agents->where('status', Agent::UNAVAILABLE);
             }
     
-            $agents->withCount(['assignments as assignment_count' => function($query) use ($request) { 
+            $agents->withCount(['assignments', 
+                        'assignments as assignment_count' => function($query) use ($request) { 
                             $query->where('type', 'ASSIGNMENT');
                             $query->where('response_status', '200');
 
@@ -48,7 +49,8 @@ class HomeController extends Controller
                         ]
                     );
             
-            $agentsWithAssignmentCount = $agents->get()->sortBy('assignment_count', 'DESC')->take(20);
+            $agentsWithAssignmentCount = $agents->orderBy('assignment_count', 'DESC')->take(20)->get();
+    
         }
         
         $totalAvailableAgents = $agents->where('status', Agent::AVAILABLE)->count();
