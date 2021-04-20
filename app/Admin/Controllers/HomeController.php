@@ -14,6 +14,7 @@ use Encore\Admin\Widgets\Box;
 use Encore\Admin\Facades\Admin;
 use Jxlwqq\DataTable\DataTable;
 use Encore\Admin\Layout\Content;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redis;
 
@@ -21,39 +22,43 @@ class HomeController extends Controller
 {
     public function index(Content $content, Request $request)
     {
-        $agents = Agent::disableCache();
-
+        $agentQuery = Agent::disableCache();
         if ($request->current == "on") {
-            $agentsWithAssignmentCount = Agent::get()->map(function($agent) {
+            $agentsWithAssignmentCount = $agentQuery->get()->map(function($agent) {
                 return [
                     'full_name' => $agent->full_name,
                     'assignment_count' => count(Redis::smembers('agent:'.$agent->id.':assignedTickets'))
                 ];   
             })->sortByDesc('assignment_count')->take(20);
         } else {
+            $filteredAgentIds = DB::table('agents')
+                            ->leftJoin('assignments', 'agents.id', '=', 'assignments.agent_id')
+                            ->where('type', 'ASSIGNMENT')
+                            ->where('response_status', '200')
+                            ->select(DB::raw('agents.id, count(*) as assignment_count'))
+                            ->groupBy('agents.id')
+                            ->orderByDesc('assignment_count')
+                            ->limit(20)
+                            ->get();
 
+            $agentQuery->whereIn('id', $filteredAgentIds->pluck('id')->all());
             if ($request->availability == 'available') {
-                $agents->where('status', Agent::AVAILABLE);
+                $agentQuery->where('status', Agent::AVAILABLE);
             } else if ($request->availability == 'unavailable') {
-                $agents->where('status', Agent::UNAVAILABLE);
+                $agentQuery->where('status', Agent::UNAVAILABLE);
             }
-    
-            $agents->withCount(['assignments', 
-                        'assignments as assignment_count' => function($query) use ($request) { 
-                            $query->where('type', 'ASSIGNMENT');
-                            $query->where('response_status', '200');
 
-                            $query->whereBetween('created_at', [$request->from ?: Carbon::now()->subweek(), $request->to ?: Carbon::now()]);
-        
-                            }
-                        ]
-                    );
-            
-            $agentsWithAssignmentCount = $agents->orderBy('assignment_count', 'DESC')->take(20)->get();
+            $agents = $agentQuery->get();
     
+            $assignmentCountByAgentId = $filteredAgentIds->groupBy('id');
+            $agentsWithAssignmentCount = $agents->each(function($agent) use ($assignmentCountByAgentId) {
+                                    $assignmentCount = $assignmentCountByAgentId->get($agent->id);
+                                    $agent->assignment_count = $assignmentCount;
+                                })
+                            ->sortByDesc('assignment_count');    
         }
         
-        $totalAvailableAgents = $agents->where('status', Agent::AVAILABLE)->count();
+        $totalAvailableAgents = $agentQuery->where('status', Agent::AVAILABLE)->count();
 
         return $content
             ->title('Home')
