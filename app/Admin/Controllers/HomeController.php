@@ -43,7 +43,7 @@ class HomeController extends Controller
                 $filteredAgentIdsQuery->where('status', Agent::UNAVAILABLE);
             }            
 
-            $filteredAgentIds = $filteredAgentIdsQuery->whereBetween('assignments.created_at', [(bool)strtotime($request->from) ? Carbon::parse($request->from) : Carbon::now()->subMonth(), (bool) strtotime($request->to) ? Carbon::parse($request->to) : Carbon::now()])
+            $filteredAgentIds = $filteredAgentIdsQuery->whereBetween('assignments.created_at', [(bool)strtotime($request->from) ? Carbon::parse($request->from) : Carbon::now()->subDay(), (bool) strtotime($request->to) ? Carbon::parse($request->to) : Carbon::now()])
                                                     ->select(DB::raw('agents.id, count(*) as assignment_count'))
                                                     ->groupBy('agents.id')
                                                     ->orderByDesc('assignment_count')
@@ -168,7 +168,7 @@ class HomeController extends Controller
 
     private function totalAssignmentChartTitle($request)
     {
-        $from = $request->from ?: "a month ago";
+        $from = $request->from ?: "a day ago";
         $to = $request->to ?: "now";
         $time = "from $from to $to";
 
