@@ -3,9 +3,11 @@
 namespace App\Repositories;
 
 use App\Agent;
+use Carbon\Carbon;
 use App\AvailabilityLog;
 use App\Traits\RoundRobinable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use App\Collections\AgentCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
@@ -63,5 +65,40 @@ class AgentRepository
                         ->pluck('agent_id');
 
         return Agent::find($unassignEligibleAgentIds);
+    }
+
+    public function getWithAssignmentsCount($from = null, $to = null, $availability = null, $limit = 20): AgentCollection
+    {
+        $filteredAgentIdsQuery = DB::table('agents')
+                                ->leftJoin('assignments', function($join) use ($from, $to) {
+                                    $join->on('agents.id', '=', 'assignments.agent_id')
+                                        ->whereBetween('assignments.created_at', [(bool)strtotime($from) ? Carbon::parse($from) : Carbon::now()->subDay(), (bool) strtotime($to) ? Carbon::parse($to) : Carbon::now()]);
+                                })
+                                ->where('type', 'ASSIGNMENT')
+                                ->where('response_status', '200');
+
+        if ($availability == 'available') {
+            $filteredAgentIdsQuery->where('status', Agent::AVAILABLE);
+        } else if ($availability == 'unavailable') {
+            $filteredAgentIdsQuery->where('status', Agent::UNAVAILABLE);
+        }            
+
+        $filteredAgentIds = $filteredAgentIdsQuery->select(DB::raw('agents.id, count(*) as assignment_count'))
+                                ->groupBy('agents.id')
+                                ->orderByDesc('assignment_count')
+                                ->limit($limit)
+                                ->get();
+
+        $agents = Agent::disableCache()->find($filteredAgentIds->pluck('id')->all());
+
+        $assignmentCountByAgentId = $filteredAgentIds->mapWithKeys(function($filteredAgentId) {
+            return [$filteredAgentId->id => $filteredAgentId->assignment_count];
+        });
+
+        return $agents->each(function($agent) use ($assignmentCountByAgentId) {
+                $assignmentCount = $assignmentCountByAgentId->get($agent->id);
+                $agent->assignment_count = $assignmentCount;
+            })
+            ->sortByDesc('assignment_count');           
     }
 }
