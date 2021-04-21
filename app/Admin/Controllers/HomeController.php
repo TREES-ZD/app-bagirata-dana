@@ -16,52 +16,22 @@ use Jxlwqq\DataTable\DataTable;
 use Encore\Admin\Layout\Content;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Repositories\AgentRepository;
 use Illuminate\Support\Facades\Redis;
 
 class HomeController extends Controller
 {
-    public function index(Content $content, Request $request)
+    public function index(Content $content, Request $request, AgentRepository $agentRepo)
     {
-        $agentQuery = Agent::disableCache();
-        $filteredAgentQuery = $agentQuery;
         if ($request->current == "on") {
-            $agentsWithAssignmentCount = $filteredAgentQuery->get()->map(function($agent) {
+            $agentsWithAssignmentCount = Agent::disableCache()->get()->map(function($agent) {
                 return [
                     'full_name' => $agent->full_name,
                     'assignment_count' => count(Redis::smembers('agent:'.$agent->id.':assignedTickets'))
                 ];   
             })->sortByDesc('assignment_count')->take(20);
         } else {
-            $filteredAgentIdsQuery = DB::table('agents')
-                                        ->leftJoin('assignments', 'agents.id', '=', 'assignments.agent_id')
-                                        ->where('type', 'ASSIGNMENT')
-                                        ->where('response_status', '200');
-
-            if ($request->availability == 'available') {
-                $filteredAgentIdsQuery->where('status', Agent::AVAILABLE);
-            } else if ($request->availability == 'unavailable') {
-                $filteredAgentIdsQuery->where('status', Agent::UNAVAILABLE);
-            }            
-
-            $filteredAgentIds = $filteredAgentIdsQuery->whereBetween('assignments.created_at', [(bool)strtotime($request->from) ? Carbon::parse($request->from) : Carbon::now()->subDay(), (bool) strtotime($request->to) ? Carbon::parse($request->to) : Carbon::now()])
-                                                    ->select(DB::raw('agents.id, count(*) as assignment_count'))
-                                                    ->groupBy('agents.id')
-                                                    ->orderByDesc('assignment_count')
-                                                    ->limit(20)
-                                                    ->get();
-
-            $filteredAgentQuery = $filteredAgentQuery->whereIn('id', $filteredAgentIds->pluck('id')->all());
-  
-            $agents = $filteredAgentQuery->get();
-    
-            $assignmentCountByAgentId = $filteredAgentIds->mapWithKeys(function($filteredAgentId) {
-                return [$filteredAgentId->id => $filteredAgentId->assignment_count];
-            });
-            $agentsWithAssignmentCount = $agents->each(function($agent) use ($assignmentCountByAgentId) {
-                                    $assignmentCount = $assignmentCountByAgentId->get($agent->id);
-                                    $agent->assignment_count = $assignmentCount;
-                                })
-                            ->sortByDesc('assignment_count');    
+            $agentsWithAssignmentCount = $agentRepo->getWithAssignmentsCount($request->from, $request->to, $request->availability);
         }
         
         $totalAvailableAgents = Agent::disableCache()->where('status', Agent::AVAILABLE)->count();
