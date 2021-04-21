@@ -74,7 +74,7 @@ class AgentRepository
                                     $join->on('agents.id', '=', 'assignments.agent_id')
                                         ->where('type', 'ASSIGNMENT')
                                         ->where('response_status', '200')
-                                        ->whereBetween('assignments.created_at', [(bool)strtotime($from) ? Carbon::parse($from) : Carbon::now()->subDay(), (bool) strtotime($to) ? Carbon::parse($to) : Carbon::now()]);
+                                        ->whereBetween('assignments.created_at', [(bool)strtotime($from) ? Carbon::parse($from) : Carbon::today(), (bool) strtotime($to) ? Carbon::parse($to) : Carbon::now()]);
                                 });
 
         if ($availability == 'available') {

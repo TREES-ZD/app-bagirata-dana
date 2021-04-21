@@ -138,7 +138,7 @@ class HomeController extends Controller
 
     private function totalAssignmentChartTitle($request)
     {
-        $from = $request->from ?: "a day ago";
+        $from = $request->from ?: "today";
         $to = $request->to ?: "now";
         $time = "from $from to $to";
 
