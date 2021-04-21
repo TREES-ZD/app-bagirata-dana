@@ -72,8 +72,8 @@ class AgentRepository
         $filteredAgentIdsQuery = DB::table('agents')
                                 ->leftJoin('assignments', function($join) use ($from, $to) {
                                     $join->on('agents.id', '=', 'assignments.agent_id')
-                                        ->where('type', 'ASSIGNMENT')
-                                        ->where('response_status', '200')
+                                        ->where('assignments.type', 'ASSIGNMENT')
+                                        ->where('assignments.response_status', '200')
                                         ->whereBetween('assignments.created_at', [(bool)strtotime($from) ? Carbon::parse($from) : Carbon::today(), (bool) strtotime($to) ? Carbon::parse($to) : Carbon::now()]);
                                 });
 
