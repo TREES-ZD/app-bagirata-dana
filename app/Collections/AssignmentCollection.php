@@ -16,6 +16,7 @@ class AssignmentCollection extends Collection
 {
     protected $name = "assignments";
 
+    /** @deprecated */
     public function assignmentParams() {
         return $this->map(function($assignment) {                
             return [
@@ -32,6 +33,7 @@ class AssignmentCollection extends Collection
         });
     }
 
+    /** @deprecated */
     public function unassignmentParams() {
         return $this->map(function($assignment) {                
             return [
@@ -71,6 +73,7 @@ class AssignmentCollection extends Collection
         return $this->where('status', 200);
     }
 
+    /** @deprecated version */
     public function update() {
         $jobStatuses = $this->chunk(100)->map(function($assignments) {
             return app(TicketRepository::class)->assign($assignments->values()->assignmentParams());
@@ -98,6 +101,26 @@ class AssignmentCollection extends Collection
         return;
     }
 
+    public function prepareLogs(): void
+    {
+        if ($this->isNotEmpty()) {
+            Assignment::insert($this->map->toArray()->all());
+        }
+    }
+
+    public function reconcileLogs(): void
+    {
+        $this->groupBy(['batch_id', 'response_status'])
+            ->map(function($assignmentsByStatus, $batch) {
+                return $assignmentsByStatus->map(function(AssignmentCollection $assignments, $status) use ($batch) {
+                    $assignmentBuilder = Assignment::where('batch_id', $batch)->whereIn('zendesk_ticket_id', $assignments->pluck('zendesk_ticket_id')->values()->all());
+                    return $assignmentBuilder->update(['response_status' => $status]);
+                });
+
+        });      
+    }
+
+    /**@deprecated  */
     public function updateLogs() {
         return $this->groupBy(['batch', 'status'])->map(function($assignmentsByStatus, $batch) {
 
@@ -125,6 +148,18 @@ class AssignmentCollection extends Collection
         })->all();
     }
 
+    public function updateResponseStatus(array $successTicketIds, array $failedTicketIds): AssignmentCollection
+    {
+        return $this->each(function(Assignment $assignment) use ($successTicketIds, $failedTicketIds) {
+                            if (in_array($assignment->zendesk_ticket_id, $failedTicketIds)) {
+                                $assignment->response_status = "FAILED";
+                            } else if (in_array($assignment->zendesk_ticket_id, $successTicketIds)) {
+                                $assignment->response_status = 200;
+                            }
+                        });
+    }
+
+    /**@deprecated */
     private function updateStatus($successTicketIds, $failedTicketIds) {
         $processAssignments = $this->whereIn('ticket_id', array_merge($successTicketIds, $failedTicketIds))->map(function($assignment) use ($successTicketIds, $failedTicketIds){
 
