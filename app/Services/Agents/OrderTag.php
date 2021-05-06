@@ -2,13 +2,8 @@
 
 namespace App\Services\Agents;
 
-use App\Agent;
-use App\Services\Zendesk\Ticket;
-use App\Collections\AgentCollection;
-use App\Services\Zendesk\TicketCollection;
-use Illuminate\Support\Collection;
 use Stringable;
-use Zendesk\API\Resources\Core\TicketComments;
+use Illuminate\Support\Str;
 
 class OrderTag implements Stringable
 {
@@ -30,8 +25,22 @@ class OrderTag implements Stringable
         return $this;
     }
 
-    public function parseTag($tag)
+    public function parseTag(?string $tag): OrderTag
     {
+        if (Str::contains($tag, ["viewId:", "groupId:"])) {
+            $ids = collect(explode("-", $tag));
+            $viewId = $ids->first(function($id) {
+                return Str::startsWith($id, "viewId:");
+            });
+            $groupId = $ids->first(function($id) {
+                return Str::startsWith($id, "groupId:");
+            });
+
+            $this->viewId = $viewId ? Str::after($viewId, "viewId:") : null;
+            $this->groupId = $groupId ? Str::after($groupId, "groupId:") : null;
+            return $this;
+        }
+        
         return $this;
     }
 
