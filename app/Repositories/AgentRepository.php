@@ -4,13 +4,12 @@ namespace App\Repositories;
 
 use App\Agent;
 use App\AvailabilityLog;
-use App\Traits\RoundRobinable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use App\Collections\AgentCollection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
-use App\Repositories\Traits\Batchable;
 use App\Collections\AssignmentCollection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 class AgentRepository
 {
@@ -50,18 +49,32 @@ class AgentRepository
      *
      * @return AgentCollection
      */
-    public function getUnassignEligible() {
+    public function getUnassignEligible(): AgentCollection
+    {
         $unassignEligibleAgentIds = AvailabilityLog::whereBetween('created_at', [now()->subMinutes(30), now()])
-                        ->latest()
-                        ->get()
-                        ->groupBy('agent_id')
-                        ->map
-                        ->first()
-                        ->filter(function($log) { 
-                            return $log->status == "Unavailable";
-                        })
-                        ->pluck('agent_id');
+                                                    ->latest()
+                                                    ->get()
+                                                    ->groupBy('agent_id')
+                                                    ->map
+                                                    ->first()
+                                                    ->filter(function($log) { 
+                                                        return $log->status == "Unavailable";
+                                                    })
+                                                    ->pluck('agent_id');
 
         return Agent::find($unassignEligibleAgentIds);
+    }
+
+    public function get($agentIds): AgentCollection
+    {
+        return Agent::disableCache()->find($agentIds);
+    }
+
+    public function getAssignable(EloquentCollection $tasks): AgentCollection 
+    {
+        $rules = DB::table('rules')->whereIn('task_id', $tasks->pluck('id')->all())->get();
+        $agentIds = $rules->pluck('agent_id')->unique()->values();
+
+        return Agent::disableCache()->whereIn('id', $agentIds->all())->where('status', true)->get();
     }
 }
