@@ -4,8 +4,6 @@ namespace App\Collections;
 
 use App\Agent;
 use App\Services\Zendesk\Ticket;
-use App\Collections\BatchableCollection;
-use App\Services\Agents\OrderTag;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 
@@ -31,7 +29,7 @@ class AgentCollection extends Collection
     /**
      * group of view Ids and each agents
      */
-    public function groupByViews() : AgentCollection
+    public function groupByViews(): AgentCollection
     {
         return $this->groupBy->assignedViewIds();
     }
