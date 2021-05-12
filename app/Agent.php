@@ -6,7 +6,7 @@ use App\Scopes\AgentUserScope;
 use App\Services\Zendesk\Ticket;
 use Illuminate\Support\Collection;
 use App\Collections\AgentCollection;
-use App\Services\Agents\OrderTag;
+use App\Services\Assignments\OrderTag;
 use App\Services\Zendesk\TicketCollection;
 use Spatie\EloquentSortable\Sortable;
 use Illuminate\Database\Eloquent\Model;
