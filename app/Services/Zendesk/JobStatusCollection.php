@@ -2,9 +2,9 @@
 
 namespace App\Services\Zendesk;
 
-use Illuminate\Support\Collection;
-use App\Collections\BatchableCollection;
 use App\Services\ZendeskService;
+use Illuminate\Support\Collection;
+use App\Services\Zendesk\ZendeskWrapper;
 
 class JobStatusCollection extends Collection
 {
@@ -20,12 +20,12 @@ class JobStatusCollection extends Collection
         return $this->every->completed();
     }
 
-    public function fresh() {
+    public function refresh() {
         $this->newlyCompletedIds = [];
 
-        $updatedJobStatuses = app(ZendeskService::class)->getJobStatuses($this->ids()->all());
-        
-        $updatedJobStatuses->each(function($jobStatus) {
+        $updatedJobStatuses = $this->updateJobStatus();
+
+        $updatedJobStatuses->each(function(JobStatus $jobStatus) {
             if ($jobStatus->completed() && !$this->isAlreadyCompleted($jobStatus)) {
                 $this->newlyCompletedIds[] = $jobStatus->id;
                 $this->completedIds[] = $jobStatus->id;
@@ -52,5 +52,15 @@ class JobStatusCollection extends Collection
         return in_array($jobStatus->id, $this->completedIds);
     }
 
+    private function updateJobStatus(): JobStatusCollection
+    {
+        /** @var \App\Services\Zendesk\ZendeskWrapper $zendesk */
+        $zendesk = app(ZendeskWrapper::class);
+        $response = $zendesk->showManyJobStatuses($this->ids()->all());
+
+        return (new JobStatusCollection($response->job_statuses))->map(function($jobStatus) {
+            return new JobStatus($jobStatus);
+        });
+    }
 
 }
