@@ -2,14 +2,12 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
-use App\Agent;
 use App\Assignment;
-use Illuminate\Support\Str;
 use Faker\Generator as Faker;
 
 $factory->define(Assignment::class, function (Faker $faker) {
     return [
-        "type" => Agent::ASSIGNMENT,
+        "type" => Assignment::TYPE_ASSIGNMENT,
         "zendesk_view_id" => $faker->randomNumber,
         "batch_id" => "some-uuid-some-uuid",
         "agent_id" => $faker->randomDigit,
@@ -21,7 +19,7 @@ $factory->define(Assignment::class, function (Faker $faker) {
 });
 
 $factory->state(Assignment::class, 'unassignment', [
-    'type' => Agent::UNASSIGNMENT,
+    'type' => Assignment::TYPE_UNASSIGNMENT,
 ]);
 
 $factory->state(Assignment::class, 'already_solved', [
