@@ -3,16 +3,12 @@
 namespace App\Jobs\Assignments;
 
 use Illuminate\Bus\Queueable;
-use App\Services\ZendeskService;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
-use App\Repositories\TicketRepository;
+use App\Services\Zendesk\JobStatus;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use App\Repositories\JobStatusRepository;
+use App\Services\Zendesk\JobStatusService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Laravel\Horizon\Contracts\JobRepository;
 
 class CheckJobStatuses implements ShouldQueue
 {
@@ -39,15 +35,15 @@ class CheckJobStatuses implements ShouldQueue
      *
      * @return void
      */
-    public function handle(JobStatusRepository $jobRepository)
+    public function handle(JobStatusService $jobStatusService)
     {        
         sleep(5);
 
-        $jobStatuses = $jobRepository->get($this->jobStatusIds);
+        $jobStatuses = $jobStatusService->check($this->jobStatusIds);
         while (1) {
             if ($jobStatuses->areAllCompleted()) {
-                $jobStatuses->each(function($jobStatus) {
-                    LogAssignments::dispatch($this->batch, $jobStatus->successTicketIds()->all(), $jobStatus->failedTicketIds()->all())->onQueue($this->queue);
+                $jobStatuses->each(function(JobStatus $jobStatus) {
+                    UpdateLogs::dispatch($this->batch, $jobStatus->successTicketIds()->all(), $jobStatus->failedTicketIds()->all())->onQueue($this->queue);
                 });
 
                 return;
@@ -55,7 +51,7 @@ class CheckJobStatuses implements ShouldQueue
 
             sleep(10);
 
-            $jobStatuses->fresh();
+            $jobStatuses->refresh();
         }    
     }
 

@@ -3,29 +3,13 @@
 namespace App\Jobs\Assignments;
 
 use App\Task;
-use App\Agent;
-use Exception;
-use App\TaskLog;
 use Illuminate\Support\Str;
-use App\Jobs\CheckJobStatus;
 use Illuminate\Bus\Queueable;
-use App\Events\TicketsProcessed;
-use App\Services\ZendeskService;
-use App\Jobs\Task\LogAssignments;
-use App\Services\RoundRobinService;
-use Illuminate\Support\Facades\Log;
-use App\Events\AssignmentsProcessed;
-use App\Repositories\AgentRepository;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Redis;
-use App\Repositories\TicketRepository;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Zendesk\API\HttpClient as ZendeskAPI;
-use App\Repositories\AssignmentRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Listeners\UpdateProcessedAssignments;
+use App\Services\Assignments\AssignmentService;
 
 class AssignBatch implements ShouldQueue
 {
@@ -57,18 +41,14 @@ class AssignBatch implements ShouldQueue
      *
      * @return void
      */
-    public function handle(AssignmentRepository $assignmentRepository)
+    public function handle(AssignmentService $assignmentService)
     {   
         $tasks = Task::find($this->taskIds);
-        $assignments = $assignmentRepository->prepareAssignment($this->batch, $tasks);
-
-        $assignments->createLogs();
-
-        $jobStatuses = $assignments->update();
+        
+        $jobStatuses = $assignmentService->assignBatch($this->batch, $tasks);
 
         if ($jobStatuses->isNotEmpty()) {
             CheckJobStatuses::dispatch($this->batch, $jobStatuses->ids()->all())->onQueue('assignment-job');
         }
-        
     }
 }

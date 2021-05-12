@@ -9,10 +9,7 @@ use App\Services\Assignments\AssignmentService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-/**
- * @deprecated v1
- */
-class LogAssignments implements ShouldQueue
+class UpdateLogs implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
