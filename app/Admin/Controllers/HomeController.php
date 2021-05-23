@@ -48,7 +48,7 @@ class HomeController extends Controller
 
                 // Latest Assignments table
                 $headers = ['Date', 'Agent', 'Ticket ID', 'Title', "Type"];
-                $rows = Assignment::latest("created_at")->limit(10)->get(["created_at", "agent_name", "zendesk_ticket_id", "zendesk_ticket_subject", "type"])->toArray();
+                $rows = Assignment::latest("id")->limit(10)->get(["created_at", "agent_name", "zendesk_ticket_id", "zendesk_ticket_subject", "type"])->toArray();
                 $style = ['table-bordered','table-hover', 'table-striped'];
                 $options = [
                     'lengthChange' => false,
