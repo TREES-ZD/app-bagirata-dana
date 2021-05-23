@@ -44,7 +44,7 @@ class HomeController extends Controller
                 $assignment_counts = $agentsWithAssignmentCount->pluck('assignment_count');
                 
                 // Availability Logs table
-                $availabilityLogs = AvailabilityLog::latest("created_at")->limit(10)->get(["created_at", "status", "agent_name"]);
+                $availabilityLogs = AvailabilityLog::latest("id")->limit(10)->get(["created_at", "status", "agent_name"]);
 
                 // Latest Assignments table
                 $headers = ['Date', 'Agent', 'Ticket ID', 'Title', "Type"];
@@ -127,7 +127,7 @@ class HomeController extends Controller
         $grid->disableFilter();
         $grid->disableActions();
 
-        $grid->model()->orderBy('created_at', 'desc');
+        $grid->model()->orderBy('id', 'desc');
 
         $grid->column("created_at");
         $grid->column("status");
