@@ -103,7 +103,7 @@ class HomeController extends Controller
         $grid->disableFilter();
         $grid->disableActions();
 
-        $grid->model()->orderBy('created_at', 'desc');
+        $grid->model()->orderBy('id', 'desc');
 
         $grid->column("created_at");
         $grid->column("agent_name");
