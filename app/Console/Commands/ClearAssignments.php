@@ -14,7 +14,7 @@ class ClearAssignments extends Command
      *
      * @var string
      */
-    protected $signature = 'assignments:clear';
+    protected $signature = 'assignments:clear {--monthago=3}';
 
     /**
      * The console command description.
@@ -40,7 +40,7 @@ class ClearAssignments extends Command
      */
     public function handle()
     {
-        $tobeDeletedAssignments = Assignment::where('created_at', '<', $date = now()->subMonths(3));
+        $tobeDeletedAssignments = Assignment::where('created_at', '<', $date = now()->subMonths($this->option('monthago')));
         $this->info("assignments to be deleted before " . $date->format("d-M-Y") . " (" . $tobeDeletedAssignments->count() . ")");
         $this->info($tobeDeletedAssignments->delete() . " successfully deleted");
     }
