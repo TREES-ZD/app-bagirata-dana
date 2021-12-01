@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Agent;
+use App\Assignment;
 use Illuminate\Console\Command;
 use App\Repositories\AgentRepository;
 
@@ -39,6 +40,8 @@ class ClearAssignments extends Command
      */
     public function handle()
     {
-        app(AgentRepository::class)->clearCurrentAssignmentLog(Agent::all());
+        $tobeDeletedAssignments = Assignment::where('created_at', '<', $date = now()->subMonths(3));
+        $this->info("assignments to be deleted before " . $date->format("d-M-Y") . " (" . $tobeDeletedAssignments->count() . ")");
+        $this->info($tobeDeletedAssignments->delete() . " successfully deleted");
     }
 }
