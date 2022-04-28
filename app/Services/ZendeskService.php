@@ -120,13 +120,28 @@ class ZendeskService
         //     return $response->views;
         // });
 
-        $response = Zendesk::views()->findAll();
-        $responseTwo = Zendesk::views()->findAll(['page' => 2]);
-        $responseThree = Zendesk::views()->findAll(['page' => 3]);
-        $responseFour = Zendesk::views()->findAll(['page' => 4]);
-        $responseFive = Zendesk::views()->findAll(['page' => 5]);
+        $page = 1;
+        $views = collect();
+        while ($page) {
+            $response = Zendesk::views()->findAll(['page' => $page, 'active' => 1]);
+            
+            $views = $views->merge($response->views);
+            if ($response->next_page) {
+                $page++;
+            } else {
+                $page = null;
+            }
+        }
+
+        return $views->all();
+
+        // $response = Zendesk::views()->findAll();
+        // $responseTwo = Zendesk::views()->findAll(['page' => 2]);
+        // $responseThree = Zendesk::views()->findAll(['page' => 3]);
+        // $responseFour = Zendesk::views()->findAll(['page' => 4]);
+        // $responseFive = Zendesk::views()->findAll(['page' => 5]);
         
-        return array_merge($response->views, $responseTwo->views, $responseThree->views, $responseFour->views, $responseFive->views);
+        // return array_merge($response->views, $responseTwo->views, $responseThree->views, $responseFour->views, $responseFive->views);
     }
 
     public function getTicketsByView($viewId) {
