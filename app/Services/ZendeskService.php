@@ -133,7 +133,7 @@ class ZendeskService
             }
         }
 
-        return $views->all();
+        return $views->values()->all();
 
         // $response = Zendesk::views()->findAll();
         // $responseTwo = Zendesk::views()->findAll(['page' => 2]);
