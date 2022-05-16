@@ -162,7 +162,7 @@ class ZendeskService
     public function getAssignableTicketsByView($viewId) {
         $page = 1;
         $tickets = new TicketCollection();
-        while ($page && $page <= 5 || $page > 2 && $tickets->isEmpty()) {
+        while ($page && $page <= 1 || $page > 2 && $tickets->isEmpty()) {
             $response = Zendesk::views($viewId)->tickets(['page' => $page]);
             
             $ticketResults = collect($response->tickets)->map(function($ticket) {
