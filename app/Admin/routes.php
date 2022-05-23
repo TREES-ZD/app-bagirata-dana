@@ -107,7 +107,7 @@ Route::post("__restart", function() {
     ]);
 
     $herokuappname = env('HEROKU_APP_NAME', "app-bagirata-dana");
-    $heroku->delete("apps/$herokuappname/dynos");
+    $heroku->delete("apps/$herokuappname/dynos/worker");
     $status = $heroku->getLastHttpResponse()->getStatusCode();
     return ["status" => $status];
 });
