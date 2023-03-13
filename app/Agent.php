@@ -21,6 +21,8 @@ class Agent extends Model implements Sortable
 
     public const ASSIGNMENT = "ASSIGNMENT";
 
+    public const ASSIGNMENT_PRIORITY = "ASSIGNMENT_PRIORITY";
+
     public const REASSIGNMENT = "REASSIGNMENT";
 
     public const UNASSIGNMENT = "UNASSIGNMENT";
@@ -93,7 +95,7 @@ class Agent extends Model implements Sortable
 
     public function getFullNameAttribute()
     {
-        return "{$this->zendesk_custom_field_name} ({$this->zendesk_group_name}, {$this->zendesk_agent_name})";
+        return $this->zendesk_custom_field_name != '-' ? "{$this->zendesk_custom_field_name} ({$this->zendesk_group_name}, {$this->zendesk_agent_name})" : "{$this->zendesk_group_name}/{$this->zendesk_agent_name}";
     }    
  
     public function getTest()
