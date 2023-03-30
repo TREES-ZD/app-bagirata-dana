@@ -60,10 +60,15 @@ class TaskController extends Controller
             });  
             
             if (Admin::user()->isAdministrator()) {
-                $grid->enabled()->select([
-                    true => 'Yes',
-                    false => 'No',
-                ]);      
+                // $grid->enabled()->select([
+                //     true => 'Yes',
+                //     false => 'No',
+                // ]);
+                $states = [
+                    'off' => ['value' => false, 'text' => 'No', 'color' => 'default'],
+                    'on' => ['value' => true, 'text' => 'Yes', 'color' => 'primary'],
+                ];
+                $grid->enabled()->switch($states);
 
                 $grid->column('Run')->display(function () {
                     $url = "/run?view_id=". urlencode($this->zendesk_view_id);
