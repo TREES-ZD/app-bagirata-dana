@@ -2,9 +2,9 @@
 
 namespace App\Collections;
 
-use App\Agent;
+use App\Models\Agent;
 use Exception;
-use App\Assignment;
+use App\Models\Assignment;
 use Illuminate\Support\Collection;
 use App\Repositories\TicketRepository;
 use App\Services\Zendesk\JobCollection;
