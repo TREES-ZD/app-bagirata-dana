@@ -2,8 +2,8 @@
 
 namespace App\Jobs\Assignments;
 
-use App\Agent;
-use App\Assignment;
+use App\Models\Agent;
+use App\Models\Assignment;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
 use App\Repositories\AgentRepository;

@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Agent;
-use App\Assignment;
+use App\Models\Agent;
+use App\Models\Assignment;
 use Illuminate\Console\Command;
 use App\Repositories\AgentRepository;
 

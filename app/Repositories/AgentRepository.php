@@ -2,9 +2,9 @@
 
 namespace App\Repositories;
 
-use App\Agent;
+use App\Models\Agent;
+use App\Models\AvailabilityLog;
 use Carbon\Carbon;
-use App\AvailabilityLog;
 use App\Traits\RoundRobinable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;

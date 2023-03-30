@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Agent;
+use App\Models\Agent;
 use App\Services\ZendeskService;
 use Illuminate\Support\Collection;
 use App\Collections\AgentCollection;

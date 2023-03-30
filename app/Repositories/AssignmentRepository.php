@@ -2,8 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Agent;
-use App\Assignment;
+use App\Models\Agent;
+use App\Models\Assignment;
 use App\Traits\RoundRobinable;
 use App\Services\Zendesk\Ticket;
 use Illuminate\Support\Collection;

@@ -2,7 +2,7 @@
 
 namespace App\Scopes;
 
-use App\Admin as AppAdmin;
+use App\Models\Admin as AppAdmin;
 use Encore\Admin\Facades\Admin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;

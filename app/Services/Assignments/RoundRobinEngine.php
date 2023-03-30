@@ -2,7 +2,7 @@
 
 namespace App\Services\Assignments;
 
-use App\Agent;
+use App\Models\Agent;
 use App\Services\Zendesk\Ticket;
 use App\Collections\AgentCollection;
 use App\Services\Zendesk\TicketCollection;

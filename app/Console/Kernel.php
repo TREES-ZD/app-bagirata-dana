@@ -2,25 +2,15 @@
 
 namespace App\Console;
 
+use App\Models\Task;
 use App\Jobs\Assignments\AssignBatch;
 use App\Jobs\Assignments\UnassignBatch;
 use App\Repositories\AgentRepository;
-use App\Repositories\TicketRepository;
-use App\Task;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
-    /**
-     * The Artisan commands provided by your application.
-     *
-     * @var array
-     */
-    protected $commands = [
-        //
-    ];
-
     /**
      * Define the application's command schedule.
      *
@@ -56,7 +46,6 @@ class Kernel extends ConsoleKernel
                 UnassignBatch::dispatch()->onQueue('assignment');
             }
         })->everyMinute();
-
 
     }
 

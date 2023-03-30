@@ -2,10 +2,10 @@
 
 namespace App\Jobs\Assignments;
 
-use App\Task;
-use App\Agent;
+use App\Models\Task;
+use App\Models\Agent;
 use Exception;
-use App\TaskLog;
+use App\Models\TaskLog;
 use Illuminate\Support\Str;
 use App\Jobs\CheckJobStatus;
 use Illuminate\Bus\Queueable;

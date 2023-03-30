@@ -2,9 +2,9 @@
 
 namespace App\Listeners;
 
-use App\Agent;
+use App\Models\Agent;
 use Exception;
-use App\Assignment;
+use App\Models\Assignment;
 use Illuminate\Support\Str;
 use App\Jobs\LogAssignments;
 use App\Events\TicketsProcessed;

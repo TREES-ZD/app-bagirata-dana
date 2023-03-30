@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use App\Agent;
+use App\Models\Agent;
 use App\Services\Zendesk\Ticket;
 use Illuminate\Support\Collection;
 use App\Collections\AgentCollection;

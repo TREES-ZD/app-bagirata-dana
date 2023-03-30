@@ -2,10 +2,10 @@
 
 namespace App\Jobs\Assignments;
 
-use App\Agent;
+use App\Models\Agent;
 use Exception;
-use App\Assignment;
-use App\AvailabilityLog;
+use App\Models\Assignment;
+use App\Models\AvailabilityLog;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use App\Jobs\CheckJobStatus;

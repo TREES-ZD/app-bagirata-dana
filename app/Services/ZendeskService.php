@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Agent;
+use App\Models\Agent;
 use Illuminate\Support\Arr;
 use App\Services\Zendesk\Ticket;
 use App\Services\Zendesk\JobStatus;

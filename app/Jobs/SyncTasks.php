@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Services\ZendeskService;
-use App\Task;
+use App\Models\Task;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

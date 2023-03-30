@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Agent;
+use App\Models\Agent;
 use Illuminate\Support\Arr;
 use Illuminate\Bus\Queueable;
 use App\Services\ZendeskService;
