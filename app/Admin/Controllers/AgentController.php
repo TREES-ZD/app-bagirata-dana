@@ -39,6 +39,7 @@ class AgentController extends Controller
     public function index(Content $content) {
         
         $grid = Admin::grid(new Agent, function (Grid $grid) {
+            $grid->model()->orderBy('id');
             $grid->disableColumnSelector();
             $grid->disableExport();
             // $grid->disableFilter();
