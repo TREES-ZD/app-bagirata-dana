@@ -1,9 +1,10 @@
 <?php
 
-use App\Task;
-use App\Agent;
+
+use App\Models\Task;
+use App\Models\Agent;
 // use Encore\Admin\Admin;
-use App\Assignment;
+use App\Models\Assignment;
 use DebugBar\DebugBar;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;

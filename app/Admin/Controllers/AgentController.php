@@ -2,7 +2,7 @@
 
 namespace App\Admin\Controllers;
 
-use App\Agent;
+use App\Models\Agent;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use App\Jobs\SyncAgents;
@@ -37,8 +37,8 @@ class AgentController extends Controller
     }
 
     public function index(Content $content) {
+        
         $grid = Admin::grid(new Agent, function (Grid $grid) {
-
             $grid->disableColumnSelector();
             $grid->disableExport();
             // $grid->disableFilter();
@@ -83,10 +83,16 @@ class AgentController extends Controller
             $grid->zendesk_group_name("Group")->sortable();
             // $grid->fullName("Full Name");
             $grid->zendesk_custom_field_name("Agent Name")->sortable();
-            $grid->status("Availability")->select([
-                true => 'Available',
-                false => 'Unavailable',
-            ])->sortable();      
+            // set text, color, and stored values
+            $states = [
+                'off' => ['value' => 0, 'text' => 'Off', 'color' => 'default'],
+                'on' => ['value' => 1, 'text' => 'On', 'color' => 'primary'],
+            ];
+            $grid->status('Availability')->switch($states);
+            // $grid->status("Availability")->select([
+            //     true => 'Available',
+            //     false => 'Unavailable',
+            // ])->sortable();      
             // $grid->reassign("Reassignable")->select([
             //     true => 'Yes',
             //     false => 'No',
@@ -166,8 +172,8 @@ class AgentController extends Controller
     }
 
     public function update(Request $request, $id) {
-        $agent = Agent::findOrFail($id);
-
+        $agent = Agent::where('id', $id)->firstOrFail();
+        
         // Workaround to check same status can't be updated with the same status
         if ($agent->status != $request->get('status')) {
             $agent->status = $request->get('status');
