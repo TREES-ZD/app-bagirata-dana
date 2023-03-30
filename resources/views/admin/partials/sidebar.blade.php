@@ -39,9 +39,13 @@
         <!-- Sidebar Menu -->
         <ul class="sidebar-menu">
             <li class="header">{{ trans('admin.menu') }}</li>
-
-            @each('admin::partials.menu', Admin::menu(), 'item')
-
+            <!-- @each('admin::partials.menu', Admin::menu(), 'item') -->
+            <li><a href="/backend"><i class="fa fa-home"></i><span>Home</span></a>
+            <li><a href="/backend/agents"><i class="fa fa-users"></i><span>Agents</span></a>
+            <li><a href="/backend/rules"><i class="fa fa-bars"></i><span>Rules</span></a>
+            <li><a href="/backend/tasks"><i class="fa fa-play"></i><span>Tasks</span></a>
+            <li><a href="/backend/assignment_logs"><i class="fa fa-bars"></i><span>Assignment Logs</span></a></li>
+            <li><a href="/backend/availability_logs"><i class="fa fa-bars"></i><span>Availability Logs</span></a></li>
         </ul>
         <!-- /.sidebar-menu -->
     </section>

@@ -1,4 +1,4 @@
-<div class="box grid-box">
+<div class="box">
     @if(isset($title))
     <div class="box-header with-border">
         <h3 class="box-title"> {{ $title }}</h3>
@@ -11,12 +11,17 @@
             {!! $grid->renderColumnSelector() !!}
             {!! $grid->renderExportButton() !!}
             {!! $grid->renderCreateButton() !!}
+            @if (isset($customActions))
+                @foreach($customActions as $action)
+                        {!! $action !!}
+                @endforeach
+            @endif
         </div>
-        @if ( $grid->showTools() )
+
         <div class="pull-left">
             {!! $grid->renderHeaderTools() !!}
         </div>
-        @endif
+        
     </div>
     @endif
 
@@ -26,7 +31,7 @@
 
     <!-- /.box-header -->
     <div class="box-body table-responsive no-padding">
-        <table class="table table-hover grid-table" id="{{ $grid->tableID }}">
+        <table class="table table-hover" id="{{ $grid->tableID }}">
             <thead>
                 <tr>
                     @foreach($grid->visibleColumns() as $column)

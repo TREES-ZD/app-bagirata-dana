@@ -4,9 +4,9 @@
     <!-- Logo -->
     <a href="{{ admin_url('/') }}" class="logo">
         <!-- mini logo for sidebar mini 50x50 pixels -->
-        <span class="logo-mini">{!! config('admin.logo-mini', config('admin.name')) !!}</span>
+        <span class="logo-mini">BR</span>
         <!-- logo for regular state and mobile devices -->
-        <span class="logo-lg">{!! config('admin.logo', config('admin.name')) !!}</span>
+        <span class="logo-lg">BagiRata</span>
     </a>
 
     <!-- Header Navbar -->
@@ -23,7 +23,12 @@
         <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
 
-                {!! Admin::getNavbar()->render() !!}
+                <!-- {!! Admin::getNavbar()->render() !!} -->
+                <li>
+                    <a href="/refresh" class="container-refresh">
+                    <i class="fa fa-refresh"></i>
+                    </a>
+                </li>
 
                 <!-- User Account Menu -->
                 <li class="dropdown user user-menu">
@@ -45,9 +50,11 @@
                             </p>
                         </li>
                         <li class="user-footer">
+                        @if (Admin::user()->isAdministrator())
                             <div class="pull-left">
-                                <a href="{{ admin_url('auth/setting') }}" class="btn btn-default btn-flat">{{ trans('admin.setting') }}</a>
+                                <a href="{{ admin_url('auth/users') }}" class="btn btn-default btn-flat">Users</a>
                             </div>
+                        @endif
                             <div class="pull-right">
                                 <a href="{{ admin_url('auth/logout') }}" class="btn btn-default btn-flat">{{ trans('admin.logout') }}</a>
                             </div>
