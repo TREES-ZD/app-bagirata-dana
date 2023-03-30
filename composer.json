@@ -23,6 +23,7 @@
         "laravel/horizon": "^5.15",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
+        "php-heroku-client/php-heroku-client": "^4.0",
         "rap2hpoutre/laravel-log-viewer": "^2.3",
         "spatie/eloquent-sortable": "^4.0",
         "spatie/laravel-activitylog": "^4.7",
@@ -44,7 +45,8 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
-            "pestphp/pest-plugin": true
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
         }
     },
     "extra": {
