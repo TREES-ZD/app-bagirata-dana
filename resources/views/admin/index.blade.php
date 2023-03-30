@@ -2,7 +2,8 @@
 <html lang="{{ config('app.locale') }}">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ Admin::title() }} @if($header) | {{ $header }}@endif</title>
     <!-- Tell the browser to be responsive to screen width -->
@@ -15,7 +16,6 @@
     {!! Admin::css() !!}
 
     <script src="{{ Admin::jQuery() }}"></script>
-    <!-- <script src="{{ asset('js/app.js') }}" defer></script>  -->
     {!! Admin::headerJs() !!}
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -33,6 +33,7 @@
 @endif
 
 <div class="wrapper">
+
     @include('admin::partials.header')
 
     @include('admin::partials.sidebar')
@@ -60,7 +61,6 @@
 
 <!-- REQUIRED JS SCRIPTS -->
 {!! Admin::js() !!}
- <!-- DataTables -->
- <script src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+
 </body>
 </html>
