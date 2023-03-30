@@ -26,6 +26,8 @@ use App\Admin\Actions\Post\BatchReplicate;
 use App\Admin\Actions\Agent\SyncAgentAction;
 use App\Admin\Actions\Agent\BatchSetAvailable;
 use App\Admin\Actions\Agent\BatchSetUnavailable;
+use App\Admin\Actions\Task\SyncAgentsAction;
+use App\Jobs\SyncAllAgents;
 
 class AgentController extends Controller
 {
@@ -43,9 +45,9 @@ class AgentController extends Controller
             $grid->disableColumnSelector();
             $grid->disableExport();
             // $grid->disableFilter();
-            // $grid->tools(function ($tools) {
-            //     $tools->append(new SyncAgentAction());
-            // });
+            $grid->with([
+                'customActions' => collect([new SyncAgentsAction()])
+            ]);
             $grid->batchActions(function ($batch) {
                 $batch->disableDelete();
                 $batch->add(new BatchSetAvailable());
@@ -60,7 +62,7 @@ class AgentController extends Controller
             if (!Admin::user()->isAdministrator()) {
                 $grid->disableCreateButton();
             }
-            
+
             $grid->model()->orderBy('zendesk_custom_field_name');
             $grid->filter(function($filter){
                 // Remove the default id filter
@@ -187,7 +189,13 @@ class AgentController extends Controller
     
     public function destroy() {
 
-    }    
+    }
+
+    public function syncAll() {
+        SyncAllAgents::dispatchSync();
+
+        return response()->json(['status' => 'success syncing']);
+    }
 
     public function sync() {
         SyncAgents::dispatchNow([
