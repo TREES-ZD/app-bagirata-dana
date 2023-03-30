@@ -2,7 +2,7 @@
 
 Namespace App\Admin\Actions\Task;
 
-use App\Models\Task;
+use App\Task;
 use Encore\Admin\Actions\BatchAction;
 use Illuminate\Database\Eloquent\Collection;
 

@@ -2,8 +2,8 @@
 
 namespace App\Admin\Controllers;
 
-use App\Models\Task;
-use App\Models\Agent;
+use App\Task;
+use App\Agent;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use App\Jobs\SyncAgents;

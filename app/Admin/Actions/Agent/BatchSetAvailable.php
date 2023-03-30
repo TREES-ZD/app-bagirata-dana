@@ -2,7 +2,7 @@
 
 namespace App\Admin\Actions\Agent;
 
-use App\Models\Agent;
+use App\Agent;
 use Encore\Admin\Actions\BatchAction;
 use Illuminate\Database\Eloquent\Collection;
 

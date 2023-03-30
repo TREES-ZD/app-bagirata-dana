@@ -2,12 +2,12 @@
 
 namespace App\Admin\Controllers;
 
-use App\Models\Agent;
-use App\Models\Group;
+use App\Agent;
+use App\Group;
 use Carbon\Carbon;
-use App\Models\Assignment;
+use App\Assignment;
 use Encore\Admin\Grid;
-use App\Models\AvailabilityLog;
+use App\AvailabilityLog;
 use Encore\Admin\Layout\Row;
 use Illuminate\Http\Request;
 use Encore\Admin\Widgets\Box;

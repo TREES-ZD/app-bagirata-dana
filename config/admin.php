@@ -1,5 +1,7 @@
 <?php
 
+use App\Admin;
+
 return [
 
     /*
@@ -138,6 +140,7 @@ return [
         'excepts' => [
             'auth/login',
             'auth/logout',
+            '_handle_action_',
         ],
     ],
 
@@ -177,7 +180,7 @@ return [
 
         // User tables and model.
         'users_table' => 'admin_users',
-        'users_model' => Encore\Admin\Auth\Database\Administrator::class,
+        'users_model' => Admin::class,
 
         // Role table and model.
         'roles_table' => 'admin_roles',
@@ -209,7 +212,7 @@ return [
     */
     'operation_log' => [
 
-        'enable' => true,
+        'enable' => false,
 
         /*
          * Only logging allowed methods in the list
@@ -223,7 +226,7 @@ return [
          * or specific method to path like: get:admin/auth/logs.
          */
         'except' => [
-            env('ADMIN_ROUTE_PREFIX', 'admin').'/auth/logs*',
+            'admin/auth/logs*',
         ],
     ],
 
@@ -232,14 +235,14 @@ return [
     | Indicates whether to check route permission.
     |--------------------------------------------------------------------------
     */
-    'check_route_permission' => true,
+    'check_route_permission' => false,
 
     /*
     |--------------------------------------------------------------------------
     | Indicates whether to check menu roles.
     |--------------------------------------------------------------------------
     */
-    'check_menu_roles'       => true,
+    'check_menu_roles'       => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -275,7 +278,7 @@ return [
     |    "skin-red", "skin-red-light", "skin-black", "skin-black-light".
     |
     */
-    'skin' => env('ADMIN_SKIN', 'skin-green-light'),
+    'skin' => 'skin-green-light',
 
     /*
     |--------------------------------------------------------------------------
@@ -310,7 +313,7 @@ return [
     | each page
     |
     */
-    'show_version' => true,
+    'show_version' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -360,16 +363,6 @@ return [
     |--------------------------------------------------------------------------
     */
     'enable_menu_search' => true,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Exclude route from generate menu command
-    |--------------------------------------------------------------------------
-    */
-    'menu_exclude' => [
-        '_handle_selectable_',
-        '_handle_renderable_',
-    ],
 
     /*
     |--------------------------------------------------------------------------

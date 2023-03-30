@@ -3,7 +3,7 @@
 Namespace App\Admin\Actions\Task;
 
 Use App\Models\Document;
-use App\Models\Task;
+use App\Task;
 use Encore\Admin\Actions\GridAction;
 Use Encore\Admin\Actions\RowAction;
 
