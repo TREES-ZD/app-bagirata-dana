@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Encore\Admin\Auth\Database\Administrator;
 
