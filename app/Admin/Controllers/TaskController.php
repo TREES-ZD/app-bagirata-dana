@@ -65,8 +65,8 @@ class TaskController extends Controller
                 //     false => 'No',
                 // ]);
                 $states = [
-                    'off' => ['value' => false, 'text' => 'No', 'color' => 'default'],
-                    'on' => ['value' => true, 'text' => 'Yes', 'color' => 'primary'],
+                    'off' => ['value' => 0, 'text' => 'No', 'color' => 'default'],
+                    'on' => ['value' => 1, 'text' => 'Yes', 'color' => 'primary'],
                 ];
                 $grid->enabled()->switch($states);
 
