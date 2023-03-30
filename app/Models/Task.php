@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use App\Traits\RoundRobinable;
 use Illuminate\Support\Collection;
@@ -15,12 +15,12 @@ class Task extends Model
 
     public function rules()
     {
-        return $this->belongsToMany('App\Agent', 'rules');
+        return $this->belongsToMany('App\Models\Agent', 'rules');
     }
 
     public function assignments()
     {
-        return $this->hasMany('App\Assignment', 'zendesk_view_id', 'zendesk_view_id');
+        return $this->hasMany('App\Models\Assignment', 'zendesk_view_id', 'zendesk_view_id');
     }
 
     public function getAvailableAgents() {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use App\Collections\AgentCollection;
 use App\Jobs\Agent\UnassignTickets;
@@ -82,15 +82,15 @@ class Agent extends Model implements Sortable
     }
 
     public function rules() {
-        return $this->belongsToMany('App\Task', 'rules')->withPivot('priority');
+        return $this->belongsToMany('App\Models\Task', 'rules')->withPivot('priority');
     }
 
     public function assignments() {
-        return $this->hasMany('App\Assignment');
+        return $this->hasMany('App\Models\Assignment');
     }
 
     public function latestAvailability() {
-        return $this->hasOne('App\AvailabilityLog')->latest()->first();
+        return $this->hasOne('App\Models\AvailabilityLog')->latest()->first();
     }
 
     public function getFullNameAttribute()
