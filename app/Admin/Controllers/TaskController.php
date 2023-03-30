@@ -4,8 +4,8 @@ namespace App\Admin\Controllers;
 
 use App\Admin\Actions\Task\BatchDeleteTask;
 use App\Admin\Actions\Task\RunTask;
-use App\Task;
-use App\Group;
+use App\Models\Task;
+use App\Models\Group;
 use Encore\Admin\Grid;
 use Encore\Admin\Layout\Row;
 use Illuminate\Http\Request;
