@@ -52,7 +52,6 @@ class TaskController extends Controller
 
                 // Add a column filter
                 $filter->ilike('zendesk_view_title', 'View Title');
-                $filter->ilike('zendesk_view_id', 'View ID');
                 $filter->in('enabled', 'Status')->radio([
                     '' => 'All',
                     true => 'Enabled',
