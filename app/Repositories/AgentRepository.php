@@ -83,7 +83,7 @@ class AgentRepository
             $filteredAgentIdsQuery->where('status', Agent::UNAVAILABLE);
         }            
 
-        $filteredAgentIds = $filteredAgentIdsQuery->select(DB::raw('agents.id, count(*) as assignment_count'))
+        $filteredAgentIds = $filteredAgentIdsQuery->select(DB::raw('agents.id, count(assignments.id) as assignment_count'))
                                 ->groupBy('agents.id')
                                 ->orderByDesc('assignment_count')
                                 ->limit($limit)
