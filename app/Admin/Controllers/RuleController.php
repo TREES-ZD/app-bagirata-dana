@@ -103,12 +103,12 @@ class RuleController extends Controller
                 }
                 return $html;
             });            
-            debugbar()->log(request()->all());
+
             $tasks->each(function($task) use ($grid) {
                 $grid->column($task->id, sprintf("%s", $task->zendesk_view_title))->display(function () use ($task) {
                     $rule = $task->rulesTable->firstWhere('agent_id', $this->id);
                     return $rule ? $rule->priority : "-";
-                })->editable()->sortable();
+                })->editable();
             });
          
         });
