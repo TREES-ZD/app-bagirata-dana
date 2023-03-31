@@ -41,6 +41,13 @@ class AgentController extends Controller
     public function index(Content $content) {
         
         $grid = Admin::grid(new Agent, function (Grid $grid) {
+            if (request()->has('__search__')) {
+                $input = request('__search__');
+                $grid->model()->where('zendesk_agent_name', 'ilike', "%{$input}%")
+                        ->orWhere('zendesk_group_name', 'ilike', "%{$input}%")
+                        ->orWhere('zendesk_custom_field_name', 'ilike', "%{$input}%");
+            }
+
             $grid->model()->orderBy('id');
             $grid->disableColumnSelector();
             $grid->disableExport();
@@ -79,6 +86,7 @@ class AgentController extends Controller
                 ]);
                 
             });            // $grid->expandFilter();
+            $grid->quickSearch();
 
             $grid->paginate(20);
             $grid->fullName("Agent Full Name");
