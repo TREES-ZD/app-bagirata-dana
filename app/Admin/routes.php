@@ -44,7 +44,7 @@ Route::group([
     $router->put('/agents/{id}', 'AgentController@update');
     $router->delete('/agents/{id}', 'AgentController@destroy');
     $router->post("/agents/sync", 'AgentController@sync');
-    $router->post("/agents/syncAll", 'AgentController@syncAll');
+    $router->post("/agents/syncAll", 'AgentController@syncAll')->middleware('throttle:1,1');
 
     $router->get('/tasks', 'TaskController@index');
     $router->put('/tasks/{id}', 'TaskController@update');
