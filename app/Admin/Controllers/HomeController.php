@@ -40,7 +40,7 @@ class HomeController extends Controller
         $totalAssignmentChartTitle = $this->totalAssignmentChartTitle($request);
         return $content
             ->title('Home')
-            ->description('Description...')
+            ->description('Dashboard')
             ->row(function (Row $row) use ($agentsWithAssignmentCount, $totalAvailableAgents, $totalEnabledTasks, $totalAssignmentChartTitle) {
                 $full_names = $agentsWithAssignmentCount->pluck('full_name');
                 $assignment_counts = $agentsWithAssignmentCount->pluck('assignment_count');
