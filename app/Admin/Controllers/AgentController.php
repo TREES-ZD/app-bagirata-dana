@@ -82,16 +82,19 @@ class AgentController extends Controller
 
             $grid->paginate(20);
             $grid->fullName("Agent Full Name");
-            $grid->zendesk_agent_name("Assignee")->sortable();
-            $grid->zendesk_group_name("Group")->sortable();
+            $grid->zendesk_agent_name("Assignee")->filter('like');
+            $grid->zendesk_group_name("Group")->filter('like');
             // $grid->fullName("Full Name");
-            $grid->zendesk_custom_field_name("Agent Name")->sortable();
+            $grid->zendesk_custom_field_name("Agent Name")->filter('like');
             // set text, color, and stored values
             $states = [
                 'off' => ['value' => 0, 'text' => 'Off', 'color' => 'default'],
                 'on' => ['value' => 1, 'text' => 'On', 'color' => 'primary'],
             ];
-            $grid->status('Availability')->switch($states);
+            $grid->status('Availability')->switch($states)->filter([
+                0 => 'Off',
+                1 => 'On'
+            ]);
             // $grid->status("Availability")->select([
             //     true => 'Available',
             //     false => 'Unavailable',
