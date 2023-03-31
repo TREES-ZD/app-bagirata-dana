@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Models\Agent;
 use App\Models\Group;
+use App\Models\Task;
 use Carbon\Carbon;
 use App\Models\Assignment;
 use Encore\Admin\Grid;
@@ -35,11 +36,12 @@ class HomeController extends Controller
         }
         
         $totalAvailableAgents = Agent::disableCache()->where('status', Agent::AVAILABLE)->count();
+        $totalEnabledTasks = Task::where('enabled', true)->count();
         $totalAssignmentChartTitle = $this->totalAssignmentChartTitle($request);
         return $content
             ->title('Home')
             ->description('Description...')
-            ->row(function (Row $row) use ($agentsWithAssignmentCount, $totalAvailableAgents, $totalAssignmentChartTitle) {
+            ->row(function (Row $row) use ($agentsWithAssignmentCount, $totalAvailableAgents, $totalEnabledTasks, $totalAssignmentChartTitle) {
                 $full_names = $agentsWithAssignmentCount->pluck('full_name');
                 $assignment_counts = $agentsWithAssignmentCount->pluck('assignment_count');
                 
@@ -60,6 +62,7 @@ class HomeController extends Controller
                 
                 $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts', 'totalAssignmentChartTitle'))));
                 $row->column(4, new Box("Agent(s) available", $totalAvailableAgents ?: "None"));
+                $row->column(4, new Box("Task(s) enabled", $totalEnabledTasks ?: "None"));
                 $row->column(4, new Box("Availability logs", view('roundrobin.dashboard.availabilityLogs', compact('availabilityLogs'))));
                 
                 $row->column(12, new Box("Latest assignments", view('roundrobin.logs', compact('dataTable'))));
