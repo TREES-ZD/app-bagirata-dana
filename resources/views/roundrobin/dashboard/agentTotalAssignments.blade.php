@@ -70,7 +70,7 @@
             labels: full_names,
             datasets: [{
                 label: "Total assignment",
-                backgroundColor: [...Array(assignment_counts.length).keys()].map(e => ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"][e % 5]),
+                backgroundColor: [...Array(assignment_counts.length).keys()].map(e => ['#ff4136', '#2ecc40', '#0074d9', '#ff851b', '#b10dc9', '#ffdc00', '#ff69b4', '#f012be', '#39cccc'][e % 10]),
                 data: assignment_counts
             }]
         },
