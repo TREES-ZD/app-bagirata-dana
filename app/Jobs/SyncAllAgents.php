@@ -37,27 +37,28 @@ class SyncAllAgents implements ShouldQueue
      */
     public function handle(ZendeskService $zendesk)
     {
-        $existingAgents = Agent::disableCache()->all()->keyBy('fullId');
+        DB::transaction(function() use ($zendesk) {
+            $existingAgents = Agent::disableCache()->all()->keyBy('fullId');
         
-        $zendesk->refresh();
+            $zendesk->refresh();
+    
+            $newAgents = $zendesk->filterUsers("*")
+                                ->filterGroups("*")
+                                ->filterCustomFields("-")
+                                ->getPossibleAgents();
+    
+            $agents = $newAgents->diffKeys($existingAgents)
+                                ->map(function($agent) {
+                                    $agent = Arr::except($agent, ['full_id']);
+                                    return $agent + [
+                                        "priority" => 1,
+                                        "limit" =>  "unlimited",
+                                        "status" =>  false,
+                                        "reassign" =>  false
+                                    ];
+                                });
+    
 
-        $newAgents = $zendesk->filterUsers("*")
-                            ->filterGroups("*")
-                            ->filterCustomFields("-")
-                            ->getPossibleAgents();
-
-        $agents = $newAgents->diffKeys($existingAgents)
-                            ->map(function($agent) {
-                                $agent = Arr::except($agent, ['full_id']);
-                                return $agent + [
-                                    "priority" => 1,
-                                    "limit" =>  "unlimited",
-                                    "status" =>  false,
-                                    "reassign" =>  false
-                                ];
-                            });
-
-        DB::transaction(function() use ($agents) {
             Agent::insert($agents->toArray());
         });
 
