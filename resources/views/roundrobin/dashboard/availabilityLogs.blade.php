@@ -1,7 +1,7 @@
 <table class="table">
     <thead>
     <tr>
-      <th scope="col">Created At</th>
+      <th scope="col">Time</th>
       <th scope="col">Status</th>
       <th scope="col">Agent</th>
     </tr>

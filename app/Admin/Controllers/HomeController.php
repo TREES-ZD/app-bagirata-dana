@@ -132,9 +132,9 @@ class HomeController extends Controller
 
         $grid->model()->orderBy('id', 'desc');
 
-        $grid->column("created_at");
-        $grid->column("status");
-        $grid->column("agent_name");
+        $grid->created_at("Time");
+        $grid->status("Status");
+        $grid->agent_name("Agent Name");
 
         return $content->body($grid);
     }        
