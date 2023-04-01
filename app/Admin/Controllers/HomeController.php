@@ -101,7 +101,7 @@ class HomeController extends Controller
         $grid->column("agent_name");
         $grid->column('zendesk_view_id', 'View ID')->display(function () {
             $subdomain = config('zendesk-laravel.subdomain');
-            return is_numeric($this->zendesk_view_id) ? sprintf("<a href=\"https://%s.zendesk.com/agent/views/%s\">%s</a>", $subdomain, $this->zendesk_view_id, $this->zendesk_view_id) : '';
+            return is_numeric($this->zendesk_view_id) ? sprintf("<a href=\"https://%s.zendesk.com/agent/filters/%s\">%s</a>", $subdomain, $this->zendesk_view_id, $this->zendesk_view_id) : '';
         });
         $grid->column('zendesk_ticket_id', 'Ticket ID')->display(function () {
             $subdomain = config('zendesk-laravel.subdomain');
