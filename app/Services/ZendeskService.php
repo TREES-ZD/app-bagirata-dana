@@ -228,15 +228,20 @@ class ZendeskService
 
     public function getGroupMemberships() {
         $groupMemberships = Cache::remember("groupMemberships", 24 * 60 * 7, function () {
-            $response = Zendesk::groupMemberships()->findAll();
-            $responseTwo = Zendesk::groupMemberships()->findAll(['page' => 2]);
-            $responseThree = Zendesk::groupMemberships()->findAll(['page' => 3]);
-            $responseFour = Zendesk::groupMemberships()->findAll(['page' => 4]);
-            $responseFive = Zendesk::groupMemberships()->findAll(['page' => 5]);
-            $responseSix = Zendesk::groupMemberships()->findAll(['page' => 6]);
-            $responseSeven = Zendesk::groupMemberships()->findAll(['page' => 7]);
-            $responseEight = Zendesk::groupMemberships()->findAll(['page' => 8]);
-            return array_merge($response->group_memberships, $responseTwo->group_memberships, $responseThree->group_memberships, $responseFour->group_memberships, $responseFive->group_memberships, $responseSix->group_memberships, $responseSeven->group_memberships, $responseEight->group_memberships);
+            $page = 1;
+
+            $group_memberships = collect(); 
+            while ($page && $page <= 10) {
+                $response = Zendesk::groupMemberships()->findAll(['page' => $page]);
+                
+                $group_memberships = $group_memberships->merge($response->group_memberships);
+                if ($response->next_page) {
+                    $page++;
+                } else {
+                    $page = null;
+                }
+            }
+            return $group_memberships->all();
         });
 
         return $groupMemberships;
