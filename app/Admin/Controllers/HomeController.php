@@ -47,25 +47,14 @@ class HomeController extends Controller
                 
                 // Availability Logs table
                 $availabilityLogs = AvailabilityLog::latest("id")->limit(10)->get(["created_at", "status", "agent_name"]);
-
                 // Latest Assignments table
-                $headers = ['Date', 'Agent', 'Ticket ID', 'Title', "Type"];
-                $rows = Assignment::latest("id")->limit(10)->get(["created_at", "agent_name", "zendesk_ticket_id", "zendesk_ticket_subject", "type"])->toArray();
-                $style = ['table-bordered','table-hover', 'table-striped'];
-                $options = [
-                    'lengthChange' => false,
-                    // 'ordering' => true,
-                    'info' => true,
-                    'autoWidth' => false,
-                ];
-                $dataTable = new DataTable($headers, $rows, $style, $options);        
+                $latestAssignments = Assignment::latest("id")->limit(10)->get(["created_at", "agent_name", "zendesk_view_id", "zendesk_ticket_id", "zendesk_ticket_subject", "type"]);
                 
                 $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts', 'totalAssignmentChartTitle'))));
                 $row->column(4, new Box("Agent(s) available", $totalAvailableAgents ?: "None"));
                 $row->column(4, new Box("Task(s) enabled", $totalEnabledTasks ?: "None"));
                 $row->column(4, new Box("Availability logs", view('roundrobin.dashboard.availabilityLogs', compact('availabilityLogs'))));
-                
-                $row->column(12, new Box("Latest assignments", view('roundrobin.logs', compact('dataTable'))));
+                $row->column(12, new Box("Latest assignments", view('roundrobin.dashboard.latestAssignments', compact('latestAssignments'))));                
             });
     }
 
@@ -110,9 +99,13 @@ class HomeController extends Controller
 
         $grid->column("created_at");
         $grid->column("agent_name");
+        $grid->column('zendesk_view_id', 'View ID')->display(function () {
+            $subdomain = config('zendesk-laravel.subdomain');
+            return is_numeric($this->zendesk_view_id) ? sprintf("<a href=\"https://%s.zendesk.com/agent/views/%s\">%s</a>", $subdomain, $this->zendesk_view_id, $this->zendesk_view_id) : '';
+        });
         $grid->column('zendesk_ticket_id', 'Ticket ID')->display(function () {
             $subdomain = config('zendesk-laravel.subdomain');
-            $html = sprintf("<a href=\"https://%s.zendesk.com/agent/tickets/%s\">#%s</a>", $subdomain, $this->zendesk_ticket_id, $this->zendesk_ticket_id);
+            $html = sprintf("<a href=\"https://%s.zendesk.com/agent/tickets/%s\">%s</a>", $subdomain, $this->zendesk_ticket_id, $this->zendesk_ticket_id);
             return $html;
             
         });
