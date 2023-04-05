@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Assignments;
 
+use App\Services\Zendesk\JobStatus;
 use Illuminate\Bus\Queueable;
 use App\Services\ZendeskService;
 use Illuminate\Support\Facades\Log;
@@ -46,8 +47,8 @@ class CheckJobStatuses implements ShouldQueue
         $jobStatuses = $jobRepository->get($this->jobStatusIds);
         while (1) {
             if ($jobStatuses->areAllCompleted()) {
-                $jobStatuses->each(function($jobStatus) {
-                    LogAssignments::dispatch($this->batch, $jobStatus->successTicketIds()->all(), $jobStatus->failedTicketIds()->all())->onQueue($this->queue);
+                $jobStatuses->each(function(JobStatus $jobStatus) {
+                    LogAssignments::dispatch($this->batch, $jobStatus->successTicketIds()->all(), $jobStatus->failedResultDetails()->all())->onQueue($this->queue);
                 });
 
                 return;

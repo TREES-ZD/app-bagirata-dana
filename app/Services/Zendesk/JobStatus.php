@@ -29,6 +29,11 @@ class JobStatus
         )->pluck('id');
     }
 
+    public function failedResultDetails() {
+        return collect($this->results)
+                ->filter(fn($result) => !optional($result)->status);
+    }
+
     public function __get($name)
     {
         if (isset($this->jobStatus->$name)) {

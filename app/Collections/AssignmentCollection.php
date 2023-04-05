@@ -51,8 +51,8 @@ class AssignmentCollection extends Collection
         });
     }
 
-    public function reconcile($successTicketIds, $failedTicketIds) {
-        return $this->updateStatus($successTicketIds, $failedTicketIds);
+    public function reconcile($successTicketIds, $failedResultDetails = []) {
+        return $this->updateStatus($successTicketIds, $failedResultDetails);
     }
 
     public function ticketIds() {
@@ -99,14 +99,21 @@ class AssignmentCollection extends Collection
     }
 
     public function updateLogs() {
-        return $this->groupBy(['batch', 'status'])->map(function($assignmentsByStatus, $batch) {
+        return $this->mapToGroups(fn($a) => [sprintf('%s-%s-%s-%s', $a->batch, $a->status, optional($a)->error, optional($a)->details) => $a])
+            ->map(function($assignments) {
+                $ticket_ids = $assignments->pluck('ticket_id')->values()->all();
+                $batch = $assignments->first()->batch;
+                $status = $assignments->first()->status;
+                $error = optional($assignments->first())->error;
+                $details = optional($assignments->first())->details;
 
-            return $assignmentsByStatus->map(function($assignments, $status) use ($batch) {
-                $assignmentBuilder = Assignment::where('batch_id', $batch)->whereIn('zendesk_ticket_id', $assignments->pluck('ticket_id')->values()->all());
-                return $assignmentBuilder->update(['response_status' => $status]);
-            });
-
-        });        
+                $assignmentBuilder = Assignment::where('batch_id', $batch)
+                                                ->whereIn('zendesk_ticket_id', $ticket_ids);
+                
+                return $assignmentBuilder->update([
+                    'response_status' => $status
+                ]);
+            });      
     }
 
     private function toLogParams() {
@@ -125,14 +132,18 @@ class AssignmentCollection extends Collection
         })->all();
     }
 
-    private function updateStatus($successTicketIds, $failedTicketIds) {
-        $processAssignments = $this->whereIn('ticket_id', array_merge($successTicketIds, $failedTicketIds))->map(function($assignment) use ($successTicketIds, $failedTicketIds){
-
+    private function updateStatus($successTicketIds, $failedResultDetails = []) {
+        $failedTicketIds = collect($failedResultDetails)->pluck('id')->all();
+        $resultsDict = collect($failedResultDetails)->mapWithKeys(fn($result) => [$result->id => (array) $result]);
+        
+        $processAssignments = $this->whereIn('ticket_id', array_merge($successTicketIds, $failedTicketIds))->map(function($assignment) use ($successTicketIds, $failedTicketIds, $resultsDict){
             if (in_array($assignment->ticket_id, $failedTicketIds)) {
                 $assignment->status = "FAILED";
+                $assignment->error = isset($resultsDict[$assignment->ticket_id]['error']) ? $resultsDict[$assignment->ticket_id]['error'] : null;
+                $assignment->details = isset($resultsDict[$assignment->ticket_id]['details']) ? $resultsDict[$assignment->ticket_id]['details'] : null;
             } else if (in_array($assignment->ticket_id, $successTicketIds)) {
                 $assignment->status = 200;
-            }
+            } 
 
             return $assignment;
         });
