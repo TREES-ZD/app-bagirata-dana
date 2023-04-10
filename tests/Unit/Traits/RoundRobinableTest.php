@@ -3,11 +3,13 @@
 namespace Tests\Unit;
 
 use App\Collections\AgentCollection;
+use Database\Factories\AgentFactory;
 use Tests\TestCase;
 use App\Traits\RoundRobinable;
 use App\Services\Zendesk\Ticket;
 use Illuminate\Support\Collection;
 use App\Services\Zendesk\TicketCollection;
+use Database\Factories\AssignmentFactory;
 use Tests\Helper\Seeder\AgentCollectionSeeder;
 use Tests\Helper\Seeder\TicketCollectionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -35,8 +37,8 @@ class RoundRobinableTest extends TestCase
      * @group roundRobin
      */
     public function test_tiket_tidak_akan_diassign_jika_agent_unavailable() {
-        $agentAndi = factory(\App\Agent::class)
-                    ->state('unavailable')
+        $agentAndi = AgentFactory::new()
+                    ->unavailable()
                     ->make([
                         "id" => 1,
                         "zendesk_agent_id" => 999,
@@ -46,7 +48,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "andi",
                         "zendesk_custom_field_name" => "Andi"
                     ]);
-        $agentBudi = factory(\App\Agent::class)
+        $agentBudi = AgentFactory::new()
                     ->make([
                         "id" => 2,
                         "zendesk_agent_id" => 999,
@@ -56,7 +58,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "budi",
                         "zendesk_custom_field_name" => "Budi"
                     ]);
-        $agentCharlie = factory(\App\Agent::class)
+        $agentCharlie = AgentFactory::new()
                         ->make([
                             "id" => 3,
                             "zendesk_agent_id" => 999,
@@ -97,7 +99,7 @@ class RoundRobinableTest extends TestCase
      * @group roundRobin
      */
     public function test_tickets_akan_digroup_dulu_baru_dibagi_rata() {
-        $agentAndi = factory(\App\Agent::class)
+        $agentAndi = AgentFactory::new()
                     ->make([
                         "id" => 1,
                         "zendesk_agent_id" => 999,
@@ -107,7 +109,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "andi",
                         "zendesk_custom_field_name" => "Andi"
                     ]);
-        $agentBudi = factory(\App\Agent::class)
+        $agentBudi = AgentFactory::new()
                     ->make([
                         "id" => 2,
                         "zendesk_agent_id" => 999,
@@ -117,7 +119,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "budi",
                         "zendesk_custom_field_name" => "Budi"
                     ]);
-        $agentCharlie = factory(\App\Agent::class)
+        $agentCharlie = AgentFactory::new()
                         ->make([
                             "id" => 3,
                             "zendesk_agent_id" => 999,
@@ -127,7 +129,7 @@ class RoundRobinableTest extends TestCase
                             "zendesk_custom_field_id" => "charlie",
                             "zendesk_custom_field_name" => "Charlie"
                         ]);
-        $agentDoni = factory(\App\Agent::class)
+        $agentDoni = AgentFactory::new()
                     ->make([
                         "id" => 3,
                         "zendesk_agent_id" => 999,
@@ -175,7 +177,7 @@ class RoundRobinableTest extends TestCase
      * @group roundRobin
      */
     public function test_ticket_tanpa_assignee_dan_group_diassign_ke_siapa_aja_yang_available() {
-        $agentAndi = factory(\App\Agent::class)
+        $agentAndi = AgentFactory::new()
                     ->make([
                         "id" => 1,
                         "zendesk_agent_id" => 999,
@@ -185,7 +187,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "andi",
                         "zendesk_custom_field_name" => "Andi"
                     ]);
-        $agentBudi = factory(\App\Agent::class)
+        $agentBudi = AgentFactory::new()
                     ->make([
                         "id" => 2,
                         "zendesk_agent_id" => 999,
@@ -195,7 +197,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "budi",
                         "zendesk_custom_field_name" => "Budi"
                     ]);
-        $agentCharlie = factory(\App\Agent::class)
+        $agentCharlie = AgentFactory::new()
                         ->make([
                             "id" => 3,
                             "zendesk_agent_id" => 999,
@@ -205,7 +207,7 @@ class RoundRobinableTest extends TestCase
                             "zendesk_custom_field_id" => "charlie",
                             "zendesk_custom_field_name" => "Charlie"
                         ]);
-        $agentDoni = factory(\App\Agent::class)
+        $agentDoni = AgentFactory::new()
                     ->make([
                         "id" => 3,
                         "zendesk_agent_id" => 999,
@@ -254,7 +256,7 @@ class RoundRobinableTest extends TestCase
      * @group roundRobin
      */
     public function test_ticket_unassign_yang_ada_groupnya_direserve_ke_agent_di_group_itu_sisanya_ke_agent_yang_available() {
-        $agentAndi = factory(\App\Agent::class)
+        $agentAndi = AgentFactory::new()
                     ->make([
                         "id" => 1,
                         "zendesk_agent_id" => 999,
@@ -264,7 +266,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "andi",
                         "zendesk_custom_field_name" => "Andi"
                     ]);
-        $agentBudi = factory(\App\Agent::class)
+        $agentBudi = AgentFactory::new()
                     ->make([
                         "id" => 2,
                         "zendesk_agent_id" => 999,
@@ -274,7 +276,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "budi",
                         "zendesk_custom_field_name" => "Budi"
                     ]);
-        $agentCharlie = factory(\App\Agent::class)
+        $agentCharlie = AgentFactory::new()
                         ->make([
                             "id" => 3,
                             "zendesk_agent_id" => 999,
@@ -284,7 +286,7 @@ class RoundRobinableTest extends TestCase
                             "zendesk_custom_field_id" => "charlie",
                             "zendesk_custom_field_name" => "Charlie"
                         ]);
-        $agentDoni = factory(\App\Agent::class)
+        $agentDoni = AgentFactory::new()
                     ->make([
                         "id" => 3,
                         "zendesk_agent_id" => 999,
@@ -318,6 +320,7 @@ class RoundRobinableTest extends TestCase
         ]);
 
         $assignments = $this->rr->createAssignments($agents, $tickets, "somerandomuuid");
+
         $this->assertCount(6, $assignments);
         $this->assertArraySubset([
             "agent_id" => $agentAndi->id,
@@ -350,7 +353,7 @@ class RoundRobinableTest extends TestCase
      * @group roundRobin
      */
     public function test_ticket_terakhir_dari_assignee_per_group_beda_satu_detik() {
-        $agentAndi = factory(\App\Agent::class)
+        $agentAndi = AgentFactory::new()
                     ->make([
                         "id" => 1,
                         "zendesk_agent_id" => 999,
@@ -360,7 +363,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "andi",
                         "zendesk_custom_field_name" => "Andi"
                     ]);
-        $agentBudi = factory(\App\Agent::class)
+        $agentBudi = AgentFactory::new()
                     ->make([
                         "id" => 2,
                         "zendesk_agent_id" => 999,
@@ -370,7 +373,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "budi",
                         "zendesk_custom_field_name" => "Budi"
                     ]);
-        $agentCharlie = factory(\App\Agent::class)
+        $agentCharlie = AgentFactory::new()
                         ->make([
                             "id" => 3,
                             "zendesk_agent_id" => 999,
@@ -380,7 +383,7 @@ class RoundRobinableTest extends TestCase
                             "zendesk_custom_field_id" => "charlie",
                             "zendesk_custom_field_name" => "Charlie"
                         ]);
-        $agentDoni = factory(\App\Agent::class)
+        $agentDoni = AgentFactory::new()
                     ->make([
                         "id" => 3,
                         "zendesk_agent_id" => 999,
@@ -430,7 +433,7 @@ class RoundRobinableTest extends TestCase
      * @group roundRobin
      */
     public function test_ticket_yang_terakhir_gagal_dapat_assignment_akan_diprioritaskan_ke_agent_yang_sama_di_assignment_sebelumnya() {
-        $agentAndi = factory(\App\Agent::class)
+        $agentAndi = AgentFactory::new()
                     ->make([
                         "id" => 1,
                         "zendesk_agent_id" => 999,
@@ -440,7 +443,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "andi",
                         "zendesk_custom_field_name" => "Andi"
                     ]);
-        $agentBudi = factory(\App\Agent::class)
+        $agentBudi = AgentFactory::new()
                     ->make([
                         "id" => 2,
                         "zendesk_agent_id" => 999,
@@ -461,7 +464,7 @@ class RoundRobinableTest extends TestCase
             ]])
         ]);
 
-        $assignmentThree = factory(\App\Assignment::class)
+        $assignmentThree = AssignmentFactory::new()
                         ->make([
                             'id' => 1,
                             'agent_id' => 1,
@@ -487,7 +490,7 @@ class RoundRobinableTest extends TestCase
      * @group roundRobin
      */
     public function test_failed_assignments_yang_agentnya_sudah_tidak_ada_dihiraukan() {
-        $agentAndi = factory(\App\Agent::class)
+        $agentAndi = AgentFactory::new()
                     ->make([
                         "id" => 1,
                         "zendesk_agent_id" => 999,
@@ -497,7 +500,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "andi",
                         "zendesk_custom_field_name" => "Andi"
                     ]);
-        $agentBudi = factory(\App\Agent::class)
+        $agentBudi = AgentFactory::new()
                     ->make([
                         "id" => 2,
                         "zendesk_agent_id" => 999,
@@ -507,7 +510,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "budi",
                         "zendesk_custom_field_name" => "Budi"
                     ]);
-        $agentCharlie = factory(\App\Agent::class)
+        $agentCharlie = AgentFactory::new()
                     ->make([
                         "id" => 3,
                         "zendesk_agent_id" => 999,
@@ -531,7 +534,7 @@ class RoundRobinableTest extends TestCase
             ]])
         ]);
 
-        $assignmentThree = factory(\App\Assignment::class)
+        $assignmentThree = AssignmentFactory::new()
                         ->make([
                             'id' => 1,
                             'agent_id' => 1,
@@ -556,7 +559,7 @@ class RoundRobinableTest extends TestCase
      * @group roundRobin
      */
     public function test_assignment_yang_ngga_ada_ticketnya_dihiraukan() {
-        $agentAndi = factory(\App\Agent::class)
+        $agentAndi = AgentFactory::new()
                     ->make([
                         "id" => 1,
                         "zendesk_agent_id" => 999,
@@ -566,7 +569,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "andi",
                         "zendesk_custom_field_name" => "Andi"
                     ]);
-        $agentBudi = factory(\App\Agent::class)
+        $agentBudi = AgentFactory::new()
                     ->make([
                         "id" => 2,
                         "zendesk_agent_id" => 999,
@@ -576,7 +579,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "budi",
                         "zendesk_custom_field_name" => "Budi"
                     ]);
-        $agentCharlie = factory(\App\Agent::class)
+        $agentCharlie = AgentFactory::new()
                     ->make([
                         "id" => 3,
                         "zendesk_agent_id" => 999,
@@ -600,7 +603,7 @@ class RoundRobinableTest extends TestCase
             ]])
         ]);
 
-        $assignmentThree = factory(\App\Assignment::class)
+        $assignmentThree = AssignmentFactory::new()
                         ->make([
                             'id' => 1,
                             'agent_id' => 3,
@@ -622,7 +625,7 @@ class RoundRobinableTest extends TestCase
      * @group roundRobin
      */
     public function test_assignment_harus_unique_dan_ngambil_yang_pertama() {
-        $agentAndi = factory(\App\Agent::class)
+        $agentAndi = AgentFactory::new()
                     ->make([
                         "id" => 1,
                         "zendesk_agent_id" => 999,
@@ -632,7 +635,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "andi",
                         "zendesk_custom_field_name" => "Andi"
                     ]);
-        $agentBudi = factory(\App\Agent::class)
+        $agentBudi = AgentFactory::new()
                     ->make([
                         "id" => 2,
                         "zendesk_agent_id" => 999,
@@ -642,7 +645,7 @@ class RoundRobinableTest extends TestCase
                         "zendesk_custom_field_id" => "budi",
                         "zendesk_custom_field_name" => "Budi"
                     ]);
-        $agentCharlie = factory(\App\Agent::class)
+        $agentCharlie = AgentFactory::new()
                     ->make([
                         "id" => 3,
                         "zendesk_agent_id" => 999,
@@ -666,7 +669,7 @@ class RoundRobinableTest extends TestCase
             ]])
         ]);
 
-        $assignmentThree = factory(\App\Assignment::class)
+        $assignmentThree = AssignmentFactory::new()
                         ->make([
                             'id' => 1,
                             'agent_id' => 1,
@@ -676,7 +679,7 @@ class RoundRobinableTest extends TestCase
                             'type' => 'ASSIGNMENT',
                             'response_status' => 'FAILED', 
                         ]);
-        $assignmentThreeSame = factory(\App\Assignment::class)
+        $assignmentThreeSame = AssignmentFactory::new()
                         ->make([
                             'id' => 2,
                             'agent_id' => 2,

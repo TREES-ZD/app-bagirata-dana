@@ -9,6 +9,7 @@ use App\Services\Agents\OrderTag;
 use Tests\TestCase;
 use App\Services\Assignments\RoundRobinEngine;
 use App\Services\Zendesk\Ticket;
+use Database\Factories\AgentFactory;
 use Tests\Helper\Factory\TicketFactory;
 
 class RoundRobinEngineTest extends TestCase
@@ -62,9 +63,9 @@ class RoundRobinEngineTest extends TestCase
 
         $rre->expects($this->exactly(3))->method('checkAlreadyAssigned')->willReturn(false, true, false);
         $rre->expects($this->exactly(3))->method('chooseEligibleAgent')->willReturn(
-                                                                            $agentOne = factory(Agent::class)->make(["id" => 11]), 
-                                                                            $agentTwo = factory(Agent::class)->make(["id" => 12]), 
-                                                                            $agentThree = factory(Agent::class)->make(["id" => 13])
+                                                                            $agentOne = AgentFactory::new()->make(["id" => 11]), 
+                                                                            $agentTwo = AgentFactory::new()->make(["id" => 12]), 
+                                                                            $agentThree = AgentFactory::new()->make(["id" => 13])
                                                                         );
         $rre->expects($this->exactly(2))->method('rotateAgentOrders')->withConsecutive(
                                                                         [$this->identicalTo($ticketOne)],

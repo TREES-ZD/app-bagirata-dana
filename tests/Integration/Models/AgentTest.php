@@ -2,6 +2,7 @@
 
 namespace Tests\Integration\Jobs;
 
+use Database\Factories\AgentFactory;
 use Mockery;
 use App\Task;
 use App\Agent;
@@ -11,6 +12,7 @@ use Tests\TestCase;
 use App\Jobs\ProcessTask;
 use Illuminate\Support\Str;
 use App\Services\ZendeskService;
+use Database\Factories\AssignmentFactory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -26,17 +28,17 @@ class AgentTest extends TestCase
 
     public function test_getUnassignableTickets_returns_assigned_tickets_that_have_not_been_updated()
     {
-        $agent = factory(Agent::class)->create();
+        $agent = AgentFactory::new()->create();
         $agentParams = [
             'agent_id' => $agent->id,
             'agent_name' => $agent->fullName
         ];
 
-        $unassignedTicket = factory(Assignment::class)->create($agentParams);
-        factory(Assignment::class, 3)->create($agentParams); //ticket num 2, 3, 4
-        $solvedTicket = factory(Assignment::class)->create($agentParams);
-        factory(Assignment::class)->state('unassignment')->create(array_merge($agentParams, ['zendesk_ticket_id' => $unassignedTicket->zendesk_ticket_id]));
-        factory(Assignment::class)->state('already_solved')->create(array_merge($agentParams, ['zendesk_ticket_id' => $solvedTicket->zendesk_ticket_id]));
+        $unassignedTicket = AssignmentFactory::new()->create($agentParams);
+        AssignmentFactory::new()->count(3)->create($agentParams); //ticket num 2, 3, 4
+        $solvedTicket = AssignmentFactory::new()->create($agentParams);
+        AssignmentFactory::new()->unassignment()->create(array_merge($agentParams, ['zendesk_ticket_id' => $unassignedTicket->zendesk_ticket_id]));
+        AssignmentFactory::new()->already_solved()->create(array_merge($agentParams, ['zendesk_ticket_id' => $solvedTicket->zendesk_ticket_id]));
 
         $tickets = $agent->getUnassignedTickets();
         
