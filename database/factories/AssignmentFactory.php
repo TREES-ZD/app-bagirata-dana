@@ -1,29 +1,49 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
-use App\Agent;
-use App\Assignment;
-use Illuminate\Support\Str;
-use Faker\Generator as Faker;
+use App\Models\Agent;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-$factory->define(Assignment::class, function (Faker $faker) {
-    return [
-        "type" => Agent::ASSIGNMENT,
-        "zendesk_view_id" => $faker->randomNumber,
-        "batch_id" => "some-uuid-some-uuid",
-        "agent_id" => $faker->randomDigit,
-        "agent_name" => sprintf("%s (%s, %s)", $faker->name, $faker->company, $faker->name),
-        "zendesk_ticket_id" => $faker->unique()->randomDigit,
-        "zendesk_ticket_subject" => $faker->sentence(),
-        "response_status" => "200"
-    ];
-});
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Assignment>
+ */
+class AssignmentFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition()
+    {
+        return [
+            "type" => Agent::ASSIGNMENT,
+            "zendesk_view_id" => fake()->randomNumber,
+            "batch_id" => "some-uuid-some-uuid",
+            "agent_id" => fake()->randomDigit,
+            "agent_name" => sprintf("%s (%s, %s)", fake()->name, fake()->company, fake()->name),
+            "zendesk_ticket_id" => fake()->unique()->randomDigit,
+            "zendesk_ticket_subject" => fake()->sentence(),
+            "response_status" => "200"
+        ];
+    }
 
-$factory->state(Assignment::class, 'unassignment', [
-    'type' => Agent::UNASSIGNMENT,
-]);
+    public function unassignment()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'type' => Agent::UNASSIGNMENT,
+            ];
+        });
+    }
 
-$factory->state(Assignment::class, 'already_solved', [
-    'type' => "ALREADY_SOLVED",
-]);
+    public function already_solved()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'type' => "ALREADY_SOLVED",
+            ];
+        });
+    }
+}
