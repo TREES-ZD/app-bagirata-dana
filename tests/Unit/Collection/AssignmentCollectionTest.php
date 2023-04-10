@@ -54,7 +54,7 @@ class AssignmentCollectionTest extends TestCase
         //         ];
             
         $failedTicketDetails = [
-            (object)['index' => 0, 'error' => "TicketUpdateFailed", 'id' => 2]
+            (object)['index' => 0, 'error' => "TicketUpdateFailed", "details" => "Follow Up Date: needed", 'id' => 2]
         ];
         
         $assignments = (new AssignmentCollection([$failedAssignment, $successAssignment]))->reconcile([1,3], $failedTicketDetails);
