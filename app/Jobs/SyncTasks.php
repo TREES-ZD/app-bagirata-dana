@@ -35,22 +35,26 @@ class SyncTasks implements ShouldQueue
     {
         $views = collect($zendesk->getViews());
 
+        $existingTasks = Task::whereIn('zendesk_view_id', $views->pluck('id')->toArray())->get()->keyBy('zendesk_view_id');
+    
         $views = $views
-                // ->whereNotIn('id', Task::all()->pluck('zendesk_view_id')->all())
-                ->map(function($view) {
+                ->map(function($view) use ($existingTasks) {
+                    $existingTask = $existingTasks->get($view->id);
                     return [
+                        'id' => optional($existingTask)->id,
                         'zendesk_view_id' => $view->id,
                         'zendesk_view_title' => $view->title,
                         'zendesk_view_position' => $view->position,
                         'interval' => "everyMinute",
                         'group_id' => 1,
                         'limit' => "unlimited",
-                        'enabled' => false
+                        'enabled' => optional($existingTask) ? $existingTask->enabled : false
                     ];
                 });
 
         DB::transaction(function() use ($views) {
-            Task::upsert($views->toArray(), ['zendesk_view_id']);
+            Task::upsert($views->whereNotNull('id')->toArray(), 'id');
+            Task::insert($views->whereNull('id')->toArray());
         });
 
         Artisan::call('modelCache:clear',['--model' => Task::class]);
