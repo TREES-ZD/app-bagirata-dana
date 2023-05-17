@@ -50,8 +50,7 @@ class SyncTasks implements ShouldQueue
                 });
 
         DB::transaction(function() use ($views) {
-            // Task::insert($views->toArray());
-            Task::upsert($views->toArray(), ['id']);
+            Task::upsert($views->toArray(), ['zendesk_view_id']);
         });
 
         Artisan::call('modelCache:clear',['--model' => Task::class]);
