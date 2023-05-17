@@ -36,7 +36,7 @@ class SyncTasks implements ShouldQueue
         $views = collect($zendesk->getViews());
 
         $views = $views
-                ->whereNotIn('id', Task::all()->pluck('zendesk_view_id')->all())
+                // ->whereNotIn('id', Task::all()->pluck('zendesk_view_id')->all())
                 ->map(function($view) {
                     return [
                         'zendesk_view_id' => $view->id,
