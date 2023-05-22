@@ -151,7 +151,7 @@ class HomeController extends Controller
         $grid->filter(function($filter) {
             $filter->disableIdFilter();
             
-            $filter->between('created_at', 'Time');
+            $filter->between('created_at', 'Time')->datetime();
             $filter->equal('status', 'Status')->select([
                 'Available' => 'Available',
                 'Unavailable' => 'Unavailable'
