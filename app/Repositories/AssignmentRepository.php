@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Agent;
 use App\Models\Assignment;
+use \DB;
 use App\Traits\RoundRobinable;
 use App\Services\Zendesk\Ticket;
 use Illuminate\Support\Collection;
@@ -136,4 +137,28 @@ class AssignmentRepository
         
         return new AssignmentCollection($this->cache($batch, $unassigments)->all());
     }
+
+    public function getTotalAssignmentsByDateRange() {
+        $today = now()->today()->toDateString();
+        $yesterday = now()->yesterday()->toDateString();
+        $startDateLastWeek = now()->now()->subWeek()->toDateString();
+        $endDateLastWeek = now()->now()->toDateString();
+        $startDateLastMonth = now()->now()->subMonth()->toDateString();
+        $endDateLastMonth = now()->now()->toDateString();
+
+        return Assignment::selectRaw("COUNT(*) AS total, 
+                                                CASE 
+                                                    WHEN DATE(created_at) = '{$today}' THEN 'today'
+                                                    WHEN DATE(created_at) = '{$yesterday}' THEN 'yesterday'
+                                                    WHEN DATE(created_at) BETWEEN '{$startDateLastWeek}' AND '{$endDateLastWeek}' THEN 'in_a_week'
+                                                    WHEN DATE(created_at) BETWEEN '{$startDateLastMonth}' AND '{$endDateLastMonth}' THEN 'in_a_month'
+                                                END AS period")
+            ->whereIn(\DB::raw("DATE(created_at)"), [$today, $yesterday])
+            ->orWhereBetween(\DB::raw("DATE(created_at)"), [$startDateLastWeek, $endDateLastWeek])
+            ->orWhereBetween(\DB::raw("DATE(created_at)"), [$startDateLastMonth, $endDateLastMonth])
+            ->groupBy('period')
+            ->pluck('total', 'period')
+            ->toArray();
+    }
+
 }
