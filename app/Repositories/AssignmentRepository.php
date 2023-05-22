@@ -177,21 +177,21 @@ class AssignmentRepository
         $startDateLastMonth = now()->subMonth()->toDateString();
         $endDateLastMonth = now()->toDateString();
         
-        $failedAssignmentCounts = Assignment::query()
-            ->selectRaw("COUNT(*) AS total")
-            ->selectRaw("CONCAT('failed_', CASE 
-                                              WHEN DATE(created_at) = '{$today}' THEN 'today'
-                                              WHEN DATE(created_at) = '{$yesterday}' THEN 'yesterday'
-                                              WHEN DATE(created_at) BETWEEN '{$startDateLastWeek}' AND '{$endDateLastWeek}' THEN 'in_a_week'
-                                              WHEN DATE(created_at) BETWEEN '{$startDateLastMonth}' AND '{$endDateLastMonth}' THEN 'in_a_month'
-                                          END) AS period")
-            ->where('response_status', 'FAILED')
-            ->whereIn(\DB::raw("DATE(created_at)"), [$today, $yesterday])
-            ->orWhereBetween(\DB::raw("DATE(created_at)"), [$startDateLastWeek, $endDateLastWeek])
-            ->orWhereBetween(\DB::raw("DATE(created_at)"), [$startDateLastMonth, $endDateLastMonth])
-            ->groupBy('period')
-            ->pluck('total', 'period')
-            ->toArray();
+        // $failedAssignmentCounts = Assignment::query()
+        //     ->selectRaw("COUNT(*) AS total")
+        //     ->selectRaw("CONCAT('failed_', CASE 
+        //                                       WHEN DATE(created_at) = '{$today}' THEN 'today'
+        //                                       WHEN DATE(created_at) = '{$yesterday}' THEN 'yesterday'
+        //                                       WHEN DATE(created_at) BETWEEN '{$startDateLastWeek}' AND '{$endDateLastWeek}' THEN 'in_a_week'
+        //                                       WHEN DATE(created_at) BETWEEN '{$startDateLastMonth}' AND '{$endDateLastMonth}' THEN 'in_a_month'
+        //                                   END) AS period")
+        //     ->where('response_code', 'FAILED')
+        //     ->whereIn(\DB::raw("DATE(created_at)"), [$today, $yesterday])
+        //     ->orWhereBetween(\DB::raw("DATE(created_at)"), [$startDateLastWeek, $endDateLastWeek])
+        //     ->orWhereBetween(\DB::raw("DATE(created_at)"), [$startDateLastMonth, $endDateLastMonth])
+        //     ->groupBy('period')
+        //     ->pluck('total', 'period')
+        //     ->toArray();
         
         // $failedAssignmentCounts = array_combine(
         //     array_map(function ($key) {
@@ -200,11 +200,18 @@ class AssignmentRepository
         //     $failedAssignmentCounts
         // );
 
+        $assignmentQuery = Assignment::where('response_status', 'FAILED');
+        $failedToday = $assignmentQuery->whereDate('created_at', $today)->count();
+        $failedYesterday = $assignmentQuery->whereDate('created_at', $yesterday)->count();
+        $failedInAWeek = $assignmentQuery->whereBetween('created_at', [$startDateLastWeek, $endDateLastWeek])->count();
+        $failedInAMonth = $assignmentQuery->whereDate('created_at', [$startDateLastMonth, $endDateLastMonth])->count();
+
+
         return [
-            'today' => $failedAssignmentCounts['failed_today'] ?? 0,
-            'yesterday' => $failedAssignmentCounts['failed_yesterday'] ?? 0,
-            'in_a_week' => $failedAssignmentCounts['failed_in_a_week'] ?? 0,
-            'in_a_month' => $failedAssignmentCounts['failed_in_a_month'] ?? 0,
+            'today' => $failedToday,
+            'yesterday' => $failedYesterday,
+            'in_a_week' => $failedInAWeek,
+            'in_a_month' => $failedInAMonth,
         ];
     }
 
