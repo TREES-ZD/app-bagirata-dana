@@ -201,10 +201,10 @@ class AssignmentRepository
         // );
 
         return [
-            'today' => $failedAssignmentCounts['today'] ?? 0,
-            'yesterday' => $failedAssignmentCounts['yesterday'] ?? 0,
-            'in_a_week' => $failedAssignmentCounts['in_a_week'] ?? 0,
-            'in_a_month' => $failedAssignmentCounts['in_a_month'] ?? 0,
+            'today' => $failedAssignmentCounts['failed_today'] ?? 0,
+            'yesterday' => $failedAssignmentCounts['failed_yesterday'] ?? 0,
+            'in_a_week' => $failedAssignmentCounts['failed_in_a_week'] ?? 0,
+            'in_a_month' => $failedAssignmentCounts['failed_in_a_month'] ?? 0,
         ];
     }
 
