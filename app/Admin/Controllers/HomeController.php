@@ -92,10 +92,28 @@ class HomeController extends Controller
         $grid->disableColumnSelector();
         $grid->disableRowSelector();
         $grid->disableCreateButton();
-        $grid->disableFilter();
         $grid->disableActions();
 
         $grid->model()->orderBy('id', 'desc');
+
+        $grid->filter(function($filter) {
+            $filter->disableIdFilter();
+            
+            $filter->between('created_at', 'Created at')->datetime();
+            $filter->equal('zendesk_view_id', 'View ID');
+            $filter->equal('zendesk_ticket_id', 'Ticket ID');
+            $filter->ilike('agent_name', 'Agent Name');
+            $filter->equal('type', 'Type')->select([
+                'ASSIGNMENT' => 'Assignment',
+                'UNASSIGNMENT' => 'Unassignment'
+            ]);
+            $filter->equal('response_status', 'Status')->multipleSelect([
+                '200' => 'Success',
+                'FAILED' => 'Failed',
+                'PENDING' => 'Pending'
+            ]);  
+            // $filter->in('agent_id', [35]);
+        });  
 
         $grid->column("created_at");
         $grid->column("agent_name");
@@ -111,8 +129,15 @@ class HomeController extends Controller
         });
         $grid->column("zendesk_ticket_subject");
         $grid->column("type");    
-
+        // $grid->column("response_status", "Status")->bool(['200' => true, 'FAILED' => false]);    
+        $grid->column('response_status', 'Status')->display(function () {
+            if ($this->response_status == '200') return '<i class="fa fa-check text-green"></i>';
+            if ($this->response_status == 'PENDING') return '<i class="fa fa-circle text-yellow"></i>';
+            return '<i class="fa fa-times text-red"></i>';
+            
+        });
         return $content->body($grid);
+        
     }
     
     public function availability_logs(Content $content) {
@@ -120,8 +145,20 @@ class HomeController extends Controller
         $grid->disableColumnSelector();
         $grid->disableRowSelector();
         $grid->disableCreateButton();
-        $grid->disableFilter();
+        // $grid->disableFilter();
         $grid->disableActions();
+
+        $grid->filter(function($filter) {
+            $filter->disableIdFilter();
+            
+            $filter->between('created_at', 'Time');
+            $filter->equal('status', 'Status')->select([
+                'Available' => 'Available',
+                'Unavailable' => 'Unavailable'
+            ]); 
+            $filter->ilike('agent_name', 'Agent Name');
+            // $filter->in('agent_id', [35]);
+        });  
 
         $grid->model()->orderBy('id', 'desc');
 
