@@ -18,11 +18,12 @@ use Encore\Admin\Layout\Content;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Repositories\AgentRepository;
+use App\Repositories\AssignmentRepository;
 use Illuminate\Support\Facades\Redis;
 
 class HomeController extends Controller
 {
-    public function index(Content $content, Request $request, AgentRepository $agentRepo)
+    public function index(Content $content, Request $request, AgentRepository $agentRepo, AssignmentRepository $assignmentRepo)
     {
         if ($request->current == "on") {
             $agentsWithAssignmentCount = Agent::disableCache()->get()->map(function($agent) {
@@ -35,13 +36,13 @@ class HomeController extends Controller
             $agentsWithAssignmentCount = $agentRepo->getWithAssignmentsCount($request->from, $request->to, $request->availability);
         }
         
-        $totalAvailableAgents = Agent::disableCache()->where('status', Agent::AVAILABLE)->count();
-        $totalEnabledTasks = Task::where('enabled', true)->count();
+        $totalAssignmentsByDateRange = $assignmentRepo->getTotalAssignmentsByDateRange();
+        $totalFailedAssignmentsByDateRange = $assignmentRepo->getTotalFailedAssignmentsByDateRange();
         $totalAssignmentChartTitle = $this->totalAssignmentChartTitle($request);
         return $content
             ->title('Home')
             ->description('Dashboard')
-            ->row(function (Row $row) use ($agentsWithAssignmentCount, $totalAvailableAgents, $totalEnabledTasks, $totalAssignmentChartTitle) {
+            ->row(function (Row $row) use ($totalAssignmentsByDateRange, $totalFailedAssignmentsByDateRange, $agentsWithAssignmentCount, $totalAssignmentChartTitle) {
                 $full_names = $agentsWithAssignmentCount->pluck('full_name');
                 $assignment_counts = $agentsWithAssignmentCount->pluck('assignment_count');
                 
@@ -50,13 +51,25 @@ class HomeController extends Controller
                 // Latest Assignments table
                 $latestAssignments = Assignment::latest("id")->limit(10)->get(["created_at", "agent_name", "zendesk_view_id", "zendesk_ticket_id", "zendesk_ticket_subject", "type"]);
                 
+                // $taskEnabledTotalHtml =  $totalEnabledTasksCount ? sprintf('<a href=%s>%d</a> %s', route('rules.index', '/backend/tasks?task_status=1', $totalEnabledTasksCount, $notAssignedTasks ? "<a href='".route('rules.index', ['_scope_' => 'unassigned_active_tasks'])."' style=\"color: #bc4727\">(".$notAssignedTasks->count()." have no available assignee) </a>" : '')) : "None";
+                $taskEnabledTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/rules?task_status=1', Task::where('enabled', true)->count());
+                $availableAgentsTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/agents?status=1', Agent::disableCache()->where('status', Agent::AVAILABLE)->count());
+                $unavailableAgentsTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/agents?status=0', Agent::disableCache()->where('status', Agent::UNAVAILABLE)->count());
+
+                $row->column(3, new Box("Today", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['today'], 'failed_data' => $totalFailedAssignmentsByDateRange['today']])));
+                $row->column(3, new Box("Yesterday", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['yesterday'],'failed_data' => $totalFailedAssignmentsByDateRange['yesterday']])));
+                $row->column(3, new Box("Last Week", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['in_a_week'],'failed_data' => $totalFailedAssignmentsByDateRange['in_a_week']])));
+                $row->column(3, new Box("Last Month", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['in_a_month'],'failed_data' => $totalFailedAssignmentsByDateRange['in_a_month']])));
+
                 $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts', 'totalAssignmentChartTitle'))));
-                $row->column(4, new Box("Agent(s) available", $totalAvailableAgents ?: "None"));
-                $row->column(4, new Box("Task(s) enabled", $totalEnabledTasks ?: "None"));
+                $row->column(4, new Box("Agent(s) available", $availableAgentsTotalHtml ?: "None"));
+                $row->column(4, new Box("Agent(s) unavailable", $unavailableAgentsTotalHtml ?: "None"));
+                $row->column(4, new Box("Task(s) monitored", $taskEnabledTotalHtml));
                 $row->column(4, new Box("Availability logs", view('roundrobin.dashboard.availabilityLogs', compact('availabilityLogs'))));
                 $row->column(12, new Box("Latest assignments", view('roundrobin.dashboard.latestAssignments', compact('latestAssignments'))));                
             });
     }
+
 
     public function groups(Content $content) {
         return $content
