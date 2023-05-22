@@ -185,7 +185,7 @@ class AssignmentRepository
                                               WHEN DATE(created_at) BETWEEN '{$startDateLastWeek}' AND '{$endDateLastWeek}' THEN 'in_a_week'
                                               WHEN DATE(created_at) BETWEEN '{$startDateLastMonth}' AND '{$endDateLastMonth}' THEN 'in_a_month'
                                           END) AS period")
-            ->where('response_status', '!=', '200')
+            ->where('response_status', 'FAILED')
             ->whereIn(\DB::raw("DATE(created_at)"), [$today, $yesterday])
             ->orWhereBetween(\DB::raw("DATE(created_at)"), [$startDateLastWeek, $endDateLastWeek])
             ->orWhereBetween(\DB::raw("DATE(created_at)"), [$startDateLastMonth, $endDateLastMonth])
