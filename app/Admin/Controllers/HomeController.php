@@ -161,23 +161,92 @@ class HomeController extends Controller
         // $grid->disableFilter();
         $grid->disableActions();
 
-        $grid->filter(function($filter) {
+
+
+        $grid->model()
+            ->select('a.id','a.agent_name', 'a.status', 'a.created_at', 'b.created_at AS previous_created_at')
+            ->from('availability_logs AS a')
+            ->leftJoin('availability_logs AS b', function ($join) {
+                $join->on('a.agent_name', '=', 'b.agent_name')
+                    ->whereColumn('b.created_at', '<', 'a.created_at')
+                    ->whereRaw('b.created_at = (
+                        SELECT MAX(created_at)
+                        FROM availability_logs
+                        WHERE agent_name = a.agent_name
+                        AND created_at < a.created_at
+                    )');
+            });
+
+        $grid->filter(function(\Encore\Admin\Grid\Filter $filter) {
             $filter->disableIdFilter();
+
+            // $filter->between('created_at', 'Time')->datetime();
+            // $filter->equal('status', 'Status')->select([
+            //     'Available' => 'Available',
+            //     'Unavailable' => 'Unavailable'
+            // ]); 
+            $filter->column(12, function($filter) {
+                $filter->where(function ($query) {
+                    $from = request('from');
+                    $query->where('a.created_at', '>=', Carbon::parse($from));
+                }, 'From', 'from')->datetime();
+                $filter->where(function ($query) {
+                    $to = request('to');
+                    $query->where('a.created_at', '<=', Carbon::parse($to));
+                }, 'To', 'to')->datetime();
+            });
+            $filter->column(12, function($filter) {
+                $filter->where(function ($query) {
+                    $query->where('a.status', request('status'));
+                }, 'Status', 'status')->select([
+                    'Available' => 'Available',
+                    'Unavailable' => 'Unavailable'
+                ]);
+                $filter->where(function ($query) {
+                    $query->where('a.agent_name', 'ILIKE', "%".request('agent_name')."%");
+                }, 'Agent Name', 'agent_name');
+            });
             
-            $filter->between('created_at', 'Time')->datetime();
-            $filter->equal('status', 'Status')->select([
-                'Available' => 'Available',
-                'Unavailable' => 'Unavailable'
-            ]); 
-            $filter->ilike('agent_name', 'Agent Name');
+
+            // $filter->ilike('agent_name', 'Agent Name');
+            // $filter->getModel();
             // $filter->in('agent_id', [35]);
         });  
 
-        $grid->model()->orderBy('id', 'desc');
+        // ->orderBy('a.created_at');
 
+        
+        // dd($grid->model()->getQueryBuilder()->count());
+        // $availabilityLogsDictionary = $grid->model()->getQueryBuilder()->get()->groupBy('agent_name')
+        //                                 ->map(function ($agentRecords) {
+        //                                     $previousCreatedAt = null;
+                                    
+        //                                     return $agentRecords->map(function ($record) use (&$previousCreatedAt) {
+        //                                         $createdAt = $record->created_at;
+        //                                         $status = $record->status;
+                                    
+        //                                         $timeGap = null;
+        //                                         //$status === 'Unavailable' && $previousCreatedAt
+        //                                         if ($previousCreatedAt) {
+        //                                             $timeGap = Carbon::parse($createdAt)->diffInSeconds($previousCreatedAt);
+        //                                         }
+                                    
+        //                                         $previousCreatedAt = $createdAt;
+                                    
+        //                                         return array_merge($record->toArray(), ['time_gap' => $timeGap]);
+        //                                     });
+        //                                 });
+        // dd($availabilityLogsDictionary);
+
+        $grid->model()->orderBy('id', 'desc');
         $grid->created_at("Time");
         $grid->status("Status");
         $grid->agent_name("Agent Name");
+        $grid->column('previous_created_at', 'Time Gap')->display(function() {
+            $timeGap = Carbon::parse($this->created_at)->diffForHumans($this->previous_created_at, null, true);
+
+            return $timeGap;
+        });
 
         return $content->body($grid);
     }        
