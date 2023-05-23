@@ -141,10 +141,10 @@ class AssignmentRepository
     public function getTotalAssignmentsByDateRange() {
         $today = now()->today();
         $yesterday = now()->yesterday();
-        $startDateLastWeek = now()->now()->subWeek();
-        $endDateLastWeek = now()->now();
-        $startDateLastMonth = now()->now()->subMonth();
-        $endDateLastMonth = now()->now();
+        $firstDateLastWeek = now()->subWeek()->startOfWeek();
+        $lastDateLastWeek = now()->subWeek()->endOfWeek();
+        $firstDateLastMonth = now()->subMonth()->startOfMonth();
+        $lastDateLastMonth = now()->subMonth()->endOfmonth();
 
         // $total = Assignment::selectRaw("COUNT(*) AS total, 
         //                                         CASE 
@@ -164,8 +164,8 @@ class AssignmentRepository
         // $assignmentQuery = Assignment::where('response_status', '200');
         $totalToday =  Assignment::where('response_status', '200')->whereDate('created_at', $today)->count();
         $totalYesterday =  Assignment::where('response_status', '200')->whereDate('created_at', $yesterday)->count();
-        $totalFailedInAWeek =  Assignment::where('response_status', '200')->whereBetween('created_at', [$startDateLastWeek, $endDateLastWeek])->count();
-        $totalFailedInAMonth =  Assignment::where('response_status', '200')->whereBetween('created_at', [$startDateLastMonth, $endDateLastMonth])->count();
+        $totalFailedInAWeek =  Assignment::where('response_status', '200')->whereBetween('created_at', [$firstDateLastWeek, $lastDateLastWeek])->count();
+        $totalFailedInAMonth =  Assignment::where('response_status', '200')->whereBetween('created_at', [$firstDateLastMonth, $lastDateLastMonth])->count();
         return [
             'today' => $totalToday,
             'yesterday' => $totalYesterday,
@@ -177,10 +177,10 @@ class AssignmentRepository
     public function getTotalFailedAssignmentsByDateRange() {
         $today = now()->today();
         $yesterday = now()->yesterday();
-        $startDateLastWeek = now()->subWeek();
-        $endDateLastWeek = now();
-        $startDateLastMonth = now()->subMonth();
-        $endDateLastMonth = now();
+        $firstDateLastWeek = now()->subWeek()->startOfWeek();
+        $lastDateLastWeek = now()->subWeek()->endOfWeek();
+        $firstDateLastMonth = now()->subMonth()->startOfMonth();
+        $lastDateLastMonth = now()->subMonth()->endOfmonth();
         
         // $failedAssignmentCounts = Assignment::query()
         //     ->selectRaw("COUNT(*) AS total")
@@ -207,8 +207,8 @@ class AssignmentRepository
 
         $failedToday = Assignment::where('response_status', 'FAILED')->whereDate('created_at', $today)->count();
         $failedYesterday = Assignment::where('response_status', 'FAILED')->whereDate('created_at', $yesterday)->count();
-        $failedInAWeek = Assignment::where('response_status', 'FAILED')->whereBetween('created_at', [$startDateLastWeek, $endDateLastWeek])->count();
-        $failedInAMonth = Assignment::where('response_status', 'FAILED')->whereBetween('created_at', [$startDateLastMonth, $endDateLastMonth])->count();
+        $failedInAWeek = Assignment::where('response_status', 'FAILED')->whereBetween('created_at', [$firstDateLastWeek, $lastDateLastWeek])->count();
+        $failedInAMonth = Assignment::where('response_status', 'FAILED')->whereBetween('created_at', [$firstDateLastMonth, $lastDateLastMonth])->count();
 
         return [
             'today' => $failedToday,
