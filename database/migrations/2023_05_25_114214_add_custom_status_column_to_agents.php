@@ -13,9 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('assignments', function (Blueprint $table) {
-            $table->string('response_error')->nullable();
-            $table->string('response_details')->nullable();
+        Schema::table('agents', function (Blueprint $table) {
+            $table->string('custom_status')->default('UNAVAILABLE');
         });
     }
 
@@ -26,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('assignments', function (Blueprint $table) {
-            $table->dropColumn(['response_error', 'response_details']);
+        Schema::table('agents', function (Blueprint $table) {
+            $table->dropColumn('custom_status');
         });
     }
 };

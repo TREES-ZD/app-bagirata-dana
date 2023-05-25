@@ -26,7 +26,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('availability_logs', function (Blueprint $table) {
-            $table->dropIndex('agent_name');
+            $table->dropIndex(['agent_name']);
         });
     }
 };
