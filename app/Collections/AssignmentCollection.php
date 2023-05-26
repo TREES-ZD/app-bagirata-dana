@@ -113,7 +113,9 @@ class AssignmentCollection extends Collection
                 
                 return $assignmentBuilder->update([
                     'response_status' => $status,
-                    'zendesk_job_id' => $zendesk_job_id
+                    'zendesk_job_id' => $zendesk_job_id,
+                    'response_error' => $error,
+                    'response_details' => $details
                 ]);
             });      
     }
