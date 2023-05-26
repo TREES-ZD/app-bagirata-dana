@@ -9,6 +9,8 @@ use Carbon\Carbon;
 use App\Models\Assignment;
 use Encore\Admin\Grid;
 use App\Models\AvailabilityLog;
+use Encore\Admin\Grid\Column;
+use Encore\Admin\Grid\Displayers\Table;
 use Encore\Admin\Layout\Row;
 use Illuminate\Http\Request;
 use Encore\Admin\Widgets\Box;
@@ -111,6 +113,7 @@ class HomeController extends Controller
         $grid->disableCreateButton();
         $grid->disableActions();
 
+
         $grid->model()->orderBy('id', 'desc');
 
         $grid->filter(function($filter) {
@@ -147,10 +150,10 @@ class HomeController extends Controller
         $grid->column("zendesk_ticket_subject");
         $grid->column("type");    
         // $grid->column("response_status", "Status")->bool(['200' => true, 'FAILED' => false]);    
-        $grid->column('response_status', 'Status')->display(function () {
-            if ($this->response_status == '200') return '<i class="fa fa-check text-green"></i>';
-            if ($this->response_status == 'PENDING') return '<i class="fa fa-circle text-yellow"></i>';
-            return '<i class="fa fa-times text-red"></i>';
+        $grid->column('response_status', 'Status')->display(function ($value, Column $column) {
+            if ($value == '200') return '<i class="fa fa-check text-green"></i>';
+            if ($value == 'PENDING') return '<i class="fa fa-circle text-yellow"></i>';
+            return view('roundrobin.components.assignment-modal', ['response_details' => $this->response_details, 'key' => $this->getKey(), 'value' => $value, 'name' => $this->getKey()]);
             
         });
         return $content->body($grid);
