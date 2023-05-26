@@ -20,6 +20,7 @@ use App\Http\Controllers\Controller;
 use App\Repositories\AgentRepository;
 use App\Repositories\AssignmentRepository;
 use Illuminate\Support\Facades\Redis;
+use Str;
 
 class HomeController extends Controller
 {
@@ -36,13 +37,11 @@ class HomeController extends Controller
             $agentsWithAssignmentCount = $agentRepo->getWithAssignmentsCount($request->from, $request->to, $request->availability);
         }
         
-        $totalAssignmentsByDateRange = $assignmentRepo->getTotalAssignmentsByDateRange();
-        $totalFailedAssignmentsByDateRange = $assignmentRepo->getTotalFailedAssignmentsByDateRange();
         $totalAssignmentChartTitle = $this->totalAssignmentChartTitle($request);
         return $content
             ->title('Home')
             ->description('Dashboard')
-            ->row(function (Row $row) use ($totalAssignmentsByDateRange, $totalFailedAssignmentsByDateRange, $agentsWithAssignmentCount, $totalAssignmentChartTitle) {
+            ->row(function (Row $row) use ($assignmentRepo, $agentsWithAssignmentCount, $totalAssignmentChartTitle) {
                 $full_names = $agentsWithAssignmentCount->pluck('full_name');
                 $assignment_counts = $agentsWithAssignmentCount->pluck('assignment_count');
                 
@@ -56,10 +55,15 @@ class HomeController extends Controller
                 $availableAgentsTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/agents?status=1', Agent::disableCache()->where('status', Agent::AVAILABLE)->count());
                 $unavailableAgentsTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/agents?status=0', Agent::disableCache()->where('status', Agent::UNAVAILABLE)->count());
 
-                $row->column(3, new Box("Today", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['today'], 'failed_data' => $totalFailedAssignmentsByDateRange['today']])));
-                $row->column(3, new Box("Yesterday", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['yesterday'],'failed_data' => $totalFailedAssignmentsByDateRange['yesterday']])));
-                $row->column(3, new Box("Last Week", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['in_a_week'],'failed_data' => $totalFailedAssignmentsByDateRange['in_a_week']])));
-                $row->column(3, new Box("Last Month", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['in_a_month'],'failed_data' => $totalFailedAssignmentsByDateRange['in_a_month']])));
+                if (str(url()->full())->contains('jago')) {
+                    $totalAssignmentsByDateRange = $assignmentRepo->getTotalAssignmentsByDateRange();
+                    $totalFailedAssignmentsByDateRange = $assignmentRepo->getTotalFailedAssignmentsByDateRange();
+
+                    $row->column(3, new Box("Today", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['today'], 'failed_data' => $totalFailedAssignmentsByDateRange['today']])));
+                    $row->column(3, new Box("Yesterday", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['yesterday'],'failed_data' => $totalFailedAssignmentsByDateRange['yesterday']])));
+                    $row->column(3, new Box("Last Week", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['in_a_week'],'failed_data' => $totalFailedAssignmentsByDateRange['in_a_week']])));
+                    $row->column(3, new Box("Last Month", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['in_a_month'],'failed_data' => $totalFailedAssignmentsByDateRange['in_a_month']])));
+                }
 
                 $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts', 'totalAssignmentChartTitle'))));
                 $row->column(4, new Box("Agent(s) available", $availableAgentsTotalHtml ?: "None"));
