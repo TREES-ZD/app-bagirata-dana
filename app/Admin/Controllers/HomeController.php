@@ -167,7 +167,8 @@ class HomeController extends Controller
 
 
 
-        $grid->model()
+        if (str(url()->full())->contains('jago')) {
+            $grid->model()
             ->select('a.id','a.agent_name', 'a.status', 'a.created_at', 'b.created_at AS previous_created_at')
             ->from('availability_logs AS a')
             ->leftJoin('availability_logs AS b', function ($join) {
@@ -180,6 +181,7 @@ class HomeController extends Controller
                         AND created_at < a.created_at
                     )');
             });
+        }
 
         $grid->filter(function(\Encore\Admin\Grid\Filter $filter) {
             $filter->disableIdFilter();
@@ -246,11 +248,15 @@ class HomeController extends Controller
         $grid->created_at("Time");
         $grid->status("Status");
         $grid->agent_name("Agent Name");
-        $grid->column('previous_created_at', 'Time Gap')->display(function() {
-            $timeGap = Carbon::parse($this->created_at)->diffForHumans($this->previous_created_at, null, true);
 
-            return $timeGap;
-        });
+        if (str(url()->full())->contains('jago')) {
+            $grid->column('previous_created_at', 'Time Gap')->display(function() {
+                $timeGap = Carbon::parse($this->created_at)->diffForHumans($this->previous_created_at, null, true);
+    
+                return $timeGap;
+            });
+        }
+
 
         return $content->body($grid);
     }        
