@@ -77,6 +77,8 @@ class AssignmentRepository
                 'agent_zendesk_custom_field_id' => $agent->zendesk_custom_field_id,
                 'ticket_id' => $ticket->id,
                 'ticket_subject' => $ticket->subject,
+                'ticket_created_at' => $ticket->created_at,
+                'ticket_updated_at' => $ticket->updated_at,
                 'type' => Agent::UNASSIGNMENT,
                 'batch' => $batch,
                 'created_at' => now()
@@ -117,6 +119,8 @@ class AssignmentRepository
                 'agent_zendesk_custom_field_id' => $agent->zendesk_custom_field_id,
                 'ticket_id' => $ticket->id,
                 'ticket_subject' => $ticket->subject,
+                'ticket_created_at' => $ticket->created_at,
+                'ticket_updated_at' => $ticket->updated_at,
                 'type' => Agent::OBSERVED_UNASSIGNMENT,
                 'batch' => $batch,
                 'created_at' => now()
@@ -141,10 +145,10 @@ class AssignmentRepository
     public function getTotalAssignmentsByDateRange() {
         $today = now()->today();
         $yesterday = now()->yesterday();
-        $firstDateLastWeek = now()->subWeek()->startOfWeek();
-        $lastDateLastWeek = now()->subWeek()->endOfWeek();
-        $firstDateLastMonth = now()->subMonth()->startOfMonth();
-        $lastDateLastMonth = now()->subMonth()->endOfmonth();
+        $firstDateLastWeek = now()->startOfWeek();
+        $lastDateLastWeek = now()->endOfWeek();
+        $firstDateLastMonth = now()->startOfMonth();
+        $lastDateLastMonth = now()->endOfmonth();
 
         // $total = Assignment::selectRaw("COUNT(*) AS total, 
         //                                         CASE 

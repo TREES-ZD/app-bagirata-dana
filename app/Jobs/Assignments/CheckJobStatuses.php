@@ -48,7 +48,7 @@ class CheckJobStatuses implements ShouldQueue
         while (1) {
             if ($jobStatuses->areAllCompleted()) {
                 $jobStatuses->each(function(JobStatus $jobStatus) {
-                    LogAssignments::dispatch($this->batch, $jobStatus->successTicketIds()->all(), $jobStatus->failedResultDetails()->all())->onQueue($this->queue);
+                    LogAssignments::dispatch($this->batch, $jobStatus->successTicketIds()->all(), $jobStatus->failedResultDetails()->all(), $jobStatus->id())->onQueue($this->queue);
                 });
 
                 return;

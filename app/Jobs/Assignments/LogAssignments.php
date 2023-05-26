@@ -26,16 +26,19 @@ class LogAssignments implements ShouldQueue
 
     protected $failedResultDetails;
 
+    protected $jobId;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($batch, $successTicketIds, $failedResultDetails = [])
+    public function __construct($batch, $successTicketIds, $failedResultDetails = [], $jobId = '')
     {
         $this->batch = $batch;
         $this->successTicketIds = $successTicketIds;
         $this->failedResultDetails = $failedResultDetails;
+        $this->jobId = $jobId;
     }
 
     /**
@@ -47,7 +50,7 @@ class LogAssignments implements ShouldQueue
     {
         $assignments = $assignmentRepository->retrieveAssignments($this->batch);
 
-        $processedAssignments = $assignments->reconcile($this->successTicketIds, $this->failedResultDetails);
+        $processedAssignments = $assignments->reconcile($this->successTicketIds, $this->failedResultDetails, $this->jobId);
         
         $processedAssignments->updateLogs();
 

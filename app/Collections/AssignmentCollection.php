@@ -51,8 +51,8 @@ class AssignmentCollection extends Collection
         });
     }
 
-    public function reconcile($successTicketIds, $failedResultDetails = []) {
-        return $this->updateStatus($successTicketIds, $failedResultDetails);
+    public function reconcile($successTicketIds, $failedResultDetails = [], $jobId = '') {
+        return $this->updateStatus($successTicketIds, $failedResultDetails, $jobId);
     }
 
     public function ticketIds() {
@@ -106,12 +106,14 @@ class AssignmentCollection extends Collection
                 $status = $assignments->first()->status;
                 $error = optional($assignments->first())->error;
                 $details = optional($assignments->first())->details;
+                $zendesk_job_id = optional($assignments->first())->zendesk_job_id;
 
                 $assignmentBuilder = Assignment::where('batch_id', $batch)
                                                 ->whereIn('zendesk_ticket_id', $ticket_ids);
                 
                 return $assignmentBuilder->update([
-                    'response_status' => $status
+                    'response_status' => $status,
+                    'zendesk_job_id' => $zendesk_job_id
                 ]);
             });      
     }
@@ -126,24 +128,27 @@ class AssignmentCollection extends Collection
                 "zendesk_view_id" => $assignment->view_id ?? "viewId",
                 "zendesk_ticket_id" => $assignment->ticket_id,
                 "zendesk_ticket_subject" => $assignment->ticket_subject,
+                "zendesk_ticket_created_at" => $assignment->ticket_created_at,
+                "zendesk_ticket_updated_at" => $assignment->ticket_updated_at,
                 "response_status" => $assignment->status ?? "PENDING",
                 "created_at" => $assignment->created_at
             ];
         })->all();
     }
 
-    private function updateStatus($successTicketIds, $failedResultDetails = []) {
+    private function updateStatus($successTicketIds, $failedResultDetails = [], $jobId = '') {
         $failedTicketIds = collect($failedResultDetails)->pluck('id')->all();
         $resultsDict = collect($failedResultDetails)->mapWithKeys(fn($result) => [$result->id => (array) $result]);
         
-        $processAssignments = $this->whereIn('ticket_id', array_merge($successTicketIds, $failedTicketIds))->map(function($assignment) use ($successTicketIds, $failedTicketIds, $resultsDict){
+        $processAssignments = $this->whereIn('ticket_id', array_merge($successTicketIds, $failedTicketIds))->map(function($assignment) use ($successTicketIds, $failedTicketIds, $resultsDict, $jobId){
             if (in_array($assignment->ticket_id, $failedTicketIds)) {
                 $assignment->status = "FAILED";
                 $assignment->error = isset($resultsDict[$assignment->ticket_id]['error']) ? $resultsDict[$assignment->ticket_id]['error'] : null;
                 $assignment->details = isset($resultsDict[$assignment->ticket_id]['details']) ? $resultsDict[$assignment->ticket_id]['details'] : null;
             } else if (in_array($assignment->ticket_id, $successTicketIds)) {
                 $assignment->status = 200;
-            } 
+            }
+            $assignment->zendesk_job_id = $jobId; 
 
             return $assignment;
         });

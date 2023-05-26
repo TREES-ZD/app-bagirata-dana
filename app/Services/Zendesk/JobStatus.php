@@ -15,6 +15,10 @@ class JobStatus
         return $this->status == "completed";
     }
 
+    public function id() {
+        return $this->id;
+    }
+
     public function successTicketIds() {
         return collect($this->results)->filter(function($ticket) {
             return optional($ticket)->status;
