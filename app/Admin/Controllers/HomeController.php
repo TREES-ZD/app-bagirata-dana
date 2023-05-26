@@ -112,50 +112,58 @@ class HomeController extends Controller
         $grid->disableRowSelector();
         $grid->disableCreateButton();
         $grid->disableActions();
-
+        $grid->disableFilter();
 
         $grid->model()->orderBy('id', 'desc');
 
-        $grid->filter(function($filter) {
-            $filter->disableIdFilter();
+        // $grid->filter(function($filter) {
+        //     // $filter->disableIdFilter();
             
-            $filter->between('created_at', 'Created at')->datetime();
-            $filter->equal('zendesk_view_id', 'View ID');
-            $filter->equal('zendesk_ticket_id', 'Ticket ID');
-            $filter->ilike('agent_name', 'Agent Name');
-            $filter->equal('type', 'Type')->select([
-                'ASSIGNMENT' => 'Assignment',
-                'UNASSIGNMENT' => 'Unassignment'
-            ]);
-            $filter->equal('response_status', 'Status')->multipleSelect([
-                '200' => 'Success',
-                'FAILED' => 'Failed',
-                'PENDING' => 'Pending'
-            ]);  
-            // $filter->in('agent_id', [35]);
-        });  
+        //     // $filter->between('created_at', 'Created at')->datetime();
+        //     // $filter->equal('zendesk_view_id', 'View ID');
+        //     // $filter->equal('zendesk_ticket_id', 'Ticket ID');
+        //     // $filter->ilike('agent_name', 'Agent Name');
+        //     // $filter->equal('type', 'Type')->select([
+        //     //     'ASSIGNMENT' => 'Assignment',
+        //     //     'UNASSIGNMENT' => 'Unassignment'
+        //     // ]);
+        //     // $filter->equal('response_status', 'Status')->multipleSelect([
+        //     //     '200' => 'Success',
+        //     //     'FAILED' => 'Failed',
+        //     //     'PENDING' => 'Pending'
+        //     // ]);  
+        //     // $filter->in('agent_id', [35]);
+        // });  
 
-        $grid->column("created_at");
-        $grid->column("agent_name");
+        $grid->column("created_at", 'Assigned at')->filter('range', 'datetime');
+        $grid->column("agent_name")->filter('like');
         $grid->column('zendesk_view_id', 'View ID')->display(function () {
             $subdomain = config('zendesk-laravel.subdomain');
             return is_numeric($this->zendesk_view_id) ? sprintf("<a href=\"https://%s.zendesk.com/agent/filters/%s\">%s</a>", $subdomain, $this->zendesk_view_id, $this->zendesk_view_id) : '';
-        });
+        })->filter();
         $grid->column('zendesk_ticket_id', 'Ticket ID')->display(function () {
             $subdomain = config('zendesk-laravel.subdomain');
             $html = sprintf("<a href=\"https://%s.zendesk.com/agent/tickets/%s\">%s</a>", $subdomain, $this->zendesk_ticket_id, $this->zendesk_ticket_id);
             return $html;
             
-        });
-        $grid->column("zendesk_ticket_subject");
-        $grid->column("type");    
+        })->filter();
+        $grid->column("zendesk_ticket_subject")->filter('like');
+        $grid->column("type")->filter([
+            'ASSIGNMENT' => 'Assignment',
+            'UNASSIGNMENT' => 'Unassignment'
+        ]);   
         // $grid->column("response_status", "Status")->bool(['200' => true, 'FAILED' => false]);    
         $grid->column('response_status', 'Status')->display(function ($value, Column $column) {
             if ($value == '200') return '<i class="fa fa-check text-green"></i>';
             if ($value == 'PENDING') return '<i class="fa fa-circle text-yellow"></i>';
-            return view('roundrobin.components.assignment-modal', ['response_details' => $this->response_details, 'key' => $this->getKey(), 'value' => $value, 'name' => $this->getKey()]);
+            return '<i class="fa fa-times text-red"></i> ' . $this->response_details;
+            // return view('roundrobin.components.assignment-modal', ['response_details' => $this->response_details, 'key' => $this->getKey(), 'value' => $value, 'name' => $this->getKey()]);
             
-        });
+        })->filter([
+            '200' => 'Success',
+            'FAILED' => 'Failed',
+            'PENDING' => 'Pending'
+        ]);
         return $content->body($grid);
         
     }
