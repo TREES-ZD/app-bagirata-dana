@@ -5,6 +5,7 @@ use App\Models\Task;
 use App\Models\Agent;
 // use Encore\Admin\Admin;
 use App\Models\Assignment;
+use App\Repositories\JobStatusRepository;
 use DebugBar\DebugBar;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
@@ -41,7 +42,7 @@ Route::group([
     $router->get('/agents/sync', 'AgentController@sync');
     $router->get('/agents/{id}', 'AgentController@show');
     $router->get('/agents/{id}/edit', 'AgentController@edit');
-    $router->put('/agents/{id}', 'AgentController@update');
+    $router->put('/agents/{id}', 'AgentController@update')->name('agent.update');
     $router->delete('/agents/{id}', 'AgentController@destroy');
     $router->post("/agents/sync", 'AgentController@sync');
     $router->post("/agents/syncAll", 'AgentController@syncAll')->middleware('throttle:1,1');
