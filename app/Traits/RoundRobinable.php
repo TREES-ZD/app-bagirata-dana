@@ -86,6 +86,8 @@ trait RoundRobinable
                                             'agent_zendesk_custom_field_id' => $assignedAgent->zendesk_custom_field_id,
                                             'ticket_id' => $assignment->zendesk_ticket_id,
                                             'ticket_subject' => $assignment->zendesk_ticket_subject,
+                                            'ticket_created_at' => $assignment->zendesk_ticket_created_at,
+                                            'ticket_updated_at' => $assignment->zendesk_ticket_updated_at,
                                             'view_id' => $view_id,
                                             'type' => Agent::ASSIGNMENT,
                                             "batch" => $batch,
