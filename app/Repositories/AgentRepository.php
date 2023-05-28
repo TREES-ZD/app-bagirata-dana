@@ -74,7 +74,7 @@ class AgentRepository
                         ->groupBy('agent_id')
                         ->map
                         ->first()
-                        ->filter(function($log) { 
+                        ->filter(function($log) {
                             return $log->custom_status == Agent::CUSTOM_STATUS_UNAVAILABLE;
                         })
                         ->pluck('agent_id');
@@ -93,9 +93,11 @@ class AgentRepository
                                 });
 
         if ($availability == 'available') {
-            $filteredAgentIdsQuery->where('status', Agent::AVAILABLE);
+            // $filteredAgentIdsQuery->where('status', Agent::AVAILABLE);
+            $filteredAgentIdsQuery->where('custom_status', Agent::CUSTOM_STATUS_AVAILABLE);
         } else if ($availability == 'unavailable') {
-            $filteredAgentIdsQuery->where('status', Agent::UNAVAILABLE);
+            // $filteredAgentIdsQuery->where('status', Agent::UNAVAILABLE);
+            $filteredAgentIdsQuery->where('custom_status', Agent::CUSTOM_STATUS_UNAVAILABLE);
         }            
 
         $filteredAgentIds = $filteredAgentIdsQuery->select(DB::raw('agents.id, count(assignments.id) as assignment_count'))

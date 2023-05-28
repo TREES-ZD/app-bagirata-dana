@@ -28,6 +28,7 @@ use App\Admin\Actions\Agent\BatchSetAvailable;
 use App\Admin\Actions\Agent\BatchSetUnavailable;
 use App\Admin\Actions\Task\SyncAgentsAction;
 use App\Jobs\SyncAllAgents;
+use Illuminate\Validation\Rule;
 
 class AgentController extends Controller
 {
@@ -57,8 +58,8 @@ class AgentController extends Controller
             ]);
             $grid->batchActions(function ($batch) {
                 $batch->disableDelete();
-                $batch->add(new BatchSetAvailable());
-                $batch->add(new BatchSetUnavailable());
+                // $batch->add(new BatchSetAvailable());
+                // $batch->add(new BatchSetUnavailable());
 
                 if (Admin::user()->isAdministrator()) {
                     $batch->add(new BatchDelete());
@@ -79,10 +80,10 @@ class AgentController extends Controller
                 $filter->ilike('zendesk_agent_name', 'Assignee');
                 $filter->ilike('zendesk_group_name', 'Group');
                 $filter->ilike('zendesk_custom_field_name', 'Agent Name');
-                $filter->equal('status')->radio([
-                    '' => 'All',
-                    true => 'Available',
-                    false => 'Unavailable',
+                $filter->equal('custom_status')->select([
+                    Agent::CUSTOM_STATUS_UNAVAILABLE => '🗙 Unavailable',
+                    Agent::CUSTOM_STATUS_AVAILABLE => '🟢 Available',
+                    Agent::CUSTOM_STATUS_AWAY => '🟡 Away' 
                 ]);
                 
             });            // $grid->expandFilter();
@@ -95,11 +96,11 @@ class AgentController extends Controller
             // $grid->fullName("Full Name");
             $grid->zendesk_custom_field_name("Agent Name")->sortable();
             // set text, color, and stored values
-            $states = [
-                'off' => ['value' => 0, 'text' => 'Off', 'color' => 'default'],
-                'on' => ['value' => 1, 'text' => 'On', 'color' => 'primary'],
-            ];
-            $grid->status('Availability')->switch($states)->sortable();
+            $grid->custom_status("Availability")->displayUsing(\App\Admin\Displayers\SimpleSelect::class, [ [
+                Agent::CUSTOM_STATUS_UNAVAILABLE => '🗙 Unavailable',
+                Agent::CUSTOM_STATUS_AVAILABLE => '🟢 Available',
+                Agent::CUSTOM_STATUS_AWAY => '🟡 Away' 
+            ]]); // use this to make sure script is only loaded once
             // $grid->status("Availability")->select([
             //     true => 'Available',
             //     false => 'Unavailable',
@@ -183,13 +184,32 @@ class AgentController extends Controller
     }
 
     public function update(Request $request, $id) {
+        $this->validate($request, ['custom_status' => Rule::in(Agent::CUSTOM_STATUS_UNAVAILABLE, Agent::CUSTOM_STATUS_AVAILABLE, Agent::CUSTOM_STATUS_AWAY)]);
+
         $agent = Agent::where('id', $id)->firstOrFail();
         
+        
         // Workaround to check same status can't be updated with the same status
-        if ($agent->status != $request->get('status')) {
-            $agent->status = $request->get('status');
+        if ($agent->custom_status != $request->get('custom_status')) {
+            $agent->custom_status = $request->get('custom_status');
+
+            // to make it compatible, fil previous status column
+            $status = '';
+            switch ($request->get('custom_status')) {
+                case Agent::CUSTOM_STATUS_AVAILABLE:
+                    $status = AGENT::AVAILABLE;
+                    break;
+                case Agent::CUSTOM_STATUS_UNAVAILABLE:
+                    $status = AGENT::UNAVAILABLE;
+                    break;
+                case Agent::CUSTOM_STATUS_AWAY:
+                    break;
+            }
+
+            ($status && $agent->status != $status) ? $agent->status = $status : '';
+
             $agent->save();
-            return response()->json(["status" => "Sucess updating status"], 200);
+            return response()->json(["status" => "Sucess updating availability status"], 200);
         }
  
         return response()->json(["status" => "bad"], 400);

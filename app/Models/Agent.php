@@ -54,12 +54,40 @@ class Agent extends Model implements Sortable
         static::addGlobalScope(new AgentUserScope);
 
         static::updated(function($agent) {
-             if ($agent->isDirty('status')) {
+           //  if ($agent->isDirty('status')) {
+            //     $custom_status = '';
+            //     switch ($agent->status) {
+            //         case self::AVAILABLE:
+            //             $custom_status = Agent::AVAILABLE; 
+            //             break;
+            //         default:
+            //             $custom_status = Agent::UNAVAILABLE;
+            //             break;
 
+            //     AvailabilityLog::create([
+            //         "status" => $agent->status == self::AVAILABLE ? AvailabilityLog::AVAILABLE : AvailabilityLog::UNAVAILABLE,
+            //         "agent_id" => $agent->id,
+            //         "agent_name" => $agent->fullName,
+            //         'custom_status' => $custom_status
+            //     ]);
+            // }
+
+            
+            if ($agent->isDirty('custom_status')) {
+                $status = '';
+                switch ($agent->custom_status) {
+                    case self::CUSTOM_STATUS_AVAILABLE:
+                        $status = AvailabilityLog::AVAILABLE; 
+                        break;
+                    default:
+                        $status = AvailabilityLog::UNAVAILABLE;
+                        break;
+                }
                 AvailabilityLog::create([
-                    "status" => $agent->status == self::AVAILABLE ? AvailabilityLog::AVAILABLE : AvailabilityLog::UNAVAILABLE,
+                    "status" => $status,
                     "agent_id" => $agent->id,
-                    "agent_name" => $agent->fullName
+                    "agent_name" => $agent->fullName,
+                    "custom_status" => $agent->custom_status
                 ]);
             }
         });

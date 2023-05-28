@@ -48,14 +48,17 @@ class HomeController extends Controller
                 $assignment_counts = $agentsWithAssignmentCount->pluck('assignment_count');
                 
                 // Availability Logs table
-                $availabilityLogs = AvailabilityLog::latest("id")->limit(10)->get(["created_at", "status", "agent_name"]);
+                $availabilityLogs = AvailabilityLog::latest("id")->limit(10)->get(["created_at", "custom_status", "agent_name"]);
                 // Latest Assignments table
                 $latestAssignments = Assignment::latest("id")->limit(10)->get(["created_at", "agent_name", "zendesk_view_id", "zendesk_ticket_id", "zendesk_ticket_subject", "type"]);
                 
                 // $taskEnabledTotalHtml =  $totalEnabledTasksCount ? sprintf('<a href=%s>%d</a> %s', route('rules.index', '/backend/tasks?task_status=1', $totalEnabledTasksCount, $notAssignedTasks ? "<a href='".route('rules.index', ['_scope_' => 'unassigned_active_tasks'])."' style=\"color: #bc4727\">(".$notAssignedTasks->count()." have no available assignee) </a>" : '')) : "None";
                 $taskEnabledTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/rules?task_status=1', Task::where('enabled', true)->count());
-                $availableAgentsTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/agents?status=1', Agent::disableCache()->where('status', Agent::AVAILABLE)->count());
-                $unavailableAgentsTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/agents?status=0', Agent::disableCache()->where('status', Agent::UNAVAILABLE)->count());
+                // $availableAgentsTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/agents?status=1', Agent::disableCache()->where('status', Agent::AVAILABLE)->count());
+                $availableAgentsTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/agents?custom_status=AVAILABLE', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_AVAILABLE)->count());
+                // $unavailableAgentsTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/agents?status=0', Agent::disableCache()->where('status', Agent::UNAVAILABLE)->count());
+                $unavailableAgentsTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/agents?custom_status=UNAVAILABLE', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_UNAVAILABLE)->count());
+                
 
                 if (str(url()->full())->contains('jago')) {
                     $totalAssignmentsByDateRange = $assignmentRepo->getTotalAssignmentsByDateRange();
@@ -178,9 +181,9 @@ class HomeController extends Controller
 
 
 
-        if (str(url()->full())->contains('jago')) {
+        if (str(url()->full())->contains('jago') || env('APP_DEBUG')) {
             $grid->model()
-            ->select('a.id','a.agent_name', 'a.status', 'a.created_at', 'b.created_at AS previous_created_at')
+            ->select('a.id','a.agent_name', 'a.status', 'a.created_at', 'a.custom_status', 'b.created_at AS previous_created_at')
             ->from('availability_logs AS a')
             ->leftJoin('availability_logs AS b', function ($join) {
                 $join->on('a.agent_name', '=', 'b.agent_name')
@@ -257,10 +260,11 @@ class HomeController extends Controller
 
         $grid->model()->orderBy('id', 'desc');
         $grid->created_at("Time");
-        $grid->status("Status");
+        // $grid->status("Status");
+        $grid->custom_status("Status")->display(fn($value) => $value ?? strtoupper($this->status));
         $grid->agent_name("Agent Name");
 
-        if (str(url()->full())->contains('jago')) {
+        if (str(url()->full())->contains('jago') || env('APP_DEBUG')) {
             $grid->column('previous_created_at', 'Time Gap')->display(function() {
                 $timeGap = Carbon::parse($this->created_at)->diffForHumans($this->previous_created_at, null, true);
     

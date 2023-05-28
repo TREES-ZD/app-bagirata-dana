@@ -51,7 +51,7 @@ class AssignmentRepository
 
         return (new AssignmentCollection($ticketsByView->all()))->map(function($tickets, $view_id) use ($tasks, $batch, $previousFailedAssignments) {
             $task = $tasks->firstWhere('zendesk_view_id', $view_id);
-            $agents = $task->getAvailableAgents();
+            $agents = $task->getCustomStatusAvailableAgents();
             $tickets = new TicketCollection($tickets->values()->all());
 
             return $this->createAssignments($agents, $tickets, $batch, collect($previousFailedAssignments->all()), $view_id);

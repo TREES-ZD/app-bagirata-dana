@@ -54,7 +54,8 @@ trait RoundRobinable
         $failedAssignments = $failedAssignments ?: collect(); 
         if ($agents->isEmpty() || $tickets->isEmpty()) return collect();
 
-        $agents = $agents->filter->status;
+        // $agents = $agents->filter->status;
+        $agents = $agents->filter(fn($agent) => $agent->custom_status == Agent::CUSTOM_STATUS_AVAILABLE);
         $agentsByGroup = $agents->groupBy('zendesk_group_id');
         $assignableTickets = $tickets->filter->isAssignable();
         $reservableFailedAssignments = $failedAssignments

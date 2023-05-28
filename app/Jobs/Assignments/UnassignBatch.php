@@ -57,7 +57,7 @@ class UnassignBatch implements ShouldQueue
      */
     public function handle(AssignmentRepository $assignmentRepository, AgentRepository $agentRepository)
     {
-        $agents = !$this->agentIds ? $agentRepository->getUnassignEligible() : Agent::disableCache()->find($this->agentIds);
+        $agents = !$this->agentIds ? $agentRepository->getUnassignEligibleOnCustomStatus() : Agent::disableCache()->find($this->agentIds);
 
         $unassignments = $assignmentRepository->prepareUnassignment($this->batch, $agents);
 

@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Models\Agent;
 use App\Models\Task;
 use App\Jobs\Assignments\AssignBatch;
 use App\Jobs\Assignments\UnassignBatch;
@@ -26,7 +27,8 @@ class Kernel extends ConsoleKernel
         $activeTasks = Task::where('enabled', true)
                         ->withCount(['rules' => function($q) {
                             $q->where('rules.priority', '>', 0);
-                            $q->where('agents.status', true);
+                            // $q->where('agents.status', true);
+                            $q->where('agents.custom_status', Agent::CUSTOM_STATUS_AVAILABLE);
                         }])
                         ->get()
                         ->filter(function($task) { return $task->rules_count > 0;});
@@ -40,8 +42,9 @@ class Kernel extends ConsoleKernel
         });
 
         $schedule->call(function() {
-            $unassignEligibleAgents = app(AgentRepository::class)->getUnassignEligible();
-        
+            // $unassignEligibleAgents = app(AgentRepository::class)->getUnassignEligible();
+            $unassignEligibleAgents = app(AgentRepository::class)->getUnassignEligibleOnCustomStatus();
+
             if ($unassignEligibleAgents->isNotEmpty()) {
                 UnassignBatch::dispatch()->onQueue('assignment');
             }
