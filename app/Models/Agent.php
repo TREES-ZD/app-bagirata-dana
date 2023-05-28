@@ -32,6 +32,10 @@ class Agent extends Model implements Sortable
     public const AVAILABLE = true;
     public const UNAVAILABLE = false;
 
+    public const CUSTOM_STATUS_AVAILABLE = 'AVAILABLE';
+    public const CUSTOM_STATUS_AWAY = 'AWAY';
+    public const CUSTOM_STATUS_UNAVAILABLE = 'UNAVAILABLE';
+
     public $sortable = [
         'order_column_name' => 'priority',
         'sort_when_creating' => true,
