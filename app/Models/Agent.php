@@ -41,11 +41,11 @@ class Agent extends Model implements Sortable
         'sort_when_creating' => true,
     ];
 
-    protected $fillable = ['status'];
+    protected $fillable = ['status', 'custom_status'];
 
     protected $appends = ['fullId', 'fullName'];
 
-    protected static $logAttributes = ['status'];
+    protected static $logAttributes = ['status', 'custom_status'];
 
     protected static function boot()
     {
