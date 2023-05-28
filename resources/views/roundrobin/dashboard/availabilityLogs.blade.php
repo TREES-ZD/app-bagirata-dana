@@ -8,9 +8,9 @@
     </thead>
     <tbody>
         @foreach ($availabilityLogs as $availabilityLog)
-            <tr class="{{$availabilityLog->status == 'Available' ? 'success' : 'danger' }}">
+            <tr class="{{$availabilityLog->custom_status == 'AVAILABLE'? 'success' : ($availabilityLog->custom_status == 'AWAY' ? 'warning' : 'danger') }}">
                 <td >{{ $availabilityLog->created_at }}</td>
-                <td>{{ $availabilityLog->status }}</td>
+                <td>{{ $availabilityLog->custom_status }}</td>
                 <td>{{ $availabilityLog->agent_name }}</td>
             </tr>
         @endforeach

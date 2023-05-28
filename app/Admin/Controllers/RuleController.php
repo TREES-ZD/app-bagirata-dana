@@ -49,11 +49,16 @@ class RuleController extends Controller
                     $filter->ilike('zendesk_agent_name', 'Assignee');
                     $filter->ilike('zendesk_group_name', 'Group');
                     $filter->ilike('zendesk_custom_field_name', 'Agent Name');
-                    $filter->in('status', 'Availability')->radio([
-                        '' => 'All',
-                        true => 'Available',
-                        false => 'Unavailable',
-                    ]);    
+                    // $filter->in('status', 'Availability')->radio([
+                    //     '' => 'All',
+                    //     true => 'Available',
+                    //     false => 'Unavailable',
+                    // ]);
+                    $filter->equal('custom_status')->select([
+                        Agent::CUSTOM_STATUS_UNAVAILABLE => '🗙 Unavailable',
+                        Agent::CUSTOM_STATUS_AVAILABLE => '🟢 Available',
+                        Agent::CUSTOM_STATUS_AWAY => '🟡 Away' 
+                    ]);
                 });
                 $filter->column(1/2, function($filter) {
                     $filter->layoutOnly()->ilike('task_view_title', 'Task title'); //tidak panggil database
@@ -98,8 +103,10 @@ class RuleController extends Controller
             $grid->column('Agent')->display(function ($title) {
                 debugbar()->debug($this->status); //get model
                 $html = $this->fullName; 
-                if ($this->status == true) {
-                    $html = $html . '  <i class="fa fa-circle text-success"></i>';
+                if ($this->custom_status == Agent::CUSTOM_STATUS_AVAILABLE) {
+                    $html = $html . '  🟢';
+                } else if ($this->custom_status == Agent::CUSTOM_STATUS_AWAY) {
+                    $html = $html . '  🟡';
                 }
                 return $html;
             });            
