@@ -9,7 +9,8 @@ class AvailabilityLog extends Model
 {
     const AVAILABLE = "Available";
     const UNAVAILABLE = "Unavailable";
-    
+    const AWAY = "Away";
+
     protected $guarded = ['id'];
 
      
