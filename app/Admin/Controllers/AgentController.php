@@ -80,7 +80,7 @@ class AgentController extends Controller
                 $filter->ilike('zendesk_agent_name', 'Assignee');
                 $filter->ilike('zendesk_group_name', 'Group');
                 $filter->ilike('zendesk_custom_field_name', 'Agent Name');
-                $filter->equal('custom_status')->select([
+                $filter->equal('custom_status', 'Availability')->select([
                     Agent::CUSTOM_STATUS_UNAVAILABLE => '🔴 Unavailable',
                     Agent::CUSTOM_STATUS_AVAILABLE => '🟢 Available',
                     Agent::CUSTOM_STATUS_AWAY => '🕘 Away' 
