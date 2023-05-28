@@ -67,6 +67,21 @@ class AgentRepository
         return Agent::find($unassignEligibleAgentIds);
     }
 
+    public function getUnassignEligibleOnCustomStatus() {
+        $unassignEligibleAgentIds = AvailabilityLog::whereBetween('created_at', [now()->subMinutes(30), now()])
+                        ->latest()
+                        ->get()
+                        ->groupBy('agent_id')
+                        ->map
+                        ->first()
+                        ->filter(function($log) { 
+                            return $log->custom_status == Agent::CUSTOM_STATUS_UNAVAILABLE;
+                        })
+                        ->pluck('agent_id');
+
+        return Agent::find($unassignEligibleAgentIds);
+    }
+
     public function getWithAssignmentsCount($from = null, $to = null, $availability = null, $limit = 20): AgentCollection
     {
         $filteredAgentIdsQuery = DB::table('agents')
