@@ -58,7 +58,7 @@ class HomeController extends Controller
                 $availableAgentsTotalHtml =  sprintf('<p><a href=%s>🟢 %d</a><p>', '/backend/agents?custom_status=AVAILABLE', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_AVAILABLE)->count());
                 // $unavailableAgentsTotalHtml =  sprintf('<p><a href=%s>%d</a><p>', '/backend/agents?status=0', Agent::disableCache()->where('status', Agent::UNAVAILABLE)->count());
                 $unavailableAgentsTotalHtml =  sprintf('<p><a href=%s>🔴 %d</a><p>', '/backend/agents?custom_status=UNAVAILABLE', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_UNAVAILABLE)->count());
-                $awayAgentsTotalHtml =  sprintf('<p><a href=%s>🕘 %d</a><p>', '/backend/agents?custom_status=AWAY', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_AVAILABLE)->count());
+                $awayAgentsTotalHtml =  sprintf('<p><a href=%s>🕘 %d</a><p>', '/backend/agents?custom_status=AWAY', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_AWAY)->count());
 
 
                 if (str(url()->full())->contains('jago')) {
