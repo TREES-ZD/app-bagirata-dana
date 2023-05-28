@@ -180,11 +180,11 @@ class AssignmentRepository
 
     public function getTotalFailedAssignmentsByDateRange() {
         $today = now()->today();
-        $yesterday = now()->yesterday();
-        $firstDateLastWeek = now()->subWeek()->startOfWeek();
-        $lastDateLastWeek = now()->subWeek()->endOfWeek();
-        $firstDateLastMonth = now()->subMonth()->startOfMonth();
-        $lastDateLastMonth = now()->subMonth()->endOfmonth();
+        // $yesterday = now()->yesterday();
+        // $firstDateLastWeek = now()->subWeek()->startOfWeek();
+        // $lastDateLastWeek = now()->subWeek()->endOfWeek();
+        // $firstDateLastMonth = now()->subMonth()->startOfMonth();
+        // $lastDateLastMonth = now()->subMonth()->endOfmonth();
         
         // $failedAssignmentCounts = Assignment::query()
         //     ->selectRaw("COUNT(*) AS total")
@@ -210,15 +210,15 @@ class AssignmentRepository
         // );
 
         $failedToday = Assignment::where('response_status', 'FAILED')->whereDate('created_at', $today)->count();
-        $failedYesterday = Assignment::where('response_status', 'FAILED')->whereDate('created_at', $yesterday)->count();
-        $failedInAWeek = Assignment::where('response_status', 'FAILED')->whereBetween('created_at', [$firstDateLastWeek, $lastDateLastWeek])->count();
-        $failedInAMonth = Assignment::where('response_status', 'FAILED')->whereBetween('created_at', [$firstDateLastMonth, $lastDateLastMonth])->count();
+        // $failedYesterday = Assignment::where('response_status', 'FAILED')->whereDate('created_at', $yesterday)->count();
+        // $failedInAWeek = Assignment::where('response_status', 'FAILED')->whereBetween('created_at', [$firstDateLastWeek, $lastDateLastWeek])->count();
+        // $failedInAMonth = Assignment::where('response_status', 'FAILED')->whereBetween('created_at', [$firstDateLastMonth, $lastDateLastMonth])->count();
 
         return [
             'today' => $failedToday,
-            'yesterday' => $failedYesterday,
-            'in_a_week' => $failedInAWeek,
-            'in_a_month' => $failedInAMonth,
+            // 'yesterday' => $failedYesterday,
+            // 'in_a_week' => $failedInAWeek,
+            // 'in_a_month' => $failedInAMonth,
         ];
     }
 

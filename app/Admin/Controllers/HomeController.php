@@ -61,14 +61,14 @@ class HomeController extends Controller
                 $awayAgentsTotalHtml =  sprintf('<p><a href=%s>🕘 %d</a><p>', '/backend/agents?custom_status=AWAY', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_AWAY)->count());
 
 
-                if (str(url()->full())->contains('jago')) {
+                if (str(url()->full())->contains('jago') || env('APP_DEBUG') || env('ADVANCE_DASHBOARD')) {
                     $totalAssignmentsByDateRange = $assignmentRepo->getTotalAssignmentsByDateRange();
                     $totalFailedAssignmentsByDateRange = $assignmentRepo->getTotalFailedAssignmentsByDateRange();
 
                     $row->column(3, new Box("Today", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['today'], 'failed_data' => $totalFailedAssignmentsByDateRange['today']])));
-                    $row->column(3, new Box("Yesterday", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['yesterday'],'failed_data' => $totalFailedAssignmentsByDateRange['yesterday']])));
-                    $row->column(3, new Box("Last Week", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['in_a_week'],'failed_data' => $totalFailedAssignmentsByDateRange['in_a_week']])));
-                    $row->column(3, new Box("Last Month", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['in_a_month'],'failed_data' => $totalFailedAssignmentsByDateRange['in_a_month']])));
+                    $row->column(3, new Box("Yesterday", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['yesterday']])));
+                    $row->column(3, new Box("Last Week", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['in_a_week']])));
+                    $row->column(3, new Box("Last Month", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['in_a_month']])));
                 }
 
                 $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts', 'totalAssignmentChartTitle'))));
