@@ -55,9 +55,9 @@ class RuleController extends Controller
                     //     false => 'Unavailable',
                     // ]);
                     $filter->equal('custom_status')->select([
-                        Agent::CUSTOM_STATUS_UNAVAILABLE => '🗙 Unavailable',
+                        Agent::CUSTOM_STATUS_UNAVAILABLE => '🔴 Unavailable',
                         Agent::CUSTOM_STATUS_AVAILABLE => '🟢 Available',
-                        Agent::CUSTOM_STATUS_AWAY => '🟡 Away' 
+                        Agent::CUSTOM_STATUS_AWAY => '🕘 Away' 
                     ]);
                 });
                 $filter->column(1/2, function($filter) {
@@ -104,11 +104,11 @@ class RuleController extends Controller
                 debugbar()->debug($this->status); //get model
                 $html = $this->fullName; 
                 if ($this->custom_status == Agent::CUSTOM_STATUS_AVAILABLE) {
-                    $html = $html . '  🟢';
+                    return $html . '  🟢';
                 } else if ($this->custom_status == Agent::CUSTOM_STATUS_AWAY) {
-                    $html = $html . '  🕘';
+                    return $html . '  🕘';
                 }
-                return $html;
+                return $html . ' 🔴';
             });            
 
             $tasks->each(function($task) use ($grid) {
