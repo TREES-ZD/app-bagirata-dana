@@ -270,7 +270,7 @@ class HomeController extends Controller
 
         if (str(url()->full())->contains('jago')) {
             $grid->column('previous_created_at', 'Time Gap')->display(function() {
-                $timeGap = Carbon::parse($this->created_at)->diffForHumans($this->previous_created_at, \Carbon\CarbonInterface::DIFF_ABSOLUTE, false);
+                $timeGap = $this->previous_created_at ? Carbon::parse($this->created_at)->diffForHumans($this->previous_created_at, \Carbon\CarbonInterface::DIFF_ABSOLUTE, false) : 'None';
     
                 return $timeGap;
             });
