@@ -222,9 +222,9 @@ class HomeController extends Controller
                 $filter->where(function ($query) {
                     $query->where('a.custom_status', request('custom_status'));
                 }, 'Status', 'custom_status')->select([
-                    Agent::CUSTOM_STATUS_UNAVAILABLE => '🗙 Unavailable',
+                    Agent::CUSTOM_STATUS_UNAVAILABLE => '🔴 Unavailable',
                     Agent::CUSTOM_STATUS_AVAILABLE => '🟢 Available',
-                    Agent::CUSTOM_STATUS_AWAY => '🟡 Away' 
+                    Agent::CUSTOM_STATUS_AWAY => '🕘 Away' 
                 ]);
                 $filter->where(function ($query) {
                     $query->where('a.agent_name', 'ILIKE', "%".request('agent_name')."%");
@@ -265,7 +265,7 @@ class HomeController extends Controller
         $grid->model()->orderBy('id', 'desc');
         $grid->created_at("Time");
         // $grid->status("Status");
-        $grid->custom_status("Status")->display(fn($value) => $value ?? strtoupper($this->status));
+        $grid->custom_status("Availability")->display(fn($value) => $value ?? strtoupper($this->status));
         $grid->agent_name("Agent Name");
 
         if (str(url()->full())->contains('jago')) {

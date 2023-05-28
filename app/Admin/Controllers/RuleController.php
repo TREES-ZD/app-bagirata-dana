@@ -106,7 +106,7 @@ class RuleController extends Controller
                 if ($this->custom_status == Agent::CUSTOM_STATUS_AVAILABLE) {
                     $html = $html . '  🟢';
                 } else if ($this->custom_status == Agent::CUSTOM_STATUS_AWAY) {
-                    $html = $html . '  🟡';
+                    $html = $html . '  🕘';
                 }
                 return $html;
             });            
