@@ -180,8 +180,7 @@ class HomeController extends Controller
         $grid->disableActions();
 
 
-
-        if (str(url()->full())->contains('jago') || env('APP_DEBUG')) {
+        if (str(url()->full())->contains('jago')) {
             $grid->model()
             ->select('a.id','a.agent_name', 'a.status', 'a.created_at', 'a.custom_status', 'b.created_at AS previous_created_at')
             ->from('availability_logs AS a')
@@ -195,6 +194,10 @@ class HomeController extends Controller
                         AND created_at < a.created_at
                     )');
             });
+        } else {
+            $grid->model()
+            ->select('a.id','a.agent_name', 'a.status', 'a.created_at', 'a.custom_status')
+            ->from('availability_logs AS a');
         }
 
         $grid->filter(function(\Encore\Admin\Grid\Filter $filter) {
@@ -217,10 +220,11 @@ class HomeController extends Controller
             });
             $filter->column(12, function($filter) {
                 $filter->where(function ($query) {
-                    $query->where('a.status', request('status'));
-                }, 'Status', 'status')->select([
-                    'Available' => 'Available',
-                    'Unavailable' => 'Unavailable'
+                    $query->where('a.custom_status', request('custom_status'));
+                }, 'Status', 'custom_status')->select([
+                    Agent::CUSTOM_STATUS_UNAVAILABLE => '🗙 Unavailable',
+                    Agent::CUSTOM_STATUS_AVAILABLE => '🟢 Available',
+                    Agent::CUSTOM_STATUS_AWAY => '🟡 Away' 
                 ]);
                 $filter->where(function ($query) {
                     $query->where('a.agent_name', 'ILIKE', "%".request('agent_name')."%");
@@ -264,9 +268,9 @@ class HomeController extends Controller
         $grid->custom_status("Status")->display(fn($value) => $value ?? strtoupper($this->status));
         $grid->agent_name("Agent Name");
 
-        if (str(url()->full())->contains('jago') || env('APP_DEBUG')) {
+        if (str(url()->full())->contains('jago')) {
             $grid->column('previous_created_at', 'Time Gap')->display(function() {
-                $timeGap = Carbon::parse($this->created_at)->diffForHumans($this->previous_created_at, null, true);
+                $timeGap = Carbon::parse($this->created_at)->diffForHumans($this->previous_created_at, \Carbon\CarbonInterface::DIFF_ABSOLUTE, false);
     
                 return $timeGap;
             });
