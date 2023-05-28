@@ -38,11 +38,36 @@ class Task extends Model
                 })->values();
     }
 
+    public function getCustomStatusAvailableAgents() {
+        $agents = $this->rules()
+                    ->disableCache()
+                    ->where('custom_status', Agent::CUSTOM_STATUS_AVAILABLE)
+                    ->with(['assignments' => function($query) {
+                        $query->select('agent_id', DB::raw("MAX(created_at) as assignment_created_at"))
+                              ->groupBy('agent_id');
+                    }])
+                    ->get();
+
+        return $agents->sortBy(function($a) {
+                        return $a->assignments->first() ? $a->assignments->first()->assignment_created_at : 1;
+                })->values();
+    }
+
     public function scopeAssignable($query) {
         return $query->where('enabled', true)
         ->withCount(['rules' => function($q) {
             $q->where('rules.priority', '>', 0);
             $q->where('agents.status', true);
+        }])
+        ->get()
+        ->filter(function($task) { return $task->rules_count > 0;});
+    }
+
+    public function scopeAssignableOnCustomStatus($query) {
+        return $query->where('enabled', true)
+        ->withCount(['rules' => function($q) {
+            $q->where('rules.priority', '>', 0);
+            $q->where('agents.custom_status', Agent::CUSTOM_STATUS_AVAILABLE);
         }])
         ->get()
         ->filter(function($task) { return $task->rules_count > 0;});
