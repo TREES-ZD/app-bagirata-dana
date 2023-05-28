@@ -55,10 +55,10 @@ class HomeController extends Controller
                 // $taskEnabledTotalHtml =  $totalEnabledTasksCount ? sprintf('<a href=%s>%d</a> %s', route('rules.index', '/backend/tasks?task_status=1', $totalEnabledTasksCount, $notAssignedTasks ? "<a href='".route('rules.index', ['_scope_' => 'unassigned_active_tasks'])."' style=\"color: #bc4727\">(".$notAssignedTasks->count()." have no available assignee) </a>" : '')) : "None";
                 $taskEnabledTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/rules?task_status=1', Task::where('enabled', true)->count());
                 // $availableAgentsTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/agents?status=1', Agent::disableCache()->where('status', Agent::AVAILABLE)->count());
-                $availableAgentsTotalHtml =  sprintf('<a href=%s>🟢 %d</a>', '/backend/agents?custom_status=AVAILABLE', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_AVAILABLE)->count());
-                // $unavailableAgentsTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/agents?status=0', Agent::disableCache()->where('status', Agent::UNAVAILABLE)->count());
-                $unavailableAgentsTotalHtml =  sprintf('<a href=%s>🔴 %d</a>', '/backend/agents?custom_status=UNAVAILABLE', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_UNAVAILABLE)->count());
-                $awayAgentsTotalHtml =  sprintf('<a href=%s>🕘 %d</a>', '/backend/agents?custom_status=AWAY', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_AVAILABLE)->count());
+                $availableAgentsTotalHtml =  sprintf('<p><a href=%s>🟢 %d</a><p>', '/backend/agents?custom_status=AVAILABLE', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_AVAILABLE)->count());
+                // $unavailableAgentsTotalHtml =  sprintf('<p><a href=%s>%d</a><p>', '/backend/agents?status=0', Agent::disableCache()->where('status', Agent::UNAVAILABLE)->count());
+                $unavailableAgentsTotalHtml =  sprintf('<p><a href=%s>🔴 %d</a><p>', '/backend/agents?custom_status=UNAVAILABLE', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_UNAVAILABLE)->count());
+                $awayAgentsTotalHtml =  sprintf('<p><a href=%s>🕘 %d</a><p>', '/backend/agents?custom_status=AWAY', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_AVAILABLE)->count());
 
 
                 if (str(url()->full())->contains('jago')) {
@@ -72,7 +72,7 @@ class HomeController extends Controller
                 }
 
                 $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts', 'totalAssignmentChartTitle'))));
-                $row->column(4, new Box("Agent(s) total availability", $availableAgentsTotalHtml . '<br>' . $unavailableAgentsTotalHtml . '<br>' . $awayAgentsTotalHtml?: "None"));
+                $row->column(4, new Box("Agent(s) total availability", $availableAgentsTotalHtml . $unavailableAgentsTotalHtml . $awayAgentsTotalHtml?: "None"));
                 // $row->column(4, new Box("Agent(s) unavailable", $unavailableAgentsTotalHtml ?: "None"));
                 $row->column(4, new Box("Task(s) monitored", $taskEnabledTotalHtml));
                 $row->column(4, new Box("Availability logs", view('roundrobin.dashboard.availabilityLogs', compact('availabilityLogs'))));
