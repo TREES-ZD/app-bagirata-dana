@@ -72,7 +72,7 @@ class HomeController extends Controller
                 }
 
                 $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts', 'totalAssignmentChartTitle'))));
-                $row->column(4, new Box("Agent(s) total availability", $availableAgentsTotalHtml . $unavailableAgentsTotalHtml . $awayAgentsTotalHtml?: "None"));
+                $row->column(4, new Box("Agent(s) total availability", $availableAgentsTotalHtml . $awayAgentsTotalHtml . $unavailableAgentsTotalHtml ?: "None"));
                 // $row->column(4, new Box("Agent(s) unavailable", $unavailableAgentsTotalHtml ?: "None"));
                 $row->column(4, new Box("Task(s) monitored", $taskEnabledTotalHtml));
                 $row->column(4, new Box("Availability logs", view('roundrobin.dashboard.availabilityLogs', compact('availabilityLogs'))));
@@ -224,8 +224,9 @@ class HomeController extends Controller
                     $query->where('a.custom_status', request('custom_status'));
                 }, 'Status', 'custom_status')->select([
                     Agent::CUSTOM_STATUS_UNAVAILABLE => '🔴 Unavailable',
+                    Agent::CUSTOM_STATUS_AWAY => '🕘 Away',
                     Agent::CUSTOM_STATUS_AVAILABLE => '🟢 Available',
-                    Agent::CUSTOM_STATUS_AWAY => '🕘 Away' 
+
                 ]);
                 $filter->where(function ($query) {
                     $query->where('a.agent_name', 'ILIKE', "%".request('agent_name')."%");

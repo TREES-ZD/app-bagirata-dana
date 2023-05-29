@@ -54,10 +54,10 @@ class RuleController extends Controller
                     //     true => 'Available',
                     //     false => 'Unavailable',
                     // ]);
-                    $filter->equal('custom_status')->select([
+                    $filter->equal('custom_status')->select( [
                         Agent::CUSTOM_STATUS_UNAVAILABLE => '🔴 Unavailable',
+                        Agent::CUSTOM_STATUS_AWAY => '🕘 Away',
                         Agent::CUSTOM_STATUS_AVAILABLE => '🟢 Available',
-                        Agent::CUSTOM_STATUS_AWAY => '🕘 Away' 
                     ]);
                 });
                 $filter->column(1/2, function($filter) {

@@ -80,10 +80,10 @@ class AgentController extends Controller
                 $filter->ilike('zendesk_agent_name', 'Assignee');
                 $filter->ilike('zendesk_group_name', 'Group');
                 $filter->ilike('zendesk_custom_field_name', 'Agent Name');
-                $filter->equal('custom_status', 'Availability')->select([
+                $filter->equal('custom_status', 'Availability')->select( [
                     Agent::CUSTOM_STATUS_UNAVAILABLE => '🔴 Unavailable',
+                    Agent::CUSTOM_STATUS_AWAY => '🕘 Away',
                     Agent::CUSTOM_STATUS_AVAILABLE => '🟢 Available',
-                    Agent::CUSTOM_STATUS_AWAY => '🕘 Away' 
                 ]);
                 
             });            // $grid->expandFilter();
@@ -98,8 +98,8 @@ class AgentController extends Controller
             // set text, color, and stored values
             $grid->custom_status("Availability")->displayUsing(\App\Admin\Displayers\SimpleSelect::class, [ [
                 Agent::CUSTOM_STATUS_UNAVAILABLE => '🔴 Unavailable',
+                Agent::CUSTOM_STATUS_AWAY => '🕘 Away',
                 Agent::CUSTOM_STATUS_AVAILABLE => '🟢 Available',
-                Agent::CUSTOM_STATUS_AWAY => '🕘 Away' 
             ]]); // use this to make sure script is only loaded once
             // $grid->status("Availability")->select([
             //     true => 'Available',
