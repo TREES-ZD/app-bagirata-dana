@@ -222,7 +222,7 @@ class HomeController extends Controller
             $filter->column(12, function($filter) {
                 $filter->where(function ($query) {
                     $query->where('a.custom_status', request('custom_status'));
-                }, 'Status', 'custom_status')->select([
+                }, 'Availability', 'custom_status')->select([
                     Agent::CUSTOM_STATUS_UNAVAILABLE => '🔴 Unavailable',
                     Agent::CUSTOM_STATUS_AWAY => '🕘 Away',
                     Agent::CUSTOM_STATUS_AVAILABLE => '🟢 Available',
