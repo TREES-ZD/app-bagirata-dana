@@ -50,8 +50,7 @@ class ReopenOnHoldTicket extends Command
             $this->info("Start Reopening tickets " . $onHoldTicketIds->join(', '));
             $params = [
                 "ids" => $onHoldTicketIds->all(),
-                "status" => "open",
-                "remove_tags" => "bagirata_distributed"
+                "status" => "open"
             ];
             $response = Zendesk::tickets()->updateMany($params);
             $this->info('Done reopening tickets ' . $response->job_status->id);
