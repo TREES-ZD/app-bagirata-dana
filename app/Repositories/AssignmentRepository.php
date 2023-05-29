@@ -36,6 +36,7 @@ class AssignmentRepository
         $tickets = $tasks->map(function($task) {
             return $this->ticketRepository->getAssignableByView($task->zendesk_view_id)->each(function($ticket) use ($task) {
                 $ticket->view_id = $task->zendesk_view_id;
+                $ticket->assigned_at = now();
             });
         })->flatten();
         $previousFailedAssignments = Assignment::where('response_status', 'FAILED')->where('type', 'ASSIGNMENT')->where('created_at', '>', now()->subMinutes(10))->get(); // TODO: tes jika agent offline (reassign) terus online lagi
@@ -79,6 +80,8 @@ class AssignmentRepository
                 'ticket_subject' => $ticket->subject,
                 'ticket_created_at' => $ticket->created_at,
                 'ticket_updated_at' => $ticket->updated_at,
+                'ticket_status' => $ticket->status,
+                'assigned_at' => now(),
                 'type' => Agent::UNASSIGNMENT,
                 'batch' => $batch,
                 'created_at' => now()
@@ -121,6 +124,8 @@ class AssignmentRepository
                 'ticket_subject' => $ticket->subject,
                 'ticket_created_at' => $ticket->created_at,
                 'ticket_updated_at' => $ticket->updated_at,
+                'ticket_status' => $ticket->status,
+                'assigned_at' => now(),
                 'type' => Agent::OBSERVED_UNASSIGNMENT,
                 'batch' => $batch,
                 'created_at' => now()
