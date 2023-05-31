@@ -81,6 +81,7 @@ class AssignmentRepository
                 'ticket_created_at' => $ticket->created_at,
                 'ticket_updated_at' => $ticket->updated_at,
                 'ticket_status' => $ticket->status,
+                'ticket_requester_id' => $ticket->requester_id,
                 'assigned_at' => now(),
                 'type' => Agent::UNASSIGNMENT,
                 'batch' => $batch,

@@ -19,6 +19,10 @@ class JobStatus
         return $this->id;
     }
 
+    public function message() {
+        return $this->message;
+    }
+
     public function successTicketIds() {
         return collect($this->results)->filter(function($ticket) {
             return optional($ticket)->status;

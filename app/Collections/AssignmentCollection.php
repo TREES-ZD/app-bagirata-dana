@@ -51,8 +51,8 @@ class AssignmentCollection extends Collection
         });
     }
 
-    public function reconcile($successTicketIds, $failedResultDetails = [], $jobId = '') {
-        return $this->updateStatus($successTicketIds, $failedResultDetails, $jobId);
+    public function reconcile($successTicketIds, $failedResultDetails = [], $jobId = '', $jobMessage = '') {
+        return $this->updateStatus($successTicketIds, $failedResultDetails, $jobId, $jobMessage);
     }
 
     public function ticketIds() {
@@ -143,11 +143,11 @@ class AssignmentCollection extends Collection
         })->all();
     }
 
-    private function updateStatus($successTicketIds, $failedResultDetails = [], $jobId = '') {
+    private function updateStatus($successTicketIds, $failedResultDetails = [], $jobId = '', $jobMessage = '') {
         $failedTicketIds = collect($failedResultDetails)->pluck('id')->all();
         $resultsDict = collect($failedResultDetails)->mapWithKeys(fn($result) => [$result->id => (array) $result]);
         
-        $processAssignments = $this->whereIn('ticket_id', array_merge($successTicketIds, $failedTicketIds))->map(function($assignment) use ($successTicketIds, $failedTicketIds, $resultsDict, $jobId){
+        $processAssignments = $this->whereIn('ticket_id', array_merge($successTicketIds, $failedTicketIds))->map(function($assignment) use ($successTicketIds, $failedTicketIds, $resultsDict, $jobId, $jobMessage){
             if (in_array($assignment->ticket_id, $failedTicketIds)) {
                 $assignment->status = "FAILED";
                 $assignment->error = isset($resultsDict[$assignment->ticket_id]['error']) ? $resultsDict[$assignment->ticket_id]['error'] : null;
@@ -156,6 +156,7 @@ class AssignmentCollection extends Collection
                 $assignment->status = 200;
             }
             $assignment->zendesk_job_id = $jobId; 
+            $assignment->zendesk_job_message = $jobMessage; 
 
             return $assignment;
         });
