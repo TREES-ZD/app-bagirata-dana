@@ -107,6 +107,7 @@ class AssignmentCollection extends Collection
                 $error = optional($assignments->first())->error;
                 $details = optional($assignments->first())->details;
                 $zendesk_job_id = optional($assignments->first())->zendesk_job_id;
+                $zendesk_job_message = optional($assignments->first())->zendesk_job_message;
 
                 $assignmentBuilder = Assignment::where('batch_id', $batch)
                                                 ->whereIn('zendesk_ticket_id', $ticket_ids);
@@ -114,6 +115,7 @@ class AssignmentCollection extends Collection
                 return $assignmentBuilder->update([
                     'response_status' => $status,
                     'zendesk_job_id' => $zendesk_job_id,
+                    'zendesk_job_message' => $zendesk_job_message,
                     'response_error' => $error,
                     'response_details' => $details
                 ]);
@@ -133,6 +135,7 @@ class AssignmentCollection extends Collection
                 "zendesk_ticket_created_at" => $assignment->ticket_created_at,
                 "zendesk_ticket_updated_at" => $assignment->ticket_updated_at,
                 "zendesk_ticket_status" => $assignment->ticket_status,
+                "zendesk_ticket_requester_id" => $assignment->ticket_requester_id,
                 "assigned_at" => $assignment->assigned_at,
                 "response_status" => $assignment->status ?? "PENDING",
                 "created_at" => $assignment->created_at
