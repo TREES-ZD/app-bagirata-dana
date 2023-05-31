@@ -32,10 +32,14 @@
                 _edit_inline: true
             },
             success: function (data) {
-                if (data.status)
+                if (data.status) {
                     toastr.success(data.message);
-                else
+                } else {
                     toastr.warning(data.message);
+                }
+                Array.from(document.querySelectorAll('tbody .icheckbox_minimal-blue.checked')).forEach(el => $(el).iCheck('toggle'))
+                $('thead .icheckbox_minimal-blue.checked').iCheck('toggle');
+                $('.grid-select-all-btn').hide()
             },
             error: function (xhr, textStatus, errorThrown) {
                 _status = false;
