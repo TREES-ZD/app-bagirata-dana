@@ -214,6 +214,38 @@ class AgentController extends Controller
  
         return response()->json(["status" => "bad"], 400);
     }    
+
+    public function updateBulk(Request $request) {
+        // $this->validate($request, ['custom_status' => Rule::in(Agent::CUSTOM_STATUS_UNAVAILABLE, Agent::CUSTOM_STATUS_AVAILABLE, Agent::CUSTOM_STATUS_AWAY)]);
+        $ids = $request->get('ids');
+        debugbar()->log($request->all());
+        $agents = Agent::whereIn('id', $ids)->get();
+        
+        $agents->each(function($agent) use ($request) {
+            // Workaround to check same status can't be updated with the same status
+            if ($agent->custom_status != $request->get('custom_status')) {
+                $agent->custom_status = $request->get('custom_status');
+                debugbar()->log($request->all());
+                // to make it compatible, fil previous status column
+                $status = '';
+                switch ($request->get('custom_status')) {
+                    case Agent::CUSTOM_STATUS_AVAILABLE:
+                        $status = AGENT::AVAILABLE;
+                        break;
+                    case Agent::CUSTOM_STATUS_UNAVAILABLE:
+                        $status = AGENT::UNAVAILABLE;
+                        break;
+                    case Agent::CUSTOM_STATUS_AWAY:
+                        break;
+                }
+
+                ($status && $agent->status != $status) ? $agent->status = $status : '';
+
+                $agent->save();
+            }
+        });
+        return response()->json(["status" => "Sucess bulk updating availability statuses"], 200); 
+    }    
     
     public function destroy() {
 

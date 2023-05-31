@@ -42,6 +42,7 @@ Route::group([
     $router->get('/agents/sync', 'AgentController@sync');
     $router->get('/agents/{id}', 'AgentController@show');
     $router->get('/agents/{id}/edit', 'AgentController@edit');
+    $router->put('/agents/bulk', 'AgentController@updateBulk')->name('agent.updateBulk');
     $router->put('/agents/{id}', 'AgentController@update')->name('agent.update');
     $router->delete('/agents/{id}', 'AgentController@destroy');
     $router->post("/agents/sync", 'AgentController@sync');

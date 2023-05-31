@@ -15,12 +15,18 @@
         var value = $(this).val();
         var _status = true;
         console.log(selectedOption, key, value)
+
+        var checkedRows = Array.from(document.querySelectorAll('tbody .icheckbox_minimal-blue.checked')).map(e => $(e).parents(':nth(1)'));
+        checkedRows.forEach(el => el[0].querySelector('.column-custom_status select').value = value);
+
+        var ids = checkedRows.length ? [...new Set([...checkedRows.map(e => e.data('key')), key])] : [key];
         $.ajax({
-            url: "{{route('agent.update', ['id' => ':id'])}}".replace(':id', key),
+            url: "{{route('agent.updateBulk')}}",
             type: "POST",
             async:false,
             data: {
                 "{{ $name }}": value,
+                "ids": ids,
                 _token: LA.token,
                 _method: 'PUT',
                 _edit_inline: true
