@@ -21,6 +21,7 @@ use App\Admin\Actions\Agent\SyncAgent;
 use App\Admin\Actions\Post\ImportPost;
 use Encore\Admin\Controllers\Dashboard;
 use Illuminate\Support\Facades\Artisan;
+use App\Admin\Displayers\SimpleSelect;
 use App\Admin\Actions\Agent\BatchDelete;
 use App\Admin\Actions\Post\BatchReplicate;
 use App\Admin\Actions\Agent\SyncAgentAction;
@@ -96,7 +97,7 @@ class AgentController extends Controller
             // $grid->fullName("Full Name");
             $grid->zendesk_custom_field_name("Agent Name")->sortable();
             // set text, color, and stored values
-            $grid->custom_status("Availability")->displayUsing(\App\Admin\Displayers\SimpleSelect::class, [ [
+            $grid->custom_status("Availability")->displayUsing(SimpleSelect::class, [ [
                 Agent::CUSTOM_STATUS_UNAVAILABLE => '🔴 Unavailable',
                 Agent::CUSTOM_STATUS_AWAY => '🕘 Away',
                 Agent::CUSTOM_STATUS_AVAILABLE => '🟢 Available',
@@ -113,6 +114,7 @@ class AgentController extends Controller
             $grid->limit("Limit");   
         });
 
+        Admin::script("$('.column-fullName,.column-zendesk_agent_name,.column-zendesk_group_name,.column-zendesk_custom_field_name,.column-limit').on('click', function() { $(this).parent('tr').iCheck('toggle'); $('tbody .icheckbox_minimal-blue.checked').length ? $('.grid-select-all-btn').show() : $('.grid-select-all-btn').hide()});");
         return $content->body($grid);
     }
 
