@@ -7,6 +7,7 @@ use App\Models\Assignment;
 use Huddle\Zendesk\Facades\Zendesk;
 use Illuminate\Console\Command;
 use App\Repositories\AgentRepository;
+use Illuminate\Support\Facades\Redis;
 
 class ReopenOnHoldTicket extends Command
 {
@@ -41,22 +42,14 @@ class ReopenOnHoldTicket extends Command
      */
     public function handle()
     {
-        $page = 1;
-        do {
-            $onHoldTicketIds = collect(Zendesk::search()->find("type:ticket tags:bagirata_distributed status:hold", ["page" => $page])->results)->pluck('id');
-            
-            if ($onHoldTicketIds->isEmpty()) return $this->info('Nothing found');
-
-            $this->info("Start Reopening tickets " . $onHoldTicketIds->join(', '));
-            $params = [
-                "ids" => $onHoldTicketIds->all(),
-                "status" => "open"
-            ];
-            $response = Zendesk::tickets()->updateMany($params);
-            $this->info('Done reopening tickets ' . $response->job_status->id);
-
-        } while ($onHoldTicketIds->count() == 100 && $page < 10);
-
-     
+        $onHoldTicketIds = collect(Redis::smembers('ids'));
+        $this->info("Start Reopening tickets " . $onHoldTicketIds->join(', '));
+        $params = [
+            "ids" => $onHoldTicketIds->all(),
+            "additional_tags" => ["bagirata_reopen"]
+        ];
+        $response = Zendesk::tickets()->updateMany($params);
+        $this->info('Done reopening tickets ' . $response->job_status->id);
+        Redis::del(['ids']);
     }
 }

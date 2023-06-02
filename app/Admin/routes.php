@@ -7,6 +7,7 @@ use App\Models\Agent;
 use App\Models\Assignment;
 use App\Repositories\JobStatusRepository;
 use DebugBar\DebugBar;
+use Huddle\Zendesk\Facades\Zendesk;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use App\Services\ZendeskService;
@@ -61,6 +62,15 @@ Route::group([
     $router->get('/assignment_logs', 'HomeController@assignment_logs');
     $router->get('/availability_logs', 'HomeController@availability_logs');
 
+});
+Route::post('api/v2/reopen', function(Request $request) {
+    $ticket_id = request()->get('ticket_id');
+    Redis::sadd('ids', $ticket_id);
+    return response()->json(["ticket_id" => $ticket_id]);
+});
+
+Route::get('api/v2/reopen/run', function(Request $request) {
+    dd(Redis::smembers('ids'));
 });
 
 Route::get('run', function(Request $request) {
