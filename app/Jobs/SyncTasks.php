@@ -54,7 +54,7 @@ class SyncTasks implements ShouldQueue
 
         DB::transaction(function() use ($views) {
             Task::upsert($views->whereNotNull('id')->toArray(), 'id');
-            Task::insert($views->whereNull('id')->toArray());
+            Task::insert($views->whereNull('id')->map(function($v){unset($v['interval']); return $v;})->toArray());
         });
 
         Artisan::call('modelCache:clear',['--model' => Task::class]);
