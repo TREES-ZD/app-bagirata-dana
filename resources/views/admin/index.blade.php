@@ -14,6 +14,7 @@
     @endif
 
     {!! Admin::css() !!}
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 
     <script src="{{ Admin::jQuery() }}"></script>
     {!! Admin::headerJs() !!}

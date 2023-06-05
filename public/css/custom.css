@@ -1,0 +1,16 @@
+header .logo #bagirata-logo-mini {
+    padding:8px;
+}
+
+header .logo #bagirata-logo-lg {
+    width: 130px;
+    top:9px;
+    position:relative;
+}
+
+@media (max-width: 767px) {
+  header .logo #bagirata-logo-lg {
+      width: 130px;
+      display: inline-block;
+  }
+}
