@@ -136,6 +136,8 @@ class AssignmentCollection extends Collection
                 "zendesk_ticket_updated_at" => $assignment->ticket_updated_at,
                 "zendesk_ticket_status" => $assignment->ticket_status,
                 "zendesk_ticket_requester_id" => $assignment->ticket_requester_id,
+                "zendesk_ticket_from_messaging_channel" => $assignment->ticket_from_messaging_channel,
+                "zendesk_ticket_via_channel" => $assignment->ticket_via_channel,
                 "assigned_at" => $assignment->assigned_at,
                 "response_status" => $assignment->status ?? "PENDING",
                 "created_at" => $assignment->created_at

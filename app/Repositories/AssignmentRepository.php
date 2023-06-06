@@ -82,6 +82,8 @@ class AssignmentRepository
                 'ticket_updated_at' => $ticket->updated_at,
                 'ticket_status' => $ticket->status,
                 'ticket_requester_id' => $ticket->requester_id,
+                'ticket_from_messaging_channel' => $ticket->from_messaging_channel,
+                'ticket_via_channel' => optional($ticket->via)->channel,
                 'assigned_at' => now(),
                 'type' => Agent::UNASSIGNMENT,
                 'batch' => $batch,
