@@ -24,7 +24,7 @@ class TaskController extends Controller
     public function index(Content $content) {
         $groups = Group::all();
         $grid = Admin::grid(new Task, function (Grid $grid) use ($groups) {
-            $grid->model()->orderBy('id');
+            $grid->model()->orderBy('zendesk_view_position');
             $grid->disableColumnSelector();
             // $grid->disableActions();  
             // $grid->disableFilter();  
