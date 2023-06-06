@@ -114,7 +114,7 @@ class AgentController extends Controller
             $grid->limit("Limit");   
         });
 
-        Admin::script("$('.column-fullName,.column-zendesk_agent_name,.column-zendesk_group_name,.column-zendesk_custom_field_name,.column-limit').on('click', function() { $(this).parent('tr').iCheck('toggle'); $('tbody .icheckbox_minimal-blue.checked').length ? $('.grid-select-all-btn').show() : $('.grid-select-all-btn').hide()});");
+        Admin::script("$('.column-fullName,.column-zendesk_agent_name,.column-zendesk_group_name,.column-zendesk_custom_field_name,th.column-custom_status,.column-limit').on('click', function() { $(this).parent('tr').iCheck('toggle'); $('tbody .icheckbox_minimal-blue.checked').length ? $('.grid-select-all-btn').show() : $('.grid-select-all-btn').hide(); $('.selected').text(() => $('.icheckbox_minimal-blue.checked').length + ' items selected')});");
         return $content->body($grid);
     }
 
