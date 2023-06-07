@@ -139,7 +139,13 @@ class HomeController extends Controller
         //     // $filter->in('agent_id', [35]);
         // });  
 
-        $grid->column("created_at", 'Assigned at')->filter('range', 'datetime');
+        // $grid->column("created_at", 'Assigned at')->filter('range', 'datetime');
+        $grid->column('zendesk_job_message', 'Completed at')->display(function() {
+            preg_match("/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/", $this->zendesk_job_message, $matches);
+            $dateTime = isset($matches[0]) ? now()->parse($matches[0])->addHours(7) : $this->created_at;
+            return (string) $dateTime;
+        });
+        $grid->column('zendesk_ticket_via_channel', 'Channel');
         $grid->column("agent_name")->filter('like');
         $grid->column('zendesk_view_id', 'View ID')->display(function () {
             $subdomain = config('zendesk-laravel.subdomain');
