@@ -30,6 +30,7 @@ class Kernel extends ConsoleKernel
                             // $q->where('agents.status', true);
                             $q->where('agents.custom_status', Agent::CUSTOM_STATUS_AVAILABLE);
                         }])
+                        ->orderBy('zendesk_view_position')
                         ->get()
                         ->filter(function($task) { return $task->rules_count > 0;});
 
