@@ -41,22 +41,20 @@ class AssignmentRepository
         })->flatten();
         $previousFailedAssignments = Assignment::where('response_status', 'FAILED')->where('type', 'ASSIGNMENT')->where('created_at', '>', now()->subMinutes(10))->get(); // TODO: tes jika agent offline (reassign) terus online lagi
 
-        // make unique tickets in multiple views
-        $tickets = $tickets->unique(function($ticket) {
-            return $ticket->id;
-        });
-
         $ticketsByView = $tickets->groupBy(function($ticket) {
             return $ticket->view_id;
         });
 
-        return (new AssignmentCollection($ticketsByView->all()))->map(function($tickets, $view_id) use ($tasks, $batch, $previousFailedAssignments) {
+        return $ticketsByView->reduce(function($assignments, $tickets, $view_id) use ($tasks, $batch, $previousFailedAssignments) {
+            $assignedTicketIds = $assignments->isNotEmpty() ? $assignments->pluck('ticket_id')->all() : [];
+
             $task = $tasks->firstWhere('zendesk_view_id', $view_id);
             $agents = $task->getCustomStatusAvailableAgents();
-            $tickets = new TicketCollection($tickets->values()->all());
+            $tickets = new TicketCollection($tickets->reject(fn($ticket) => in_array($ticket->id, $assignedTicketIds))->values()->all());
+            $filteredPreviousFailedAssignments = collect($previousFailedAssignments->whereNotIn('zendesk_ticket_id', $assignedTicketIds)->all());
 
-            return $this->createAssignments($agents, $tickets, $batch, collect($previousFailedAssignments->all()), $view_id);
-        })->flatten();
+            return $assignments->merge($this->createAssignments($agents, $tickets, $batch, $filteredPreviousFailedAssignments, $view_id));
+        }, new AssignmentCollection())->flatten();
     }
 
     public function makeUnassignments($batch, AgentCollection $agents) {
