@@ -69,6 +69,7 @@ class Task extends Model
             $q->where('rules.priority', '>', 0);
             $q->where('agents.custom_status', Agent::CUSTOM_STATUS_AVAILABLE);
         }])
+        ->orderBy('zendesk_view_position')
         ->get()
         ->filter(function($task) { return $task->rules_count > 0;});
     }
