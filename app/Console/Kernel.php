@@ -24,16 +24,7 @@ class Kernel extends ConsoleKernel
         //          ->hourly();
 
         // Get all enabled tasks where from the database
-        $activeTasks = Task::where('enabled', true)
-                        ->withCount(['rules' => function($q) {
-                            $q->where('rules.priority', '>', 0);
-                            // $q->where('agents.status', true);
-                            $q->where('agents.custom_status', Agent::CUSTOM_STATUS_AVAILABLE);
-                        }])
-                        ->orderBy('zendesk_view_position')
-                        ->get()
-                        ->filter(function($task) { return $task->rules_count > 0;});
-
+        $activeTasks = Task::assignableOnCustomStatus();
 
         $activeTasks->groupBy('interval')->each(function($tasks, $interval) use ($schedule) {
             $frequency = $interval;
