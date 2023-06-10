@@ -82,7 +82,6 @@ class RuleController extends Controller
             if ($status = request('task_status')) {
                 $taskBuilder->where('enabled', (bool) $status);
             }
-            $taskBuilder->orderBy('zendesk_view_position');
             
             $tasks = $taskBuilder->get();
             $rules = DB::table('rules')->whereIn('task_id', $tasks->pluck('id'))->get();
