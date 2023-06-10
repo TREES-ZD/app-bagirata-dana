@@ -172,15 +172,20 @@ class AssignmentRepository
         //     ->toArray();
 
         // $assignmentQuery = Assignment::where('response_status', '200');
-        $totalToday =  Assignment::where('response_status', '200')->whereDate('created_at', $today)->count();
-        $totalYesterday =  Assignment::where('response_status', '200')->whereDate('created_at', $yesterday)->count();
-        $totalFailedInAWeek =  Assignment::where('response_status', '200')->whereBetween('created_at', [$firstDateLastWeek, $lastDateLastWeek])->count();
-        $totalFailedInAMonth =  Assignment::where('response_status', '200')->whereBetween('created_at', [$firstDateLastMonth, $lastDateLastMonth])->count();
+        $total_today =  Assignment::where('response_status', '200')->whereDate('assigned_at', now()->today())->count();
+        $assignment_counts = Cache::remember('assignments_counts', now()->endOfDay(), function() {
+            return [
+                'total_yesterday' => Assignment::where('response_status', '200')->whereDate('assigned_at', now()->yesterday())->count(),
+                'total_this_week_to_yesterday' => Assignment::where('response_status', '200')->whereBetween('assigned_at', [now()->startOfWeek(), now()->yesterday()->endOfDay()])->count(),
+                'total_this_month_to_yesterday' => Assignment::where('response_status', '200')->whereBetween('assigned_at', [now()->startOfMonth(), now()->yesterday()->endOfDay()])->count()
+            ];
+        });
+
         return [
-            'today' => $totalToday,
-            'yesterday' => $totalYesterday,
-            'in_a_week' => $totalFailedInAWeek,
-            'in_a_month' => $totalFailedInAMonth,
+            'today' => $total_today,
+            'yesterday' => $assignment_counts['total_yesterday'],
+            'this_week' => $assignment_counts['total_this_week_to_yesterday'] + $total_today,
+            'this_month' => $assignment_counts['total_this_month_to_yesterday'] + $total_today,
         ];
     }
 
