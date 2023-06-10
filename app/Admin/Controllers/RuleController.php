@@ -82,7 +82,8 @@ class RuleController extends Controller
             if ($status = request('task_status')) {
                 $taskBuilder->where('enabled', (bool) $status);
             }
-
+            $taskBuilder->orderBy('zendesk_view_position');
+            
             $tasks = $taskBuilder->get();
             $rules = DB::table('rules')->whereIn('task_id', $tasks->pluck('id'))->get();
             $rulesByTask = $rules->groupBy('task_id');
@@ -120,6 +121,8 @@ class RuleController extends Controller
          
         });
 
+        // Admin::js('https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js');
+        // return $content->body(new Box('Rules', Admin::component('roundrobin.rules', ['tasks' => Task::all()->each(fn($a) => $a->name = $a->zendesk_view_title), 'agents' => Agent::all()->each(fn($a) => $a->name = $a->fullName)])));
         return $content->body($grid);
     }
     
