@@ -149,6 +149,13 @@ class AssignmentRepository
     }
 
     public function getTotalAssignmentsByDateRange() {
+        $today = now()->today();
+        $yesterday = now()->yesterday();
+        $firstDateLastWeek = now()->startOfWeek();
+        $lastDateLastWeek = now()->endOfWeek();
+        $firstDateLastMonth = now()->startOfMonth();
+        $lastDateLastMonth = now()->endOfmonth();
+
         // $total = Assignment::selectRaw("COUNT(*) AS total, 
         //                                         CASE 
         //                                             WHEN DATE(created_at) = '{$today}' THEN 'today'
@@ -165,15 +172,15 @@ class AssignmentRepository
         //     ->toArray();
 
         // $assignmentQuery = Assignment::where('response_status', '200');
-        $totalToday =  Assignment::where('response_status', '200')->whereDate('created_at', now()->today())->count();
-        $totalYesterday =  Assignment::where('response_status', '200')->whereDate('created_at', now()->yesterday())->count();
-        $thisWeek =  Assignment::where('response_status', '200')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
-        $thisMonth =  Assignment::where('response_status', '200')->whereBetween('created_at', [now()->startOMonth(), now()->endOMonth()])->count();
+        $totalToday =  Assignment::where('response_status', '200')->whereDate('created_at', $today)->count();
+        $totalYesterday =  Assignment::where('response_status', '200')->whereDate('created_at', $yesterday)->count();
+        $totalFailedInAWeek =  Assignment::where('response_status', '200')->whereBetween('created_at', [$firstDateLastWeek, $lastDateLastWeek])->count();
+        $totalFailedInAMonth =  Assignment::where('response_status', '200')->whereBetween('created_at', [$firstDateLastMonth, $lastDateLastMonth])->count();
         return [
             'today' => $totalToday,
             'yesterday' => $totalYesterday,
-            'this_week' => $thisWeek,
-            'this_month' => $thisMonth,
+            'in_a_week' => $totalFailedInAWeek,
+            'in_a_month' => $totalFailedInAMonth,
         ];
     }
 

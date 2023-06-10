@@ -67,8 +67,8 @@ class HomeController extends Controller
 
                     $row->column(3, new Box("Today", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['today'], 'failed_data' => $totalFailedAssignmentsByDateRange['today']])));
                     $row->column(3, new Box("Yesterday", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['yesterday']])));
-                    $row->column(3, new Box("This Week", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['this_week']])));
-                    $row->column(3, new Box("This Month", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['this_month']])));
+                    $row->column(3, new Box("Last Week", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['in_a_week']])));
+                    $row->column(3, new Box("Last Month", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['in_a_month']])));
                 }
 
                 $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts', 'totalAssignmentChartTitle'))));
