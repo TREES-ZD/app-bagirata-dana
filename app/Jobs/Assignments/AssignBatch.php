@@ -59,7 +59,7 @@ class AssignBatch implements ShouldQueue
      */
     public function handle(AssignmentRepository $assignmentRepository)
     {   
-        $tasks = Task::find($this->taskIds);
+        $tasks = Task::find($this->taskIds)->sortBy('zendesk_view_position');
         $assignments = $assignmentRepository->prepareAssignment($this->batch, $tasks);
 
         $assignments->createLogs();
