@@ -52,24 +52,19 @@ class HomeController extends Controller
                 // Latest Assignments table
                 $latestAssignments = Assignment::latest("id")->limit(10)->get(["created_at", "agent_name", "zendesk_view_id", "zendesk_ticket_id", "zendesk_ticket_subject", "type"]);
                 
-                // $taskEnabledTotalHtml =  $totalEnabledTasksCount ? sprintf('<a href=%s>%d</a> %s', route('rules.index', '/backend/tasks?task_status=1', $totalEnabledTasksCount, $notAssignedTasks ? "<a href='".route('rules.index', ['_scope_' => 'unassigned_active_tasks'])."' style=\"color: #bc4727\">(".$notAssignedTasks->count()." have no available assignee) </a>" : '')) : "None";
                 $taskEnabledTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/rules?task_status=1', Task::where('enabled', true)->count());
-                // $availableAgentsTotalHtml =  sprintf('<a href=%s>%d</a>', '/backend/agents?status=1', Agent::disableCache()->where('status', Agent::AVAILABLE)->count());
                 $availableAgentsTotalHtml =  sprintf('<p><a href=%s>🟢 %d</a><p>', '/backend/agents?custom_status=AVAILABLE', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_AVAILABLE)->count());
-                // $unavailableAgentsTotalHtml =  sprintf('<p><a href=%s>%d</a><p>', '/backend/agents?status=0', Agent::disableCache()->where('status', Agent::UNAVAILABLE)->count());
                 $unavailableAgentsTotalHtml =  sprintf('<p><a href=%s>🔴 %d</a><p>', '/backend/agents?custom_status=UNAVAILABLE', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_UNAVAILABLE)->count());
                 $awayAgentsTotalHtml =  sprintf('<p><a href=%s>🕘 %d</a><p>', '/backend/agents?custom_status=AWAY', Agent::disableCache()->where('custom_status', Agent::CUSTOM_STATUS_AWAY)->count());
 
-
+                $totalAssignmentsByDateRange = $assignmentRepo->getTotalAssignmentsByDateRange();
                 if (str(url()->full())->contains('jago') || env('APP_DEBUG') || env('ADVANCE_DASHBOARD')) {
-                    $totalAssignmentsByDateRange = $assignmentRepo->getTotalAssignmentsByDateRange();
-                    $totalFailedAssignmentsByDateRange = $assignmentRepo->getTotalFailedAssignmentsByDateRange();
-
-                    $row->column(3, new Box("Today", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['today'], 'failed_data' => $totalFailedAssignmentsByDateRange['today']])));
-                    $row->column(3, new Box("Yesterday", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['yesterday']])));
-                    $row->column(3, new Box("This Week", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['this_week']])));
-                    $row->column(3, new Box("This Month", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['this_month']])));
+                    $totalFailedAssignmentsByDateRange = $assignmentRepo->getTotalFailedAssignmentsByDateRange();                    
                 }
+                $row->column(3, new Box("Today", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['today'], 'failed_data' => isset($totalFailedAssignmentsByDateRange['today']) ? $totalFailedAssignmentsByDateRange['today'] : null])));
+                $row->column(3, new Box("Yesterday", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['yesterday']])));
+                $row->column(3, new Box("This Week", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['this_week']])));
+                $row->column(3, new Box("This Month", view('roundrobin.dashboard.tile', ['data' => $totalAssignmentsByDateRange['this_month']])));
 
                 $row->column(8, new Box("Agent(s) by number of assignments", view('roundrobin.dashboard.agentTotalAssignments', compact('full_names', 'assignment_counts', 'totalAssignmentChartTitle'))));
                 $row->column(4, new Box("Agent(s) total availability", $availableAgentsTotalHtml . $awayAgentsTotalHtml . $unavailableAgentsTotalHtml ?: "None"));
