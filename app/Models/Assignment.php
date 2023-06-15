@@ -14,6 +14,12 @@ class Assignment extends Model
      * @param  \DateTimeInterface  $date
      * @return string
      */
+    public function assignedDate() {
+        preg_match("/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/", $this->zendesk_job_message, $matches);
+        $dateTime = isset($matches[0]) ? now()->parse($matches[0])->addHours(7) : $this->created_at;
+        return (string) $dateTime;
+    }
+
     protected function serializeDate(DateTimeInterface $date)
     {
         return $date->format('Y-m-d H:i:s');
