@@ -50,7 +50,7 @@ trait RoundRobinable
         return $matches;
     }
 
-    public function createAssignments(AgentCollection $agents, TicketCollection $tickets, $batch, Collection $failedAssignments = null, $view_id = "viewId") {
+    public function createAssignments(AgentCollection $agents, TicketCollection $tickets, $batch, Collection $failedAssignments = null, $view_id = "viewId", Collection $reservedAssignments = null) {
         $failedAssignments = $failedAssignments ?: collect(); 
         if ($agents->isEmpty() || $tickets->isEmpty()) return collect();
 
@@ -63,19 +63,20 @@ trait RoundRobinable
                                         ->filter(function($assignment) use ($agents, $tickets) {
                                             return in_array($assignment->agent_id, $agents->pluck('id')->all()) && in_array($assignment->zendesk_ticket_id, $tickets->pluck('ticket.id')->all());
                                         });
-
-        $newTickets = $assignableTickets->reject(function(Ticket $ticket) use ($reservableFailedAssignments) {
-            return in_array($ticket->id, $reservableFailedAssignments->pluck('zendesk_ticket_id')->all());
-        });
         
-        $ticketsByGroup = $newTickets->groupBy(function (Ticket $ticket) {
-            return $ticket->group_id;
-        });
+        $reservedAssignments = $reservedAssignments
+                                    ->unique('zendesk_ticket_id')
+                                    ->reject(fn($assignment) => $reservableFailedAssignments->pluck('zendesk_ticket_id')->contains($assignment->zendesk_ticket_id))
+                                    ->filter(function($assignment) use ($agents, $tickets) {
+                                        return in_array($assignment->agent_id, $agents->pluck('id')->all()) && in_array($assignment->zendesk_ticket_id, $tickets->pluck('ticket.id')->all());
+                                    });
+
         $now = now();
         $nowSubMinute = now()->subMinute();
         $nowSubTwoMinute = now()->subMinutes(2);
 
-        $previousFailedAssingments = $reservableFailedAssignments
+        $priorityAssignments = $reservableFailedAssignments
+                                    ->merge($reservedAssignments)
                                     ->map(function($assignment) use ($batch, $agents, $nowSubTwoMinute, $view_id) {
                                         $assignedAgent = $agents->firstWhere('id', $assignment->agent_id);
 
@@ -100,6 +101,14 @@ trait RoundRobinable
                                             "created_at" => $nowSubTwoMinute
                                         ];
                                     }); 
+
+        $newTickets = $assignableTickets->reject(function(Ticket $ticket) use ($priorityAssignments) {
+            return in_array($ticket->id, $priorityAssignments->pluck('ticket_id')->all());
+        });
+        
+        $ticketsByGroup = $newTickets->groupBy(function (Ticket $ticket) {
+            return $ticket->group_id;
+        });
 
         $newAssignments = $ticketsByGroup
                 ->reject(function($tickets, $group_id) use ($agentsByGroup, $agents){
@@ -144,6 +153,6 @@ trait RoundRobinable
                 })
                 ->flatten()->all();
 
-        return $previousFailedAssingments->merge($newAssignments);
+        return $priorityAssignments->merge($newAssignments);
     }
 }

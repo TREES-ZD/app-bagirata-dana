@@ -39,21 +39,23 @@ class AssignmentRepository
                 $ticket->assigned_at = now();
             });
         })->flatten();
+        
         $previousFailedAssignments = Assignment::where('response_status', 'FAILED')->where('type', 'ASSIGNMENT')->where('created_at', '>', now()->subMinutes(10))->get(); // TODO: tes jika agent offline (reassign) terus online lagi
-
+        $reservedAssignments = Assignment::whereIn('zendesk_ticket_id', $tickets->map(fn($ticket) => $ticket->id)->all())->where('response_status', '200')->where('type', 'ASSIGNMENT')->orderBy('id', 'desc')->get()->groupBy('zendesk_ticket_id')->map(fn($assignments) => $assignments->first());
         $ticketsByView = $tickets->groupBy(function($ticket) {
             return $ticket->view_id;
         });
 
-        return $ticketsByView->reduce(function($assignments, $tickets, $view_id) use ($tasks, $batch, $previousFailedAssignments) {
+        return $ticketsByView->reduce(function($assignments, $tickets, $view_id) use ($tasks, $batch, $previousFailedAssignments, $reservedAssignments) {
             $assignedTicketIds = $assignments->isNotEmpty() ? $assignments->pluck('ticket_id')->all() : [];
-
+            
             $task = $tasks->firstWhere('zendesk_view_id', $view_id);
             $agents = $task->getCustomStatusAvailableAgents();
             $tickets = new TicketCollection($tickets->reject(fn($ticket) => in_array($ticket->id, $assignedTicketIds))->values()->all());
             $filteredPreviousFailedAssignments = collect($previousFailedAssignments->whereNotIn('zendesk_ticket_id', $assignedTicketIds)->all());
+            $filteredReservedAssignments = $reservedAssignments->where('zendesk_view_id', $view_id)->whereNotIn('zendesk_ticket_id', $filteredPreviousFailedAssignments->pluck('zendesk_ticket_id')->all());                        
 
-            return $assignments->merge($this->createAssignments($agents, $tickets, $batch, $filteredPreviousFailedAssignments, $view_id));
+            return $assignments->merge($this->createAssignments($agents, $tickets, $batch, $filteredPreviousFailedAssignments, $view_id, $filteredReservedAssignments));
         }, new AssignmentCollection())->flatten();
     }
 
