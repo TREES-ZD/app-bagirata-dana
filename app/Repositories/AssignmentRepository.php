@@ -41,7 +41,7 @@ class AssignmentRepository
         })->flatten();
         
         $previousFailedAssignments = Assignment::where('response_status', 'FAILED')->where('type', 'ASSIGNMENT')->where('created_at', '>', now()->subMinutes(10))->get(); // TODO: tes jika agent offline (reassign) terus online lagi
-        $reservedAssignments = Assignment::whereIn('zendesk_ticket_id', $tickets->map(fn($ticket) => $ticket->id)->all())->where('response_status', '200')->where('type', 'ASSIGNMENT')->orderBy('id', 'desc')->get()->groupBy('zendesk_ticket_id')->map(fn($assignments) => $assignments->first());
+        $reservedAssignments = Assignment::whereIn('zendesk_ticket_id', $tickets->filter(fn($ticket) => in_array('bagirata_reassign',$ticket->tags))->map(fn($ticket) => $ticket->id)->all())->where('response_status', '200')->where('type', 'ASSIGNMENT')->orderBy('id', 'desc')->get()->groupBy('zendesk_ticket_id')->map(fn($assignments) => $assignments->first());
         $ticketsByView = $tickets->groupBy(function($ticket) {
             return $ticket->view_id;
         });
