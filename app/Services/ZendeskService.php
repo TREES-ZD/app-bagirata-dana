@@ -231,7 +231,7 @@ class ZendeskService
             $page = 1;
 
             $group_memberships = collect(); 
-            while ($page && $page <= 10) {
+            while ($page && $page <= 15) {
                 $response = Zendesk::groupMemberships()->findAll(['page' => $page]);
                 
                 $group_memberships = $group_memberships->merge($response->group_memberships);
