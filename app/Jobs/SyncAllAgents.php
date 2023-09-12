@@ -41,24 +41,30 @@ class SyncAllAgents implements ShouldQueue
         
         $zendesk->refresh();
 
-        $newAgents = $zendesk->filterUsers("*")
+        $possibleAgents = $zendesk->filterUsers("*")
                             ->filterGroups("*")
                             ->filterCustomFields("-")
                             ->getPossibleAgents();
 
-        $agents = $newAgents->diffKeys($existingAgents)
-                            ->map(function($agent) {
-                                $agent = Arr::except($agent, ['full_id']);
-                                return $agent + [
-                                    "priority" => 1,
-                                    "limit" =>  "unlimited",
-                                    "status" =>  false,
-                                    "reassign" =>  false
-                                ];
-                            });
+        $agents = $possibleAgents
+                    ->map(function($agent, $fullId) use ($existingAgents) {
+                        $existingAgent = optional($existingAgents->get($fullId))->toArray()  ?? [];
+
+                        return array_merge(
+                            Arr::except($existingAgent, ['fullId', 'fullName']),
+                            [
+                                "priority" => 1,
+                                "limit" =>  "unlimited",
+                                "status" =>  false,
+                                "reassign" =>  false
+                            ], 
+                            $agent
+                        );
+                    });
 
         DB::transaction(function() use ($agents) {
-            Agent::insert($agents->toArray());
+            Agent::upsert($agents->whereNotNull('id')->toArray(), 'id'); //existing
+            Agent::insert($agents->whereNull('id')->toArray());
         });
 
         Artisan::call('modelCache:clear', ['--model' => Agent::class]);
