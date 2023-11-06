@@ -176,25 +176,30 @@ class HomeController extends Controller
         $grid->disableRowSelector();
         $grid->disableCreateButton();
         // $grid->disableFilter();
-        $grid->disablePagination(true);
+        // $grid->disablePagination(true);
         $grid->disableActions();
 
 
+        // select a.id, a.agent_name, a.status, a.created_at , a.custom_status ,
+        //     (
+        //     SELECT MAX(c.created_at)
+        //             FROM availability_logs c
+        //             WHERE c.agent_name = a.agent_name
+        //             AND c.created_at < a.created_at
+        //     )  as "previous_created_at" 
+        // from availability_logs a 
+        // order by a.id desc
         if (str(url()->full())->contains('jago') || str(url()->full())->contains('local')) {
             $grid->model()
-            ->select('a.id','a.agent_name', 'a.status', 'a.created_at', 'a.custom_status', 'b.created_at AS previous_created_at')
-            ->from('availability_logs AS a')
-            ->leftJoin('availability_logs AS b', function ($join) {
-                $join->on('a.agent_name', '=', 'b.agent_name')
-                    ->whereColumn('b.created_at', '<', 'a.created_at')
-                    ->whereRaw('b.created_at = (
-                        SELECT MAX(c.created_at)
-                        FROM availability_logs c
-                        WHERE c.agent_name = a.agent_name
-                        AND c.created_at < a.created_at
-                    )');
-            })
-            ->limit(50);
+            ->select('a.id', 'a.agent_name', 'a.status', 'a.created_at', 'a.custom_status')
+            ->selectSub(function ($query) {
+                $query->selectRaw('MAX(c.created_at)')
+                    ->from('availability_logs as c')
+                    ->whereColumn('c.agent_name', 'a.agent_name')
+                    ->where('c.created_at', '<', DB::raw('a.created_at'));
+            }, 'previous_created_at')
+            ->from('availability_logs as a');
+
         } else {
             $grid->model()
             ->select('a.id','a.agent_name', 'a.status', 'a.created_at', 'a.custom_status')
@@ -267,10 +272,9 @@ class HomeController extends Controller
         $grid->custom_status("Availability")->display(fn($value) => $value ?? strtoupper($this->status));
         $grid->agent_name("Agent Name");
 
-        if (str(url()->full())->contains('jago')) {
+        if (str(url()->full())->contains('jago') || str(url()->full())->contains('local')) {
             $grid->column('previous_created_at', 'Time Gap')->display(function() {
                 $timeGap = $this->previous_created_at ? Carbon::parse($this->created_at)->diffForHumans($this->previous_created_at, \Carbon\CarbonInterface::DIFF_ABSOLUTE, false) : 'None';
-    
                 return $timeGap;
             });
         }
