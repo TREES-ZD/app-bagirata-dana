@@ -259,7 +259,7 @@ class HomeController extends Controller
         //                                 });
         // dd($availabilityLogsDictionary);
 
-        $grid->model()->orderBy('id', 'desc');
+        // $grid->model()->orderBy('id', 'desc');
         $grid->created_at("Time");
         // $grid->status("Status");
         $grid->custom_status("Availability")->display(fn($value) => $value ?? strtoupper($this->status));
