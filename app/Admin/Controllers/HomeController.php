@@ -176,6 +176,7 @@ class HomeController extends Controller
         $grid->disableRowSelector();
         $grid->disableCreateButton();
         // $grid->disableFilter();
+        $grid->disablePagination();
         $grid->disableActions();
 
 
@@ -192,7 +193,8 @@ class HomeController extends Controller
                         WHERE c.agent_name = a.agent_name
                         AND c.created_at < a.created_at
                     )');
-            });
+            })
+            ->limit(500);
         } else {
             $grid->model()
             ->select('a.id','a.agent_name', 'a.status', 'a.created_at', 'a.custom_status')
