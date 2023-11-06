@@ -192,9 +192,7 @@ class HomeController extends Controller
                         WHERE c.agent_name = a.agent_name
                         AND c.created_at < a.created_at
                     )');
-            })
-            ->limit(20)  // Add a LIMIT of 20 records
-            ->offset(0); // Add an OFFSET of 0 (starting from the first record)
+            });
         } else {
             $grid->model()
             ->select('a.id','a.agent_name', 'a.status', 'a.created_at', 'a.custom_status')
