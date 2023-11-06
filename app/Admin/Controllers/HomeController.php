@@ -23,6 +23,7 @@ use App\Repositories\AgentRepository;
 use App\Repositories\AssignmentRepository;
 use Illuminate\Support\Facades\Redis;
 use Str;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class HomeController extends Controller
 {
@@ -178,7 +179,7 @@ class HomeController extends Controller
         $grid->disableActions();
 
 
-        if (str(url()->full())->contains('jago')) {
+        if (str(url()->full())->contains('jago') || str(url()->full())->contains('local')) {
             $grid->model()
             ->select('a.id','a.agent_name', 'a.status', 'a.created_at', 'a.custom_status', 'b.created_at AS previous_created_at')
             ->from('availability_logs AS a')
@@ -186,10 +187,10 @@ class HomeController extends Controller
                 $join->on('a.agent_name', '=', 'b.agent_name')
                     ->whereColumn('b.created_at', '<', 'a.created_at')
                     ->whereRaw('b.created_at = (
-                        SELECT MAX(created_at)
-                        FROM availability_logs
-                        WHERE agent_name = a.agent_name
-                        AND created_at < a.created_at
+                        SELECT MAX(c.created_at)
+                        FROM availability_logs c
+                        WHERE c.agent_name = a.agent_name
+                        AND c.created_at < a.created_at
                     )');
             });
         } else {
@@ -231,9 +232,6 @@ class HomeController extends Controller
             });
             
 
-            // $filter->ilike('agent_name', 'Agent Name');
-            // $filter->getModel();
-            // $filter->in('agent_id', [35]);
         });  
 
         // ->orderBy('a.created_at');
