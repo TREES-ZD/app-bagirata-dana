@@ -318,7 +318,7 @@ class ZendeskService
             $responseThree = Zendesk::groups()->findAll(['page' => 3]);
             $responseFour = Zendesk::groups()->findAll(['page' => 4]);
             $responseFive = Zendesk::groups()->findAll(['page' => 5]);
-            return array_merge($response->results, $responseTwo->results, $responseThree->results, $responseFour->results, $responseFive->results);
+            return array_merge($response->groups, $responseTwo->groups, $responseThree->groups, $responseFour->groups, $responseFive->groups);
             // return $response->groups;
         });
 
