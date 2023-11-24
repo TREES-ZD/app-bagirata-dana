@@ -314,7 +314,12 @@ class ZendeskService
     public function getGroupsByKey($key = "*", $nameOnly = false) {
         $groups = Cache::remember("groups", 24 * 60 * 7, function () {
             $response = Zendesk::groups()->findAll();
-            return $response->groups;
+            $responseTwo = Zendesk::groups()->findAll(['page' => 2]);
+            $responseThree = Zendesk::groups()->findAll(['page' => 3]);
+            $responseFour = Zendesk::groups()->findAll(['page' => 4]);
+            $responseFive = Zendesk::groups()->findAll(['page' => 5]);
+            return array_merge($response->results, $responseTwo->results, $responseThree->results, $responseFour->results, $responseFive->results);
+            // return $response->groups;
         });
 
         $groups = $this->filter(static::GROUP_IDS, $groups);
