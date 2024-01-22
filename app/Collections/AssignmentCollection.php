@@ -131,7 +131,7 @@ class AssignmentCollection extends Collection
                 "agent_name" => $assignment->agent_fullName,
                 "zendesk_view_id" => $assignment->view_id ?? "viewId",
                 "zendesk_ticket_id" => $assignment->ticket_id,
-                "zendesk_ticket_subject" => $assignment->ticket_subject,
+                "zendesk_ticket_subject" => $assignment->ticket_subject ? $assignment->ticket_subject : "[EMPTY TITLE]",
                 "zendesk_ticket_created_at" => $assignment->ticket_created_at,
                 "zendesk_ticket_updated_at" => $assignment->ticket_updated_at,
                 "zendesk_ticket_status" => $assignment->ticket_status,
