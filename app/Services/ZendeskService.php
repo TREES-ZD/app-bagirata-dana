@@ -170,7 +170,7 @@ class ZendeskService
             });
 
             $tickets = $tickets->merge($ticketResults->all());
-            if ($response->next_page) {
+            if ($response->next_page && $page < 4) {
                 $page++;
             } else {
                 $page = null;
