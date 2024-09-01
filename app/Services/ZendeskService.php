@@ -162,24 +162,23 @@ class ZendeskService
     public function getAssignableTicketsByView($viewId) {
         $page = 1;
         $tickets = new TicketCollection();
-        do {
+        while ($page && $page <= 1 || $page > 2 && $tickets->isEmpty()) {
             $response = Zendesk::views($viewId)->tickets(['page' => $page]);
-
+            
             $ticketResults = collect($response->tickets)->map(function($ticket) {
                 return new Ticket($ticket);
             });
 
             $tickets = $tickets->merge($ticketResults->all());
-            if ($response->next_page && $page < 4) {
+            if ($response->next_page) {
                 $page++;
             } else {
                 $page = null;
             }
-        } while ($page);
+        }
 
         return $tickets->unique->id()->filter->isAssignable();
     }
-
     public function updateTicket(...$params) {
         return Zendesk::tickets()->update(...$params);
     }
